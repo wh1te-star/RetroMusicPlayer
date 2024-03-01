@@ -18,6 +18,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.contains
 import androidx.navigation.ui.setupWithNavController
@@ -44,6 +45,11 @@ class MainActivity : AbsCastActivity() {
         const val EXPAND_PANEL = "expand_panel"
     }
 
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            finish()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTaskDescriptionColorAuto()
@@ -54,6 +60,8 @@ class MainActivity : AbsCastActivity() {
         setupNavigationController()
 
         WhatsNewFragment.showChangeLog(this)
+
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     private fun setupNavigationController() {
