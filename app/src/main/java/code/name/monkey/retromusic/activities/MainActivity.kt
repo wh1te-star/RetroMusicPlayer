@@ -17,7 +17,10 @@ package code.name.monkey.retromusic.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.contains
@@ -46,8 +49,20 @@ class MainActivity : AbsCastActivity() {
     }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        private var backPressCount = 0
+        private val backPressThreshold = 2
+        private val backPressDelay = 3000L
+        private val handler = Handler(Looper.getMainLooper())
         override fun handleOnBackPressed() {
-            finish()
+            backPressCount++
+            if (backPressCount == backPressThreshold) {
+                finish()
+            } else {
+                Toast.makeText(this@MainActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
+                handler.postDelayed({
+                    backPressCount = 0
+                }, backPressDelay)
+            }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
