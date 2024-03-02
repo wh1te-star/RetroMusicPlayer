@@ -58,7 +58,7 @@ class MainActivity : AbsCastActivity() {
             if (backPressCount == backPressThreshold) {
                 finish()
             } else {
-                Toast.makeText(this@MainActivity, "Press back again to exit", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
                 handler.postDelayed({
                     backPressCount = 0
                 }, backPressDelay)
