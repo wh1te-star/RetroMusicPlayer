@@ -35,13 +35,4 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/clearQueue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:text="@string/clear_playing_queue"
-        android:textAppearance="@style/TextViewHeadline6"
-        app:icon="@drawable/ic_clear_all" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

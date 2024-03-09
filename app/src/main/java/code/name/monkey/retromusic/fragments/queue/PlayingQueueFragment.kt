@@ -68,9 +68,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         setupToolbar()
         setUpRecyclerView()
 
-        binding.clearQueue.setOnClickListener {
-            MusicPlayerRemote.clearQueue()
-        }
         checkForPadding()
         mainActivity.collapsePanel()
     }
@@ -102,16 +99,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         }
         linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
 
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0) {
-                    binding.clearQueue.shrink()
-                } else if (dy < 0) {
-                    binding.clearQueue.extend()
-                }
-            }
-        })
         ThemedFastScroller.create(binding.recyclerView)
     }
 
@@ -185,16 +172,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
     private fun setupToolbar() {
         binding.appBarLayout.toolbar.subtitle = getUpNextAndQueueTime()
         binding.appBarLayout.toolbar.isTitleCentered = false
-        binding.clearQueue.backgroundTintList = ColorStateList.valueOf(accentColor())
-        ColorStateList.valueOf(
-            MaterialValueHelper.getPrimaryTextColor(
-                requireContext(),
-                ColorUtil.isColorLight(accentColor())
-            )
-        ).apply {
-            binding.clearQueue.setTextColor(this)
-            binding.clearQueue.iconTint = this
-        }
         binding.appBarLayout.pinWhenScrolled()
         binding.appBarLayout.toolbar.apply {
             setNavigationOnClickListener {
