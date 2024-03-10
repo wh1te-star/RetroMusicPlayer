@@ -175,11 +175,16 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.now_playing -> {
-                requireActivity().findNavController(R.id.fragment_container).navigate(
-                    R.id.playing_queue_fragment,
-                    null,
-                    navOptions { launchSingleTop = true }
-                )
+                val navController = requireActivity().findNavController(R.id.fragment_container)
+                val currentDestinationId = navController.currentDestination?.id
+
+                if (currentDestinationId != R.id.playing_queue_fragment) {
+                    navController.navigate(
+                        R.id.playing_queue_fragment,
+                        null,
+                        navOptions { launchSingleTop = true }
+                    )
+                }
                 mainActivity.collapsePanel()
                 return true
             }
