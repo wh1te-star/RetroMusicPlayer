@@ -124,7 +124,7 @@ class MainActivity : AbsCastActivity() {
                     setBottomNavVisibility(visible = true, animate = true)
                 }
                 R.id.playing_queue_fragment -> {
-                    setBottomNavVisibility(visible = false, hideBottomSheet = true)
+                    setBottomNavVisibility(visible = false)
                 }
                 else -> setBottomNavVisibility(
                     visible = false,
