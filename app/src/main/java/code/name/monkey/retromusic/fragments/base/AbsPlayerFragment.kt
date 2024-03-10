@@ -175,11 +175,19 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.now_playing -> {
-                requireActivity().findNavController(R.id.fragment_container).navigate(
-                    R.id.playing_queue_fragment,
-                    null,
-                    navOptions { launchSingleTop = true }
-                )
+                val navController = requireActivity().findNavController(R.id.fragment_container)
+                val currentDestinationId = navController.currentDestination?.id
+
+                // Check if the current destination is not the playing_queue_fragment
+                if (currentDestinationId != R.id.playing_queue_fragment) {
+                    // If the current destination is not the playing_queue_fragment, navigate to it
+                    navController.navigate(
+                        R.id.playing_queue_fragment,
+                        null,
+                        navOptions { launchSingleTop = true }
+                    )
+                }
+                // Collapse the panel regardless of the current destination
                 mainActivity.collapsePanel()
                 return true
             }
