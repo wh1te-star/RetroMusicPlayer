@@ -242,21 +242,3 @@ class PlayingQueueAdapter(
     }
 }
 
-class GradientItemDecoration(private val gradientHeight: Int) : RecyclerView.ItemDecoration() {
-
-    private val gradientPaint = Paint().apply {
-        color = Color.BLACK
-        isAntiAlias = true
-    }
-
-    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        super.onDrawOver(c, parent, state)
-        val top = parent.paddingTop
-        val bottom = parent.height - parent.paddingBottom
-        val left = parent.paddingLeft
-        val right = parent.width - parent.paddingRight
-
-        // Draw a gradient from the top or bottom edge
-        c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (top + gradientHeight).toFloat(), gradientPaint)
-    }
-}

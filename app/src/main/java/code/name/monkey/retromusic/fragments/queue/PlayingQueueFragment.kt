@@ -29,7 +29,6 @@ import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
-import code.name.monkey.retromusic.adapter.song.GradientItemDecoration
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlayingQueueBinding
 import code.name.monkey.retromusic.extensions.accentColor
@@ -193,3 +192,21 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
     }
 }
 
+class GradientItemDecoration(private var gradientHeight: Int) : RecyclerView.ItemDecoration() {
+
+    private val gradientPaint = Paint().apply {
+        color = Color.argb(128, 0, 0, 0)
+        isAntiAlias = true
+    }
+
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        super.onDrawOver(c, parent, state)
+        val top = parent.paddingTop
+        val bottom = parent.height - parent.paddingBottom
+        val left = parent.paddingLeft
+        val right = parent.width - parent.paddingRight
+
+        // Draw a 50% transparent black gradient from the top or bottom edge
+        c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (top + gradientHeight).toFloat(), gradientPaint)
+    }
+}
