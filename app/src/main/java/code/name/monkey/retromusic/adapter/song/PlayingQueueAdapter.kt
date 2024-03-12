@@ -14,10 +14,14 @@
  */
 package code.name.monkey.retromusic.adapter.song
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
@@ -235,5 +239,24 @@ class PlayingQueueAdapter(
             adapter.setSongToRemove(songToRemove!!)
             removeFromQueue(songToRemove!!)
         }
+    }
+}
+
+class GradientItemDecoration(private val gradientHeight: Int) : RecyclerView.ItemDecoration() {
+
+    private val gradientPaint = Paint().apply {
+        color = Color.BLACK
+        isAntiAlias = true
+    }
+
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        super.onDrawOver(c, parent, state)
+        val top = parent.paddingTop
+        val bottom = parent.height - parent.paddingBottom
+        val left = parent.paddingLeft
+        val right = parent.width - parent.paddingRight
+
+        // Draw a gradient from the top or bottom edge
+        c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (top + gradientHeight).toFloat(), gradientPaint)
     }
 }

@@ -15,6 +15,9 @@
 package code.name.monkey.retromusic.fragments.queue
 
 import android.content.res.ColorStateList
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.findNavController
@@ -26,6 +29,7 @@ import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
+import code.name.monkey.retromusic.adapter.song.GradientItemDecoration
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlayingQueueBinding
 import code.name.monkey.retromusic.extensions.accentColor
@@ -100,6 +104,10 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
 
         ThemedFastScroller.create(binding.recyclerView)
+
+        binding.recyclerView.apply {
+            addItemDecoration(GradientItemDecoration(gradientHeight = 100))
+        }
     }
 
     private fun checkForPadding() {
