@@ -105,7 +105,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         ThemedFastScroller.create(binding.recyclerView)
 
         binding.recyclerView.apply {
-            addItemDecoration(GradientItemDecoration(gradientHeight = 100))
+            addItemDecoration(GradientItemDecoration(gradientHeight = 600))
         }
     }
 
@@ -202,11 +202,11 @@ class GradientItemDecoration(private var gradientHeight: Int) : RecyclerView.Ite
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(c, parent, state)
         val top = parent.paddingTop
-        val bottom = parent.height - parent.paddingBottom
+        val bottom = parent.height
         val left = parent.paddingLeft
         val right = parent.width - parent.paddingRight
 
-        // Draw a 50% transparent black gradient from the top or bottom edge
         c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), (top + gradientHeight).toFloat(), gradientPaint)
+        c.drawRect(left.toFloat(), (bottom - gradientHeight).toFloat(), right.toFloat(), bottom.toFloat(), gradientPaint)
     }
 }
