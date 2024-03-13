@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -34,5 +33,13 @@
         android:textColor="?colorOnSecondary"
         android:visibility="gone"
         tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
