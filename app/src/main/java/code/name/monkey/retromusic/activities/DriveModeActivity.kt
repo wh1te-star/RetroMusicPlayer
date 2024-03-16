@@ -196,14 +196,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
     private fun updateRepeatState() {
         when (MusicPlayerRemote.repeatMode) {
-            MusicService.REPEAT_MODE_NONE -> {
-                binding.repeatButton.setImageResource(R.drawable.ic_repeat)
-                binding.repeatButton.setColorFilter(
-                    lastDisabledPlaybackControlsColor,
-                    PorterDuff.Mode.SRC_IN
-                )
-            }
-
             MusicService.REPEAT_MODE_ALL -> {
                 binding.repeatButton.setImageResource(R.drawable.ic_repeat)
                 binding.repeatButton.setColorFilter(

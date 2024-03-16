@@ -218,7 +218,7 @@ class MusicService : MediaBrowserServiceCompat(),
     var repeatMode = 0
         private set(value) {
             when (value) {
-                REPEAT_MODE_NONE, REPEAT_MODE_ALL, REPEAT_MODE_THIS -> {
+                REPEAT_MODE_ALL, REPEAT_MODE_THIS -> {
                     field = value
                     PreferenceManager.getDefaultSharedPreferences(this).edit {
                         putInt(SAVED_REPEAT_MODE, value)
@@ -397,9 +397,8 @@ class MusicService : MediaBrowserServiceCompat(),
 
     fun cycleRepeatMode() {
         repeatMode = when (repeatMode) {
-            REPEAT_MODE_NONE -> REPEAT_MODE_ALL
             REPEAT_MODE_ALL -> REPEAT_MODE_THIS
-            else -> REPEAT_MODE_NONE
+            else -> REPEAT_MODE_ALL
         }
     }
 
@@ -410,11 +409,7 @@ class MusicService : MediaBrowserServiceCompat(),
         get() = getSongAt(getPosition())
 
     val nextSong: Song?
-        get() = if (isLastTrack && repeatMode == REPEAT_MODE_NONE) {
-            null
-        } else {
-            getSongAt(getNextPosition(false))
-        }
+        get() = getSongAt(getNextPosition(false))
 
     private fun getNextPosition(force: Boolean): Int {
         var position = getPosition() + 1
@@ -428,10 +423,6 @@ class MusicService : MediaBrowserServiceCompat(),
                     position = 0
                 }
             } else {
-                position -= 1
-            }
-
-            REPEAT_MODE_NONE -> if (isLastTrack) {
                 position -= 1
             }
 
@@ -467,10 +458,6 @@ class MusicService : MediaBrowserServiceCompat(),
                 }
             } else {
                 newPosition = getPosition()
-            }
-
-            REPEAT_MODE_NONE -> if (newPosition < 0) {
-                newPosition = 0
             }
 
             else -> if (newPosition < 0) {
@@ -700,9 +687,7 @@ class MusicService : MediaBrowserServiceCompat(),
     override fun onTrackEnded() {
         acquireWakeLock()
         // if there is a timer finished, don't continue
-        if (pendingQuit
-            || repeatMode == REPEAT_MODE_NONE && isLastTrack
-        ) {
+        if (pendingQuit) {
             notifyChange(PLAY_STATE_CHANGED)
             seek(0, false)
             if (pendingQuit) {
@@ -721,7 +706,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onTrackWentToNext() {
-        if (pendingQuit || repeatMode == REPEAT_MODE_NONE && isLastTrack) {
+        if (pendingQuit) {
             playbackManager.setNextDataSource(null)
             pause(false)
             seek(0, false)
@@ -1324,11 +1309,9 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     private fun setCustomAction(stateBuilder: PlaybackStateCompat.Builder) {
-        var repeatIcon = R.drawable.ic_repeat // REPEAT_MODE_NONE
+        var repeatIcon = R.drawable.ic_repeat_white_circle
         if (repeatMode == REPEAT_MODE_THIS) {
             repeatIcon = R.drawable.ic_repeat_one
-        } else if (repeatMode == REPEAT_MODE_ALL) {
-            repeatIcon = R.drawable.ic_repeat_white_circle
         }
         stateBuilder.addCustomAction(
             PlaybackStateCompat.CustomAction.Builder(
@@ -1412,9 +1395,8 @@ class MusicService : MediaBrowserServiceCompat(),
         const val SAVED_REPEAT_MODE = "REPEAT_MODE"
         const val SHUFFLE_MODE_NONE = 0
         const val SHUFFLE_MODE_SHUFFLE = 1
-        const val REPEAT_MODE_NONE = 0
-        const val REPEAT_MODE_ALL = 1
-        const val REPEAT_MODE_THIS = 2
+        const val REPEAT_MODE_ALL = 0
+        const val REPEAT_MODE_THIS = 1
         private const val MEDIA_SESSION_ACTIONS = (PlaybackStateCompat.ACTION_PLAY
                 or PlaybackStateCompat.ACTION_PAUSE
                 or PlaybackStateCompat.ACTION_PLAY_PAUSE

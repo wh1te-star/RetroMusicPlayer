@@ -94,7 +94,7 @@ object MusicPlayerRemote : KoinComponent {
     val repeatMode: Int
         get() = if (musicService != null) {
             musicService!!.repeatMode
-        } else MusicService.REPEAT_MODE_NONE
+        } else MusicService.REPEAT_MODE_ALL
 
     @JvmStatic
     val shuffleMode: Int

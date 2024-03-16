@@ -556,14 +556,6 @@ class ClassicPlayerFragment : AbsPlayerFragment(R.layout.fragment_classic_player
 
     fun updateRepeatState() {
         when (MusicPlayerRemote.repeatMode) {
-            MusicService.REPEAT_MODE_NONE -> {
-                binding.playerControlsContainer.repeatButton.setImageResource(R.drawable.ic_repeat)
-                binding.playerControlsContainer.repeatButton.setColorFilter(
-                    lastDisabledPlaybackControlsColor,
-                    PorterDuff.Mode.SRC_IN
-                )
-            }
-
             MusicService.REPEAT_MODE_ALL -> {
                 binding.playerControlsContainer.repeatButton.setImageResource(R.drawable.ic_repeat)
                 binding.playerControlsContainer.repeatButton.setColorFilter(

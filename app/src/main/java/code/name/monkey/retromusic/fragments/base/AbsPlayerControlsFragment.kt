@@ -228,13 +228,6 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
 
     fun updateRepeatState() {
         when (MusicPlayerRemote.repeatMode) {
-            MusicService.REPEAT_MODE_NONE -> {
-                repeatButton.setImageResource(R.drawable.ic_repeat)
-                repeatButton.setColorFilter(
-                    lastDisabledPlaybackControlsColor,
-                    PorterDuff.Mode.SRC_IN
-                )
-            }
             MusicService.REPEAT_MODE_ALL -> {
                 repeatButton.setImageResource(R.drawable.ic_repeat)
                 repeatButton.setColorFilter(
