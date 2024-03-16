@@ -19,9 +19,8 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.speech.RecognizerIntent
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,6 +57,9 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var bottomSheetCallback: BottomSheetBehavior.BottomSheetCallback
+    private var previousState = BottomSheetBehavior.STATE_COLLAPSED
+
     private lateinit var searchAdapter: SearchAdapter
     private var query: String? = null
 
@@ -87,13 +89,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                     binding.clearText.isGone = true
                 }
             }
-            val bottomSheetBehavior = (activity as? MainActivity)?.getBottomSheetBehavior()
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    binding.searchView.focusAndShowKeyboard()
-                }
-            }, 3000)
         }
         binding.keyboardPopup.apply {
             accentColor()
@@ -126,6 +121,31 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
         binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())
+
+        val bottomSheetBehavior = (activity as? MainActivity)?.getBottomSheetBehavior()
+
+        bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_DRAGGING -> Log.d( "BottomSheetState", "STATE_DRAGGING" )
+                    BottomSheetBehavior.STATE_SETTLING -> Log.d( "BottomSheetState", "STATE_SETTLING" )
+                    BottomSheetBehavior.STATE_EXPANDED -> Log.d( "BottomSheetState", "STATE_EXPANDED" )
+                    BottomSheetBehavior.STATE_COLLAPSED -> Log.d( "BottomSheetState", "STATE_COLLAPSED" )
+                    BottomSheetBehavior.STATE_HIDDEN -> Log.d("BottomSheetState", "STATE_HIDDEN")
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> Log.d( "BottomSheetState", "STATE_HALF_EXPANDED" )
+                    else -> Log.d("BottomSheetState", "Unknown state")
+                }
+                if (previousState == BottomSheetBehavior.STATE_SETTLING
+                && newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    binding.searchView.focusAndShowKeyboard()
+                }
+                previousState = newState
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        }
+
+        bottomSheetBehavior?.addBottomSheetCallback(bottomSheetCallback)
     }
 
     private fun setupChips() {
@@ -243,6 +263,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     override fun onDestroyView() {
         hideKeyboard(view)
         super.onDestroyView()
+        val bottomSheetBehavior = (activity as? MainActivity)?.getBottomSheetBehavior()
+        bottomSheetBehavior?.removeBottomSheetCallback(bottomSheetCallback)
         _binding = null
     }
 
