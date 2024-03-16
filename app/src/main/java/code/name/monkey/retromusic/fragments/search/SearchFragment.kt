@@ -19,6 +19,8 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognizerIntent
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -30,11 +32,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.adapter.SearchAdapter
 import code.name.monkey.retromusic.databinding.FragmentSearchBinding
 import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.util.PreferenceUtil
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -83,7 +87,13 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                     binding.clearText.isGone = true
                 }
             }
-            focusAndShowKeyboard()
+            val bottomSheetBehavior = (activity as? MainActivity)?.getBottomSheetBehavior()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
+                    binding.searchView.focusAndShowKeyboard()
+                }
+            }, 3000)
         }
         binding.keyboardPopup.apply {
             accentColor()
