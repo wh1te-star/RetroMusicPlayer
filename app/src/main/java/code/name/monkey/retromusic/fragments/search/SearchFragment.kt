@@ -58,7 +58,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private val binding get() = _binding!!
 
     private lateinit var bottomSheetCallback: BottomSheetBehavior.BottomSheetCallback
-    private var previousState = BottomSheetBehavior.STATE_COLLAPSED
+    private var previousState: Int? = null
 
     private lateinit var searchAdapter: SearchAdapter
     private var query: String? = null
@@ -122,29 +122,20 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())
 
+        if (previousState == null){
+            binding.searchView.focusAndShowKeyboard()
+        }
         val bottomSheetBehavior = (activity as? MainActivity)?.getBottomSheetBehavior()
-
         bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_DRAGGING -> Log.d( "BottomSheetState", "STATE_DRAGGING" )
-                    BottomSheetBehavior.STATE_SETTLING -> Log.d( "BottomSheetState", "STATE_SETTLING" )
-                    BottomSheetBehavior.STATE_EXPANDED -> Log.d( "BottomSheetState", "STATE_EXPANDED" )
-                    BottomSheetBehavior.STATE_COLLAPSED -> Log.d( "BottomSheetState", "STATE_COLLAPSED" )
-                    BottomSheetBehavior.STATE_HIDDEN -> Log.d("BottomSheetState", "STATE_HIDDEN")
-                    BottomSheetBehavior.STATE_HALF_EXPANDED -> Log.d( "BottomSheetState", "STATE_HALF_EXPANDED" )
-                    else -> Log.d("BottomSheetState", "Unknown state")
-                }
                 if (previousState == BottomSheetBehavior.STATE_SETTLING
-                && newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    && newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     binding.searchView.focusAndShowKeyboard()
                 }
                 previousState = newState
             }
-
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         }
-
         bottomSheetBehavior?.addBottomSheetCallback(bottomSheetCallback)
     }
 
