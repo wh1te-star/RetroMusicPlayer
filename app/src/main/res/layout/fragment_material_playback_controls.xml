@@ -17,22 +17,21 @@
         android:minWidth="40dp"
         android:singleLine="true"
         android:textColor="?android:attr/textColorSecondary"
-        app:layout_constraintBottom_toBottomOf="@+id/progressSlider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/progressSlider"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
         tools:text="@tools:sample/date/hhmmss" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/progressSlider"
+        style="@style/Widget.Retro.Slider"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:maxHeight="2dp"
-        style="@style/Widget.Retro.Slider"
         android:progressDrawable="@drawable/color_progress_seek"
-        app:layout_constraintEnd_toStartOf="@id/songTotalTime"
-        app:layout_constraintStart_toEndOf="@id/songCurrentProgress"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/songInfo"
         tools:ignore="RtlHardcoded,UnusedAttribute"
         tools:progress="20" />
 
@@ -45,9 +44,8 @@
         android:minWidth="40dp"
         android:singleLine="true"
         android:textColor="?android:attr/textColorSecondary"
-        app:layout_constraintBottom_toBottomOf="@+id/progressSlider"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/progressSlider"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
         tools:text="@tools:sample/date/hhmmss" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -71,7 +69,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem/random" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -104,8 +102,9 @@
         android:paddingEnd="16dp"
         android:textColor="?android:attr/textColorSecondary"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
         app:layout_constraintTop_toBottomOf="@+id/text"
+        tools:layout_editor_absoluteX="0dp"
         tools:text="@tools:sample/lorem/random" />
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -149,7 +148,7 @@
         app:layout_constraintEnd_toStartOf="@+id/nextButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/previousButton"
-        app:layout_constraintTop_toBottomOf="@+id/songInfo"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
         app:srcCompat="@drawable/ic_pause_outline"
         tools:tint="@color/md_black_1000" />
 
@@ -192,6 +191,7 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playPauseButton"
         tools:backgroundTint="@color/md_red_400"
         tools:layout_height="52dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
