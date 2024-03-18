@@ -115,7 +115,7 @@ class AlbumCoverStylePreferenceDialog : DialogFragment(),
                 binding.proText.show()
                 binding.proText.setText(R.string.pro)
             } else {
-                binding.proText.hide()
+                //binding.proText.hide()
             }
             return binding.root
         }

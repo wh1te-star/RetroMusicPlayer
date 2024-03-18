@@ -30,12 +30,28 @@ import code.name.monkey.appthemehelper.common.prefs.supportv7.ATEDialogPreferenc
 import code.name.monkey.retromusic.App
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.PreferenceNowPlayingScreenItemBinding
-import code.name.monkey.retromusic.extensions.*
+import code.name.monkey.retromusic.extensions.colorButtons
+import code.name.monkey.retromusic.extensions.colorControlNormal
+import code.name.monkey.retromusic.extensions.goToProVersion
+import code.name.monkey.retromusic.extensions.hide
+import code.name.monkey.retromusic.extensions.materialDialog
+import code.name.monkey.retromusic.extensions.show
+import code.name.monkey.retromusic.extensions.showToast
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
-import code.name.monkey.retromusic.fragments.NowPlayingScreen.*
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Adaptive
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Blur
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.BlurCard
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Card
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Circle
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Color
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Full
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Plain
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.Simple
+import code.name.monkey.retromusic.fragments.NowPlayingScreen.values
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import com.bumptech.glide.Glide
+
 
 class NowPlayingScreenPreference @JvmOverloads constructor(
     context: Context,
@@ -120,7 +136,7 @@ private class NowPlayingScreenAdapter(private val context: Context) : PagerAdapt
             binding.proText.show()
             binding.proText.setText(R.string.pro)
         } else {
-            binding.proText.hide()
+            //binding.proText.hide()
         }
         return binding.root
     }
