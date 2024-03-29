@@ -83,6 +83,7 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     private fun setUpMiniPlayer() {
         setUpPlayPauseButton()
         binding.progressBar.accentColor()
+        binding.topProgressBar.accentColor()
     }
 
     private fun setUpPlayPauseButton() {

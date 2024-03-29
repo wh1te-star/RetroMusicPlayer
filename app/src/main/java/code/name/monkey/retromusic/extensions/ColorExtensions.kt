@@ -21,6 +21,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.AttrRes
 import androidx.annotation.CheckResult
@@ -42,6 +43,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputLayout
 
@@ -236,6 +238,18 @@ fun CircularProgressIndicator.accentColor() {
 }
 
 fun CircularProgressIndicator.applyColor(color: Int) {
+    setIndicatorColor(color)
+    trackColor = ColorUtil.withAlpha(color, 0.2f)
+}
+
+fun LinearProgressIndicator.accentColor() {
+    if (materialYou) return
+    val color = ThemeStore.accentColor(context)
+    setIndicatorColor(color)
+    trackColor = ColorUtil.withAlpha(color, 0.2f)
+}
+
+fun LinearProgressIndicator.applyColor(color: Int) {
     setIndicatorColor(color)
     trackColor = ColorUtil.withAlpha(color, 0.2f)
 }
