@@ -149,7 +149,7 @@
         app:layout_constraintEnd_toEndOf="@+id/previousButton"
         app:layout_constraintStart_toStartOf="@+id/previousButton"
         app:layout_constraintTop_toTopOf="@+id/fromStartButton"
-        app:srcCompat="@drawable/ic_skip_previous"
+        app:srcCompat="@drawable/ic_short_rewind"
         tools:ignore="MissingPrefix"
         tools:tint="@color/md_black_1000" />
 
@@ -178,7 +178,7 @@
         app:layout_constraintStart_toEndOf="@+id/fromStartButton"
         app:layout_constraintStart_toStartOf="@+id/nextButton"
         app:layout_constraintTop_toTopOf="@+id/fromStartButton"
-        app:srcCompat="@drawable/ic_skip_next"
+        app:srcCompat="@drawable/ic_short_forward"
         tools:ignore="MissingPrefix"
         tools:tint="@color/md_black_1000" />
 

@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/icon_notification_dimen"
+    android:height="@dimen/icon_notification_dimen"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="m9.584,14.416 l2.075,7.744 -7.744,-2.075z" />
+
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="m11.358,3.023a9,9 0,0 0,-5.722 2.613,9 9,0 0,0 0,12.727l2.121,-2.121a6,6 0,0 1,0 -8.484,6 6,0 0,1 8.484,0 6,6 0,0 1,0 8.484l2.121,2.121a9,9 0,0 0,0 -12.727,9 9,0 0,0 -7.005,-2.613z" />
+</vector>
