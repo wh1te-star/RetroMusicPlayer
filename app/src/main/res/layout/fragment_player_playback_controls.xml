@@ -23,10 +23,10 @@
     <com.google.android.material.slider.Slider
         android:id="@+id/progressSlider"
         style="@style/Widget.Retro.Slider"
-        android:layout_width="0dp"
+        android:layout_width="411dp"
         android:layout_height="wrap_content"
         android:maxHeight="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintBottom_toTopOf="@+id/fromStartButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songInfo"
@@ -64,7 +64,6 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem/random" />
@@ -87,7 +86,6 @@
         android:textColor="?android:attr/textColorSecondary"
         app:layout_constraintBottom_toTopOf="@+id/songInfo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="@tools:sample/full_names" />
@@ -140,6 +138,21 @@
         tools:ignore="MissingPrefix"
         tools:tint="@color/md_black_1000" />
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/shortRewindButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/roundSelector"
+        android:padding="16dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/fromStartButton"
+        app:layout_constraintEnd_toEndOf="@+id/previousButton"
+        app:layout_constraintStart_toStartOf="@+id/previousButton"
+        app:layout_constraintTop_toTopOf="@+id/fromStartButton"
+        app:srcCompat="@drawable/ic_skip_previous"
+        tools:ignore="MissingPrefix"
+        tools:tint="@color/md_black_1000" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/playPauseButton"
         android:layout_width="wrap_content"
@@ -149,8 +162,40 @@
         app:layout_constraintEnd_toStartOf="@+id/nextButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/previousButton"
-        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        app:layout_constraintTop_toBottomOf="@+id/fromStartButton"
         app:srcCompat="@drawable/ic_pause"
+        tools:tint="@color/md_black_1000" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/shortForwardButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/roundSelector"
+        android:padding="16dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/fromStartButton"
+        app:layout_constraintEnd_toEndOf="@+id/nextButton"
+        app:layout_constraintStart_toEndOf="@+id/fromStartButton"
+        app:layout_constraintStart_toStartOf="@+id/nextButton"
+        app:layout_constraintTop_toTopOf="@+id/fromStartButton"
+        app:srcCompat="@drawable/ic_skip_next"
+        tools:ignore="MissingPrefix"
+        tools:tint="@color/md_black_1000" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/fromStartButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/roundSelector"
+        android:padding="16dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/shortForwardButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/shortRewindButton"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        app:srcCompat="@drawable/ic_skip_next"
+        tools:ignore="MissingPrefix"
         tools:tint="@color/md_black_1000" />
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -189,6 +234,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playPauseButton"
         tools:background="@color/md_red_400"
         tools:layout_height="52dp" />
