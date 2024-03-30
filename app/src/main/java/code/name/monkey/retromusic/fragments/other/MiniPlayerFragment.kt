@@ -83,6 +83,7 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     private fun setUpMiniPlayer() {
         setUpPlayPauseButton()
         binding.progressBar.accentColor()
+        binding.topProgressBar.accentColor()
     }
 
     private fun setUpPlayPauseButton() {
@@ -139,6 +140,8 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     override fun onUpdateProgressViews(progress: Int, total: Int) {
         binding.progressBar.max = total
         binding.progressBar.progress = progress
+        binding.topProgressBar.max = total
+        binding.topProgressBar.progress = progress
     }
 
     override fun onResume() {
