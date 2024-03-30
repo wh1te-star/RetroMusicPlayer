@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/icon_notification_dimen"
+    android:height="@dimen/icon_notification_dimen"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M6.375,3L17.625,3A3.375,3.375 0,0 1,21 6.375L21,17.625A3.375,3.375 0,0 1,17.625 21L6.375,21A3.375,3.375 0,0 1,3 17.625L3,6.375A3.375,3.375 0,0 1,6.375 3z" />
+</vector>
