@@ -58,7 +58,7 @@ class MusicSeekSkipTouchListener(val activity: FragmentActivity, val next: Boole
                     if (next) {
                         MusicPlayerRemote.playNextSong()
                     } else {
-                        MusicPlayerRemote.back()
+                        MusicPlayerRemote.playPreviousSong()
                     }
                 }
 

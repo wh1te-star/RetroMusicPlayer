@@ -380,14 +380,6 @@ class MusicService : MediaBrowserServiceCompat(),
         notifyChange(QUEUE_CHANGED)
     }
 
-    fun back(force: Boolean) {
-        if (songProgressMillis > 2000) {
-            seek(0)
-        } else {
-            playPreviousSong(force)
-        }
-    }
-
     fun clearQueue() {
         playingQueue.clear()
         originalPlayingQueue.clear()
@@ -669,7 +661,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     ACTION_PAUSE -> pause()
                     ACTION_PLAY -> play()
                     ACTION_PLAY_PLAYLIST -> playFromPlaylist(intent)
-                    ACTION_REWIND -> back(true)
+                    ACTION_REWIND -> playPreviousSong(true)
                     ACTION_SKIP -> playNextSong(true)
                     ACTION_STOP, ACTION_QUIT -> {
                         pendingQuit = false

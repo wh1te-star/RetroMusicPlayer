@@ -56,7 +56,7 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     override fun onClick(view: View) {
         when (view.id) {
             R.id.actionNext -> MusicPlayerRemote.playNextSong()
-            R.id.actionPrevious -> MusicPlayerRemote.back()
+            R.id.actionPrevious -> MusicPlayerRemote.playPreviousSong()
         }
     }
 

@@ -133,7 +133,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
     private fun setUpPrevNext() {
         binding.nextButton.setOnClickListener { MusicPlayerRemote.playNextSong() }
-        binding.previousButton.setOnClickListener { MusicPlayerRemote.back() }
+        binding.previousButton.setOnClickListener { MusicPlayerRemote.playPreviousSong() }
     }
 
     private fun setUpShuffleButton() {

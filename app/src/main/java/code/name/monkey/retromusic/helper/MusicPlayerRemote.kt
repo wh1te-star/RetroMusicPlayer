@@ -195,13 +195,6 @@ object MusicPlayerRemote : KoinComponent {
         musicService?.playPreviousSong(true)
     }
 
-    /**
-     * Async
-     */
-    fun back() {
-        musicService?.back(true)
-    }
-
     fun resumePlaying() {
         musicService?.play()
     }
