@@ -55,6 +55,14 @@ class PlayerPlaybackControlsFragment :
     override val previousButton: ImageButton
         get() = binding.previousButton
 
+    override val fromStartButton: ImageButton
+        get() = binding.fromStartButton
+    override val shortRewindButton: ImageButton
+        get() = binding.shortRewindButton
+
+    override val shortForwardButton: ImageButton
+        get() = binding.shortForwardButton
+
     override val songTotalTime: TextView
         get() = binding.songTotalTime
 

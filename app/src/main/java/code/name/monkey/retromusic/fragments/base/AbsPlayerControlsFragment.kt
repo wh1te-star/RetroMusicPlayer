@@ -18,6 +18,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -25,6 +26,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.commit
@@ -71,6 +73,12 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
     open val nextButton: ImageButton? = null
 
     open val previousButton: ImageButton? = null
+
+    open val fromStartButton: ImageButton? = null
+
+    open val shortRewindButton: ImageButton? = null
+
+    open val shortForwardButton: ImageButton? = null
 
     open val songTotalTime: TextView? = null
 
@@ -194,6 +202,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
         super.onStart()
         setUpProgressSlider()
         setUpPrevNext()
+        setUpAdditionalButtons()
         setUpShuffleButton()
         setUpRepeatButton()
     }
@@ -202,6 +211,31 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
     private fun setUpPrevNext() {
         nextButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
         previousButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), false))
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setUpAdditionalButtons() {
+        //fromStartButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        //shortRewindButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        //shortForwardButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        fromStartButton?.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                Toast.makeText(v.context, "from start button was tapped", Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
+        shortRewindButton?.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                Toast.makeText(v.context, "short rewind button was tapped", Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
+        shortForwardButton?.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                Toast.makeText(v.context, "short forward button was tapped", Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
     }
 
     private fun setUpShuffleButton() {
