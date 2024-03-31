@@ -9,17 +9,16 @@ import androidx.lifecycle.lifecycleScope
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import kotlinx.coroutines.*
 import kotlin.math.abs
+enum class ButtonAction {
+    NEXT_BUTTON,
+    PREVIOUS_BUTTON,
+    FROM_START_BUTTON,
+    SHORT_REWIND_BUTTON,
+    SHORT_FORWARD_BUTTON
+}
 
-/**
- * @param activity, Activity
- * @param next, if the button is next, if false then it's considered previous
- */
-class MusicSeekSkipTouchListener(val activity: FragmentActivity, val next: Boolean) :
+class MusicSeekSkipTouchListener(val activity: FragmentActivity, val action: ButtonAction) :
     View.OnTouchListener {
-
-    private var job: Job? = null
-    private var counter = 0
-    private var wasSeeking = false
 
     private var startX = 0f
     private var startY = 0f
@@ -32,40 +31,32 @@ class MusicSeekSkipTouchListener(val activity: FragmentActivity, val next: Boole
             MotionEvent.ACTION_DOWN -> {
                 startX = event.x
                 startY = event.y
-                job = activity.lifecycleScope.launch(Dispatchers.Default) {
-                    counter = 0
-                    while (isActive) {
-                        delay(500)
-                        wasSeeking = true
-                        var seekingDuration = MusicPlayerRemote.songProgressMillis
-                        if (next) {
-                            seekingDuration += 5000 * (counter.floorDiv(2) + 1)
-                        } else {
-                            seekingDuration -= 5000 * (counter.floorDiv(2) + 1)
-                        }
-                        withContext(Dispatchers.Main) {
-                            MusicPlayerRemote.seekTo(seekingDuration)
-                        }
-                        counter += 1
-                    }
-                }
             }
             MotionEvent.ACTION_UP -> {
-                job?.cancel()
                 val endX = event.x
                 val endY = event.y
-                if (!wasSeeking && isAClick(startX, endX, startY, endY)) {
-                    if (next) {
-                        MusicPlayerRemote.playNextSong()
-                    } else {
-                        MusicPlayerRemote.playPreviousSong()
+                if (isAClick(startX, endX, startY, endY)) {
+                    when (action) {
+                        ButtonAction.NEXT_BUTTON -> {
+                            MusicPlayerRemote.playNextSong()
+                        }
+                        ButtonAction.PREVIOUS_BUTTON -> {
+                            MusicPlayerRemote.playPreviousSong()
+                        }
+                        ButtonAction.FROM_START_BUTTON -> {
+                            MusicPlayerRemote.seekTo(0)
+                        }
+                        ButtonAction.SHORT_REWIND_BUTTON -> {
+                            MusicPlayerRemote.seekTo(MusicPlayerRemote.songProgressMillis - 10000)
+                        }
+                        ButtonAction.SHORT_FORWARD_BUTTON -> {
+                            MusicPlayerRemote.seekTo(MusicPlayerRemote.songProgressMillis + 10000)
+                        }
                     }
                 }
-
-                wasSeeking = false
             }
             MotionEvent.ACTION_CANCEL -> {
-                job?.cancel()
+                // Handle cancel if necessary
             }
         }
         return false

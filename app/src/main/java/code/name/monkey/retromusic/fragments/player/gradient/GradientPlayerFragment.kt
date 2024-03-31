@@ -39,6 +39,7 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentGradientPlayerBinding
 import code.name.monkey.retromusic.extensions.*
+import code.name.monkey.retromusic.fragments.ButtonAction
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
 import code.name.monkey.retromusic.fragments.base.goToAlbum
@@ -396,11 +397,14 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         binding.playbackControlsFragment.nextButton.setOnTouchListener(
             MusicSeekSkipTouchListener(
                 requireActivity(),
-                true
+                ButtonAction.NEXT_BUTTON
             )
         )
         binding.playbackControlsFragment.previousButton.setOnTouchListener(
-            MusicSeekSkipTouchListener(requireActivity(), false)
+            MusicSeekSkipTouchListener(
+                requireActivity(),
+                ButtonAction.PREVIOUS_BUTTON
+            )
         )
     }
 

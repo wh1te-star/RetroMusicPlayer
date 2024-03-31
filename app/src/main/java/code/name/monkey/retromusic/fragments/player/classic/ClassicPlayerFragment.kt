@@ -40,6 +40,7 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentClassicPlayerBinding
 import code.name.monkey.retromusic.extensions.*
+import code.name.monkey.retromusic.fragments.ButtonAction
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.base.AbsPlayerControlsFragment
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
@@ -509,13 +510,13 @@ class ClassicPlayerFragment : AbsPlayerFragment(R.layout.fragment_classic_player
         binding.playerControlsContainer.nextButton.setOnTouchListener(
             MusicSeekSkipTouchListener(
                 requireActivity(),
-                true
+                ButtonAction.NEXT_BUTTON
             )
         )
         binding.playerControlsContainer.previousButton.setOnTouchListener(
             MusicSeekSkipTouchListener(
                 requireActivity(),
-                false
+                ButtonAction.PREVIOUS_BUTTON
             )
         )
     }

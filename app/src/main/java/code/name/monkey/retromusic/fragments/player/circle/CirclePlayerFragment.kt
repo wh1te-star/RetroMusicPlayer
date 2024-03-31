@@ -34,6 +34,7 @@ import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.FragmentCirclePlayerBinding
 import code.name.monkey.retromusic.extensions.*
+import code.name.monkey.retromusic.fragments.ButtonAction
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
 import code.name.monkey.retromusic.fragments.base.goToAlbum
@@ -128,11 +129,14 @@ class CirclePlayerFragment : AbsPlayerFragment(R.layout.fragment_circle_player),
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpPrevNext() {
         updatePrevNextColor()
-        binding.nextButton.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        binding.nextButton.setOnTouchListener(
+            MusicSeekSkipTouchListener(
+                requireActivity(), ButtonAction.NEXT_BUTTON
+            )
+        )
         binding.previousButton.setOnTouchListener(
             MusicSeekSkipTouchListener(
-                requireActivity(),
-                false
+                requireActivity(), ButtonAction.PREVIOUS_BUTTON
             )
         )
     }

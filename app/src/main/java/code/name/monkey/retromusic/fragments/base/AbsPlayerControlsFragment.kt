@@ -31,6 +31,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.whichFragment
+import code.name.monkey.retromusic.fragments.ButtonAction
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.other.VolumeFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -200,22 +201,17 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
         super.onStart()
         setUpProgressSlider()
         setUpPrevNext()
-        setUpAdditionalButtons()
         setUpShuffleButton()
         setUpRepeatButton()
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setUpPrevNext() {
-        nextButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
-        previousButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), false))
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setUpAdditionalButtons() {
-        fromStartButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
-        shortRewindButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
-        shortForwardButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        nextButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), ButtonAction.NEXT_BUTTON))
+        previousButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), ButtonAction.PREVIOUS_BUTTON))
+        fromStartButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), ButtonAction.FROM_START_BUTTON))
+        shortRewindButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), ButtonAction.SHORT_REWIND_BUTTON))
+        shortForwardButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), ButtonAction.SHORT_FORWARD_BUTTON))
     }
 
     private fun setUpShuffleButton() {
