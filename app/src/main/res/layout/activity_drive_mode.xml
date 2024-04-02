@@ -110,7 +110,7 @@
         android:layout_width="112dp"
         android:layout_height="112dp"
         android:background="?roundSelector"
-        android:src="@drawable/ic_pause"
+        android:src="@drawable/ic_gps_recording"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/shuffleButton"
         app:layout_constraintHorizontal_bias="0.5"
