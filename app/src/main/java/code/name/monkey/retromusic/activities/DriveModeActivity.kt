@@ -75,6 +75,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         setUpPrevNext()
         setUpRepeatButton()
         setUpShuffleButton()
+        setUpGPSRecordButton()
         setUpProgressSlider()
         setupFavouriteToggle()
     }
@@ -140,6 +141,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         binding.shuffleButton.setOnClickListener { MusicPlayerRemote.toggleShuffleMode() }
     }
 
+    private fun setUpGPSRecordButton() {
+        binding.recordGPSButton?.setOnClickListener {}
+    }
+
     private fun setUpRepeatButton() {
         binding.repeatButton.setOnClickListener { MusicPlayerRemote.cycleRepeatMode() }
     }
@@ -188,6 +193,17 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
             )
 
             else -> binding.shuffleButton.setColorFilter(
+                lastDisabledPlaybackControlsColor,
+                PorterDuff.Mode.SRC_IN
+            )
+        }
+        when (MusicPlayerRemote.shuffleMode) {
+            MusicService.SHUFFLE_MODE_SHUFFLE -> binding.recordGPSButton?.setColorFilter(
+                lastPlaybackControlsColor,
+                PorterDuff.Mode.SRC_IN
+            )
+
+            else -> binding.recordGPSButton?.setColorFilter(
                 lastDisabledPlaybackControlsColor,
                 PorterDuff.Mode.SRC_IN
             )
