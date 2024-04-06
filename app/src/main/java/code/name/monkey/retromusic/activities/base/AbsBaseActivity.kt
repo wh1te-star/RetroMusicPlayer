@@ -175,12 +175,26 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
                     }
                 }
             }
+        } else if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            val grantResult = grantResults[0]
+            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    LOCATION_PERMISSION_REQUEST
+                )
+            }
+            else{
+                print("NG")
+            }
         }
     }
 
     companion object {
         const val PERMISSION_REQUEST = 100
         const val BLUETOOTH_PERMISSION_REQUEST = 101
+        const val LOCATION_PERMISSION_REQUEST = 102
     }
 
     // this lets keyboard close when clicked in background

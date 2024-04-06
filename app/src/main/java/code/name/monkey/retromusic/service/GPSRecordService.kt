@@ -2,16 +2,19 @@ package code.name.monkey.retromusic.service
 
 import android.app.Service
 import android.content.Intent
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import java.io.File
-import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
-class GPSRecordService : Service() {
+class GPSRecordService : Service(), LocationListener {
 
     private val binder = LocalBinder()
+    private lateinit var locationManager: LocationManager
 
     inner class LocalBinder : Binder() {
         fun getService(): GPSRecordService = this@GPSRecordService
@@ -22,22 +25,31 @@ class GPSRecordService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Thread {
-            recordCount()
-        }.start()
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0f, this)
+        } catch (e: SecurityException) {
+            Log.e("GPSRecordService", "Location permission not granted", e)
+        }
         return START_STICKY
     }
 
-    private fun recordCount() {
-        var count = 1
-        while (true) {
-            Log.d("GPSRecordService", "count is $count")
-            count++
-            TimeUnit.SECONDS.sleep(3)
-        }
+    override fun onLocationChanged(location: Location) {
+        Log.d("GPSRecordService", "Latitude: ${location.latitude}, Longitude: ${location.longitude}")
     }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
+
+    override fun onProviderEnabled(provider: String) { }
+
+    override fun onProviderDisabled(provider: String) { }
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            locationManager.removeUpdates(this)
+        } catch (e: SecurityException) {
+            Log.e("GPSRecordService", "Failed to remove location updates", e)
+        }
     }
 }

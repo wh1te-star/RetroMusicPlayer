@@ -14,10 +14,14 @@
  */
 package code.name.monkey.retromusic.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
@@ -146,7 +150,21 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     }
 
     private fun setUpGPSRecordButton() {
-        binding.recordGPSButton?.setOnClickListener { startService(gpsRecordServiceIntent) }
+        binding.recordGPSButton?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    LOCATION_PERMISSION_REQUEST
+                )
+            }else {
+                startService(gpsRecordServiceIntent)
+            }
+        }
     }
 
     private fun setUpRepeatButton() {
