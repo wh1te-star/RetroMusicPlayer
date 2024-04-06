@@ -15,6 +15,8 @@ class GPSRecordService : Service(), LocationListener {
 
     private val binder = LocalBinder()
     private lateinit var locationManager: LocationManager
+    private var latitude = 0.0
+    private var longitude = 0.0
 
     inner class LocalBinder : Binder() {
         fun getService(): GPSRecordService = this@GPSRecordService
@@ -27,15 +29,27 @@ class GPSRecordService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50, 0.001f, this)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
+        //wait for the first onLocationChanged call
+        Thread {
+            recordCount()
+        }.start()
         return START_STICKY
     }
 
+    private fun recordCount() {
+        while (true) {
+            Log.d("GPSRecordService", "Latitude: ${latitude}, Longitude: ${longitude}")
+            TimeUnit.SECONDS.sleep(3)
+        }
+    }
+
     override fun onLocationChanged(location: Location) {
-        Log.d("GPSRecordService", "Latitude: ${location.latitude}, Longitude: ${location.longitude}")
+        latitude = location.latitude
+        longitude = location.longitude
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
