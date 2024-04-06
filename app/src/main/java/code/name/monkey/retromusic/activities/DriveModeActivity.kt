@@ -34,6 +34,7 @@ import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper.Callback
 import code.name.monkey.retromusic.helper.PlayPauseButtonOnClickHandler
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
+import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.MusicUtil
 import com.bumptech.glide.Glide
@@ -55,6 +56,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private var lastDisabledPlaybackControlsColor: Int = Color.GRAY
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
     private val repository: RealRepository by inject()
+    private lateinit var gpsRecordServiceIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +70,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
             onBackPressedDispatcher.onBackPressed()
         }
         binding.repeatButton.drawAboveSystemBars()
+
+        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
     }
 
     private fun setUpMusicControllers() {
@@ -142,7 +146,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     }
 
     private fun setUpGPSRecordButton() {
-        binding.recordGPSButton?.setOnClickListener {}
+        binding.recordGPSButton?.setOnClickListener { startService(gpsRecordServiceIntent) }
     }
 
     private fun setUpRepeatButton() {
