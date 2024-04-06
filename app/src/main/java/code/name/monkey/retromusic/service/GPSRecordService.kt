@@ -10,11 +10,13 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.CountDownLatch
 
 class GPSRecordService : Service(), LocationListener {
 
     private val binder = LocalBinder()
     private lateinit var locationManager: LocationManager
+    private val locationUpdateLatch = CountDownLatch(1)
     private var latitude = 0.0
     private var longitude = 0.0
 
@@ -33,14 +35,18 @@ class GPSRecordService : Service(), LocationListener {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
-        //wait for the first onLocationChanged call
         Thread {
-            recordCount()
+            recordGPS()
         }.start()
         return START_STICKY
     }
 
-    private fun recordCount() {
+    private fun recordGPS() {
+        try {
+            locationUpdateLatch.await()
+        } catch (e: InterruptedException) {
+            Log.e("GPSRecordService", "Interrupted while waiting for location update", e)
+        }
         while (true) {
             Log.d("GPSRecordService", "Latitude: ${latitude}, Longitude: ${longitude}")
             TimeUnit.SECONDS.sleep(3)
@@ -50,6 +56,7 @@ class GPSRecordService : Service(), LocationListener {
     override fun onLocationChanged(location: Location) {
         latitude = location.latitude
         longitude = location.longitude
+        locationUpdateLatch.countDown()
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
