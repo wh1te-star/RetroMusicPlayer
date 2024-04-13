@@ -27,6 +27,7 @@ class GPSRecordService() : Service(), LocationListener {
     private var latitude = 0.0
     private var longitude = 0.0
 
+    private var recordThread: Thread? = null
     private var count = 1
     private val localStorageLimit = 20000000 // 20MB
     private val blockSize = 3
@@ -47,10 +48,11 @@ class GPSRecordService() : Service(), LocationListener {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
-        Thread {
+        recordThread = Thread {
             recordGPS()
-        }.start()
-        return START_STICKY
+        }
+        recordThread?.start()
+        return START_NOT_STICKY
     }
 
     private fun recordGPS() {
@@ -58,17 +60,17 @@ class GPSRecordService() : Service(), LocationListener {
             locationUpdateLatch.await()
         } catch (e: InterruptedException) {
             Log.e("GPSRecordService", "Interrupted while waiting for location update", e)
+            return
         }
-        while (true) {
+        while (!Thread.currentThread().isInterrupted) {
             val localFile = File(this.filesDir, "local file.dat")
             if (!localFile.exists()) {
                 localFile.createNewFile()
             }
 
             var fileSize = localFile.length()
-            while (fileSize < localStorageLimit) {
-                val recordedValue =
-                    ByteArray(blockSize * 24) // 24 [byte] = 8 [byte] for time + 8 [bytes] for latitude + 8 [byte] for longitude
+            while (fileSize < localStorageLimit && !Thread.currentThread().isInterrupted) {
+                val recordedValue = ByteArray(blockSize * 24)
                 val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
 
                 for (i in 0 until blockSize) {
@@ -76,13 +78,17 @@ class GPSRecordService() : Service(), LocationListener {
                     buffer.putLong(currentTime)
                     buffer.putDouble(latitude)
                     buffer.putDouble(longitude)
-                    TimeUnit.SECONDS.sleep(recordInterval)
+                    try {
+                        TimeUnit.SECONDS.sleep(recordInterval)
+                    } catch (e: InterruptedException) {
+                        Log.e("GPSRecordService", "Thread interrupted while sleeping", e)
+                        writeToFile(localFile, recordedValue)
+                        return
+                    }
                 }
 
                 try {
-                    FileOutputStream(localFile, true).use { fos ->
-                        fos.write(recordedValue)
-                    }
+                    writeToFile(localFile, recordedValue)
                 } catch (e: IOException) {
                     Log.e("GPSRecordService", "Error writing to file", e)
                 }
@@ -95,6 +101,12 @@ class GPSRecordService() : Service(), LocationListener {
             //onedrive.upload(compressed_local_file, "onedrive:/Location Records/Recording Temporary/$count")
             //delete(local_file)
             //count++
+        }
+    }
+
+    private fun writeToFile(localFile: File, recordedValue: ByteArray) {
+        FileOutputStream(localFile, true).use { fos ->
+            fos.write(recordedValue)
         }
     }
 
@@ -112,6 +124,8 @@ class GPSRecordService() : Service(), LocationListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        recordThread?.interrupt()
+        recordThread = null
         try {
             locationManager.removeUpdates(this)
         } catch (e: SecurityException) {

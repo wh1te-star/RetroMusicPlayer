@@ -61,6 +61,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
     private val repository: RealRepository by inject()
     private lateinit var gpsRecordServiceIntent: Intent
+    private var isRecordingGPS = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,18 +152,26 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
     private fun setUpGPSRecordButton() {
         binding.recordGPSButton?.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
+            if (isRecordingGPS == false) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
                         Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    LOCATION_PERMISSION_REQUEST
-                )
-            }else {
-                startService(gpsRecordServiceIntent)
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ),
+                        LOCATION_PERMISSION_REQUEST
+                    )
+                } else {
+                    isRecordingGPS = true
+                    startService(gpsRecordServiceIntent)
+                }
+            } else {
+                isRecordingGPS = false
+                stopService(gpsRecordServiceIntent)
             }
         }
     }
