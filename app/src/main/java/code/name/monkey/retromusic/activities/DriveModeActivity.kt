@@ -15,6 +15,8 @@
 package code.name.monkey.retromusic.activities
 
 import android.Manifest
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -167,10 +169,12 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                     )
                 } else {
                     isRecordingGPS = true
+                    updateGPSRecordState()
                     startService(gpsRecordServiceIntent)
                 }
             } else {
                 isRecordingGPS = false
+                updateGPSRecordState()
                 stopService(gpsRecordServiceIntent)
             }
         }
@@ -205,6 +209,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         updateSong()
         updateRepeatState()
         updateShuffleState()
+        updateGPSRecordState()
         updateFavorite()
     }
 
@@ -228,17 +233,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                 PorterDuff.Mode.SRC_IN
             )
         }
-        when (MusicPlayerRemote.shuffleMode) {
-            MusicService.SHUFFLE_MODE_SHUFFLE -> binding.recordGPSButton?.setColorFilter(
-                lastPlaybackControlsColor,
-                PorterDuff.Mode.SRC_IN
-            )
-
-            else -> binding.recordGPSButton?.setColorFilter(
-                lastDisabledPlaybackControlsColor,
-                PorterDuff.Mode.SRC_IN
-            )
-        }
     }
 
     private fun updateRepeatState() {
@@ -255,6 +249,25 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                 binding.repeatButton.setImageResource(R.drawable.ic_repeat_one)
                 binding.repeatButton.setColorFilter(
                     lastPlaybackControlsColor,
+                    PorterDuff.Mode.SRC_IN
+                )
+            }
+        }
+    }
+
+    fun updateGPSRecordState() {
+        when (isRecordingGPS) {
+            true -> {
+                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton?.setColorFilter(
+                    lastPlaybackControlsColor,
+                    PorterDuff.Mode.SRC_IN
+                )
+            }
+            false -> {
+                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton?.setColorFilter(
+                    lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
