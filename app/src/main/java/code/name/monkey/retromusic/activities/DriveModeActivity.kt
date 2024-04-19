@@ -313,15 +313,19 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     }
 
     private fun shareFile() {
-        val file = File(getExternalFilesDir(null), "local file.dat")
-        if (file.exists()) {
+        val allFiles = getExternalFilesDir(null)?.listFiles()
+        val recordingFiles = allFiles?.filter { it.name.matches(Regex("\\d{14}")) }
+        val sortedRecordingFiles = recordingFiles?.sortedByDescending { it.name }
+        val mostRecentFile = sortedRecordingFiles?.firstOrNull()
+
+        if (mostRecentFile != null) {
             val fileUri = FileProvider.getUriForFile(
                 this,
                 "${BuildConfig.APPLICATION_ID}.provider",
-                file
+                mostRecentFile
             )
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/octet-stream" // Change this to the appropriate MIME type
+                type = "application/octet-stream"
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }

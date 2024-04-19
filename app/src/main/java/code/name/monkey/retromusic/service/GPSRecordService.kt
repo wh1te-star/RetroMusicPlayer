@@ -17,6 +17,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.CountDownLatch
 
@@ -63,11 +66,15 @@ class GPSRecordService() : Service(), LocationListener {
             Log.e("GPSRecordService", "Interrupted while waiting for location update", e)
             return
         }
+
+        val fileName = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
+            .format(Calendar.getInstance().time)
         while (!Thread.currentThread().isInterrupted) {
-            val localFile = File(getExternalFilesDir(null), "local file.dat")
-            if (!localFile.exists()) {
-                localFile.createNewFile()
+            val localFile = File(getExternalFilesDir(null), fileName)
+            if (localFile.exists()) {
+                localFile.delete()
             }
+            localFile.createNewFile()
 
             var fileSize = localFile.length()
             while (fileSize < localStorageLimit && !Thread.currentThread().isInterrupted) {
