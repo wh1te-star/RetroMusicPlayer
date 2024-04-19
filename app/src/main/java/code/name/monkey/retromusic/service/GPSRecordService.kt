@@ -11,6 +11,7 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -63,7 +64,7 @@ class GPSRecordService() : Service(), LocationListener {
             return
         }
         while (!Thread.currentThread().isInterrupted) {
-            val localFile = File(this.filesDir, "local file.dat")
+            val localFile = File(getExternalFilesDir(null), "local file.dat")
             if (!localFile.exists()) {
                 localFile.createNewFile()
             }
@@ -95,12 +96,6 @@ class GPSRecordService() : Service(), LocationListener {
 
                 fileSize = localFile.length()
             }
-
-            print("uploading the local file")
-            //file compressed_local_file = compress(local_file)
-            //onedrive.upload(compressed_local_file, "onedrive:/Location Records/Recording Temporary/$count")
-            //delete(local_file)
-            //count++
         }
     }
 

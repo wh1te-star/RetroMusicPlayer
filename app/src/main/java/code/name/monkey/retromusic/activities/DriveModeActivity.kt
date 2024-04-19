@@ -24,7 +24,9 @@ import android.graphics.PorterDuff
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.databinding.ActivityDriveModeBinding
@@ -49,6 +51,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.io.File
 
 
 /**
@@ -176,6 +179,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                 isRecordingGPS = false
                 updateGPSRecordState()
                 stopService(gpsRecordServiceIntent)
+                shareFile()
             }
         }
     }
@@ -306,5 +310,22 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
         binding.songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
         binding.songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())
+    }
+
+    private fun shareFile() {
+        val file = File(getExternalFilesDir(null), "local file.dat")
+        if (file.exists()) {
+            val fileUri = FileProvider.getUriForFile(
+                this,
+                "${BuildConfig.APPLICATION_ID}.provider",
+                file
+            )
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/octet-stream" // Change this to the appropriate MIME type
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share File"))
+        }
     }
 }
