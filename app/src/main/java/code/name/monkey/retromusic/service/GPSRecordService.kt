@@ -27,15 +27,8 @@ class GPSRecordService() : Service(), LocationListener {
 
     private val binder = LocalBinder()
     private lateinit var locationManager: LocationManager
-    private val locationUpdateLatch = CountDownLatch(1)
-    private var latitude = 0.0
-    private var longitude = 0.0
 
-    private var recordThread: Thread? = null
-    private var count = 1
-    private val localStorageLimit = 20000000 // 20MB
-    private val blockSize = 3
-    private val recordInterval = 1L // 1 second
+    private lateinit var recordingFile: File
 
     inner class LocalBinder : Binder() {
         fun getService(): GPSRecordService = this@GPSRecordService
@@ -48,62 +41,19 @@ class GPSRecordService() : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50, 0.001f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0.001f, this)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
-        }
-        recordThread = Thread {
-            recordGPS()
-        }
-        recordThread?.start()
-        return START_NOT_STICKY
-    }
-
-    private fun recordGPS() {
-        try {
-            locationUpdateLatch.await()
-        } catch (e: InterruptedException) {
-            Log.e("GPSRecordService", "Interrupted while waiting for location update", e)
-            return
         }
 
         val fileName = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
             .format(Calendar.getInstance().time)
-        while (!Thread.currentThread().isInterrupted) {
-            val localFile = File(getExternalFilesDir(null), fileName)
-            if (localFile.exists()) {
-                localFile.delete()
-            }
-            localFile.createNewFile()
-
-            var fileSize = localFile.length()
-            while (fileSize < localStorageLimit && !Thread.currentThread().isInterrupted) {
-                val recordedValue = ByteArray(blockSize * 24)
-                val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
-
-                for (i in 0 until blockSize) {
-                    val currentTime = System.currentTimeMillis()
-                    buffer.putLong(currentTime)
-                    buffer.putDouble(latitude)
-                    buffer.putDouble(longitude)
-                    try {
-                        TimeUnit.SECONDS.sleep(recordInterval)
-                    } catch (e: InterruptedException) {
-                        Log.e("GPSRecordService", "Thread interrupted while sleeping", e)
-                        writeToFile(localFile, recordedValue)
-                        return
-                    }
-                }
-
-                try {
-                    writeToFile(localFile, recordedValue)
-                } catch (e: IOException) {
-                    Log.e("GPSRecordService", "Error writing to file", e)
-                }
-
-                fileSize = localFile.length()
-            }
+        recordingFile = File(getExternalFilesDir(null), fileName)
+        if (recordingFile.exists()) {
+            recordingFile.delete()
         }
+        recordingFile.createNewFile()
+        return START_NOT_STICKY
     }
 
     private fun writeToFile(localFile: File, recordedValue: ByteArray) {
@@ -113,9 +63,19 @@ class GPSRecordService() : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        latitude = location.latitude
-        longitude = location.longitude
-        locationUpdateLatch.countDown()
+        val recordedValue = ByteArray(24)
+        val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
+
+        val currentTime = System.currentTimeMillis()
+        buffer.putLong(currentTime)
+        buffer.putDouble(location.latitude)
+        buffer.putDouble(location.longitude)
+
+        try {
+            writeToFile(recordingFile, recordedValue)
+        } catch (e: IOException) {
+            Log.e("GPSRecordService", "Error writing to file", e)
+        }
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
@@ -126,8 +86,6 @@ class GPSRecordService() : Service(), LocationListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        recordThread?.interrupt()
-        recordThread = null
         try {
             locationManager.removeUpdates(this)
         } catch (e: SecurityException) {
