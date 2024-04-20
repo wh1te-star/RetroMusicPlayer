@@ -1,7 +1,5 @@
 package code.name.monkey.retromusic.service
 
-import code.name.monkey.retromusic.activities.MainActivity
-import android.content.Context
 import android.app.Service
 import android.content.Intent
 import android.location.Location
@@ -11,7 +9,6 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -20,15 +17,17 @@ import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.CountDownLatch
 
 class GPSRecordService() : Service(), LocationListener {
-
     private val binder = LocalBinder()
     private lateinit var locationManager: LocationManager
-
     private lateinit var recordingFile: File
+    private val storageSizeLimit = 20000000000 //[byte] = 20GB
+
+    companion object {
+        val STOPPED_BY_USER = "code.name.monkey.retromusic.STOPPED_BY_USER"
+        val STOPPED_BY_EXCEED = "code.name.monkey.retromusic.STOPPED_BY_EXCEED"
+    }
 
     inner class LocalBinder : Binder() {
         fun getService(): GPSRecordService = this@GPSRecordService
@@ -76,6 +75,11 @@ class GPSRecordService() : Service(), LocationListener {
         } catch (e: IOException) {
             Log.e("GPSRecordService", "Error writing to file", e)
         }
+
+        if (recordingFile.length() > storageSizeLimit){
+            sendBroadcast(Intent(STOPPED_BY_EXCEED))
+            stopSelf();
+        }
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
@@ -91,5 +95,6 @@ class GPSRecordService() : Service(), LocationListener {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
+        sendBroadcast(Intent(STOPPED_BY_USER))
     }
 }

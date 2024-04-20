@@ -15,13 +15,15 @@
 package code.name.monkey.retromusic.activities
 
 import android.Manifest
-import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -51,7 +53,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import java.io.File
 
 
 /**
@@ -68,6 +69,18 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private lateinit var gpsRecordServiceIntent: Intent
     private var isRecordingGPS = false
 
+    private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (GPSRecordService.STOPPED_BY_EXCEED.equals(intent.getAction())) {
+                Toast.makeText(context, "The file size exceeds", Toast.LENGTH_SHORT).show();
+            }
+            if (GPSRecordService.STOPPED_BY_USER.equals(intent.getAction())) {
+                Toast.makeText(context, "The recording was stopped.", Toast.LENGTH_SHORT).show();
+            }
+            isRecordingGPS = false
+            updateGPSRecordState()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDriveModeBinding.inflate(layoutInflater)
@@ -82,6 +95,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         binding.repeatButton.drawAboveSystemBars()
 
         gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
+        val filter = IntentFilter()
+        filter.addAction(GPSRecordService.STOPPED_BY_USER)
+        filter.addAction(GPSRecordService.STOPPED_BY_EXCEED)
+        registerReceiver(serviceStoppedReceiver, filter)
     }
 
     private fun setUpMusicControllers() {
@@ -171,13 +188,11 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
+                    startService(gpsRecordServiceIntent)
                     isRecordingGPS = true
                     updateGPSRecordState()
-                    startService(gpsRecordServiceIntent)
                 }
             } else {
-                isRecordingGPS = false
-                updateGPSRecordState()
                 stopService(gpsRecordServiceIntent)
                 shareFile()
             }
@@ -331,5 +346,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
             }
             startActivity(Intent.createChooser(shareIntent, "Share File"))
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(serviceStoppedReceiver)
     }
 }
