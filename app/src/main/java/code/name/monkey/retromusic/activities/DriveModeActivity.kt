@@ -15,6 +15,7 @@
 package code.name.monkey.retromusic.activities
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,9 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -53,6 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.io.File
 
 
 /**
@@ -198,8 +203,28 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                 }
             } else {
                 stopService(gpsRecordServiceIntent)
-                shareFile()
+                val mostRecentFile = getExternalFilesDir(null)?.listFiles()
+                    ?.filter { it.name.matches(Regex("\\d{14}")) }
+                    ?.sortedByDescending { it.name }
+                    ?.firstOrNull()
+                shareFile(mostRecentFile)
             }
+        }
+        binding.recordGPSButton?.setOnLongClickListener {
+            if (!isWifiConnected(this)) {
+                AlertDialog.Builder(this)
+                    .setMessage("You are not connected to Wi-Fi network.\nDo you want to upload a GPS recording file anyway?")
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        dialog.dismiss()
+                        showFileSelectionDialog()
+                    }
+                    .setNegativeButton("No", null)
+                    .show()
+            }
+            else{
+                showFileSelectionDialog()
+            }
+            true
         }
     }
 
@@ -331,17 +356,37 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         binding.songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())
     }
 
-    private fun shareFile() {
-        val allFiles = getExternalFilesDir(null)?.listFiles()
-        val recordingFiles = allFiles?.filter { it.name.matches(Regex("\\d{14}")) }
-        val sortedRecordingFiles = recordingFiles?.sortedByDescending { it.name }
-        val mostRecentFile = sortedRecordingFiles?.firstOrNull()
+    fun isWifiConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager.activeNetwork
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } else {
+            val activeNetworkInfo = connectivityManager.activeNetworkInfo
+            return activeNetworkInfo?.isConnected == true && activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
+        }
+    }
 
-        if (mostRecentFile != null) {
+    fun showFileSelectionDialog() {
+        val files = getExternalFilesDir(null)?.listFiles()
+            ?.filter { it.name.matches(Regex("\\d{14}")) }
+            ?.sortedByDescending{ it.name } ?: return
+        AlertDialog.Builder(this)
+            .setTitle("Select the file to upload")
+            .setItems(files.map { it.name }.toTypedArray()) { dialog, which ->
+                dialog.dismiss()
+                shareFile(files[which])
+            }
+            .setPositiveButton("Close", null)
+            .show()
+    }
+    private fun shareFile(file: File?) {
+        if (file != null) {
             val fileUri = FileProvider.getUriForFile(
                 this,
                 "${BuildConfig.APPLICATION_ID}.provider",
-                mostRecentFile
+                file
             )
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/octet-stream"
