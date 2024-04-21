@@ -168,8 +168,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         }
         playingQueueAdapter = null
         super.onDestroy()
-        if (MusicPlayerRemote.playingQueue.isNotEmpty())
-            mainActivity.expandPanel()
     }
 
     private fun setupToolbar() {
