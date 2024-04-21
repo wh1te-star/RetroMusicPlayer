@@ -77,15 +77,18 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (GPSRecordService.RECORDING_STARTED.equals(intent.getAction())) {
-                Toast.makeText(context, "The GPS recording has started.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,
+                    getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
                 isRecordingGPS = true
                 updateGPSRecordState()
             }
             if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
-                Toast.makeText(context, "The recording file size exceeds the limit.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,
+                    getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
             }
             if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
-                Toast.makeText(context, "The GPS recording has stopped.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,
+                    getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show();
                 isRecordingGPS = false
                 updateGPSRecordState()
             }
@@ -213,12 +216,12 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         binding.recordGPSButton?.setOnLongClickListener {
             if (!isWifiConnected(this)) {
                 AlertDialog.Builder(this)
-                    .setMessage("You are not connected to Wi-Fi network.\nDo you want to upload a GPS recording file anyway?")
-                    .setPositiveButton("Yes") { dialog, _ ->
+                    .setMessage(getString(R.string.not_wifi_connect_warning))
+                    .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
                         dialog.dismiss()
                         showFileSelectionDialog()
                     }
-                    .setNegativeButton("No", null)
+                    .setNegativeButton(getString(R.string.no), null)
                     .show()
             }
             else{
@@ -373,12 +376,12 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
             ?.filter { it.name.matches(Regex("\\d{14}")) }
             ?.sortedByDescending{ it.name } ?: return
         AlertDialog.Builder(this)
-            .setTitle("Select the file to upload")
+            .setTitle(getString(R.string.select_file_to_upload))
             .setItems(files.map { it.name }.toTypedArray()) { dialog, which ->
                 dialog.dismiss()
                 shareFile(files[which])
             }
-            .setPositiveButton("Close", null)
+            .setPositiveButton(getString(R.string.close), null)
             .show()
     }
     private fun shareFile(file: File?) {

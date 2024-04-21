@@ -564,4 +564,12 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">You will be forwarded to the issue tracker website.</string>
     <string name="your_account_data_is_only_used_for_authentication">Your account data is only used for authentication.</string>
     <string name="could_not_write_tags_to_file">Could not write tags to the music file!</string>
+    <string name="gps_recording_started">The GPS recording has started.</string>
+    <string name="recording_file_size_exceeds_limit">The recording file size exceeds the limit.</string>
+    <string name="gps_recording_stopped">The GPS recording has stopped.</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="not_wifi_connect_warning">You are not connected to Wi-Fi network.\nDo you want to upload a GPS recording file anyway?</string>
+    <string name="close">Close</string>
+    <string name="select_file_to_upload">Select the file to upload</string>
 </resources>
