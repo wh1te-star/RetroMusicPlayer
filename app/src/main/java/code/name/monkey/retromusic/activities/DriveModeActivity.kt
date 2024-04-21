@@ -71,14 +71,19 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
     private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (GPSRecordService.STOPPED_BY_EXCEED.equals(intent.getAction())) {
-                Toast.makeText(context, "The file size exceeds", Toast.LENGTH_SHORT).show();
+            if (GPSRecordService.RECORDING_STARTED.equals(intent.getAction())) {
+                Toast.makeText(context, "The GPS recording has started.", Toast.LENGTH_SHORT).show();
+                isRecordingGPS = true
+                updateGPSRecordState()
             }
-            if (GPSRecordService.STOPPED_BY_USER.equals(intent.getAction())) {
-                Toast.makeText(context, "The recording was stopped.", Toast.LENGTH_SHORT).show();
+            if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
+                Toast.makeText(context, "The recording file size exceeds the limit.", Toast.LENGTH_SHORT).show();
             }
-            isRecordingGPS = false
-            updateGPSRecordState()
+            if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
+                Toast.makeText(context, "The GPS recording has stopped.", Toast.LENGTH_SHORT).show();
+                isRecordingGPS = false
+                updateGPSRecordState()
+            }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,8 +101,9 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
         gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
         val filter = IntentFilter()
-        filter.addAction(GPSRecordService.STOPPED_BY_USER)
-        filter.addAction(GPSRecordService.STOPPED_BY_EXCEED)
+        filter.addAction(GPSRecordService.RECORDING_STARTED)
+        filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
+        filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
     }
 
@@ -189,8 +195,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                     )
                 } else {
                     startService(gpsRecordServiceIntent)
-                    isRecordingGPS = true
-                    updateGPSRecordState()
                 }
             } else {
                 stopService(gpsRecordServiceIntent)

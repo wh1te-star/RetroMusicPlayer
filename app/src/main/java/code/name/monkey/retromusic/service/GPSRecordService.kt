@@ -25,8 +25,9 @@ class GPSRecordService() : Service(), LocationListener {
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
 
     companion object {
-        val STOPPED_BY_USER = "code.name.monkey.retromusic.STOPPED_BY_USER"
-        val STOPPED_BY_EXCEED = "code.name.monkey.retromusic.STOPPED_BY_EXCEED"
+        val RECORDING_STARTED = "code.name.monkey.retromusic.RECORDING_STARTED"
+        val RECORDING_STOPPED = "code.name.monkey.retromusic.RECORDING_STOPPED"
+        val FILE_SIZE_EXCEEDED = "code.name.monkey.retromusic.FILE_SIZE_EXCEEDED"
     }
 
     inner class LocalBinder : Binder() {
@@ -52,6 +53,9 @@ class GPSRecordService() : Service(), LocationListener {
             recordingFile.delete()
         }
         recordingFile.createNewFile()
+
+        sendBroadcast(Intent(RECORDING_STARTED))
+
         return START_NOT_STICKY
     }
 
@@ -77,7 +81,7 @@ class GPSRecordService() : Service(), LocationListener {
         }
 
         if (recordingFile.length() > storageSizeLimit){
-            sendBroadcast(Intent(STOPPED_BY_EXCEED))
+            sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
             stopSelf();
         }
     }
@@ -95,6 +99,6 @@ class GPSRecordService() : Service(), LocationListener {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
-        sendBroadcast(Intent(STOPPED_BY_USER))
+        sendBroadcast(Intent(RECORDING_STOPPED))
     }
 }
