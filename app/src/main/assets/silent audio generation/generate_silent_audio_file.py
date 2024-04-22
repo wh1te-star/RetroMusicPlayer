@@ -22,19 +22,22 @@ def add_metadata_to_mp3(file_path, track_number, title, artist, album, album_art
     audio.tags.add(TALB(encoding=3, text=album))
     audio.tags.add(TPE2(encoding=3, text=album_artist))
     audio.tags.add(TDRC(encoding=3, text=release_year))
-    with open(image_path, 'rb') as img_file:
-        mime_type = 'image/jpeg' if image_path.lower().endswith('.jpg') else 'image/png'
-        audio.tags.add(
-            APIC(
-                encoding=3,
-                mime=mime_type,
-                type=3,
-                desc=u'Cover',
-                data=img_file.read()
-            )
-        )
-    audio.save()
     print(f"Metadata added to {file_path}")
+    if image_path:
+        with open(image_path, 'rb') as img_file:
+            mime_type = 'image/jpeg' if image_path.lower().endswith('.jpg') else 'image/png'
+            audio.tags.add(
+                APIC(
+                    encoding=3,
+                    mime=mime_type,
+                    type=3,
+                    desc=u'Cover',
+                    data=img_file.read()
+                )
+            )
+    else:
+        print(f"Album art not found for {album}. Skipping albumart addition for {file_path}.")
+    audio.save()
 
 def find_album_art(album, search_dir):
     for ext in ['.jpg', '.png']:
@@ -52,10 +55,7 @@ def generate_silent_audio_files(tracklist_file, output_dir):
                 file_path = os.path.join(output_dir, f"{str(track_number).zfill(2)}_{title}.mp3")
                 create_silent_audio(duration_ms, file_path)
                 image_path = find_album_art(album, output_dir)
-                if image_path:
-                    add_metadata_to_mp3(file_path, track_number, title, artist, album, album_artist, release_year, image_path)
-                else:
-                    print(f"Album art not found for {album}. Skipping metadata addition for {file_path}.")
+                add_metadata_to_mp3(file_path, track_number, title, artist, album, album_artist, release_year, image_path)
     print("Silent audio files processed.")
 
 if __name__ == '__main__':
