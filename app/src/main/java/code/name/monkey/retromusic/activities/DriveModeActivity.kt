@@ -14,11 +14,25 @@
  */
 package code.name.monkey.retromusic.activities
 
+import android.Manifest
+import android.app.AlertDialog
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.databinding.ActivityDriveModeBinding
@@ -34,6 +48,7 @@ import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper.Callback
 import code.name.monkey.retromusic.helper.PlayPauseButtonOnClickHandler
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
+import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.MusicUtil
 import com.bumptech.glide.Glide
@@ -42,6 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.io.File
 
 
 /**
@@ -55,7 +71,29 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private var lastDisabledPlaybackControlsColor: Int = Color.GRAY
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
     private val repository: RealRepository by inject()
+    private lateinit var gpsRecordServiceIntent: Intent
+    private var isRecordingGPS = false
 
+    private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (GPSRecordService.RECORDING_STARTED.equals(intent.getAction())) {
+                Toast.makeText(context,
+                    getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
+                isRecordingGPS = true
+                updateGPSRecordState()
+            }
+            if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
+                Toast.makeText(context,
+                    getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
+            }
+            if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
+                Toast.makeText(context,
+                    getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show();
+                isRecordingGPS = false
+                updateGPSRecordState()
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDriveModeBinding.inflate(layoutInflater)
@@ -68,6 +106,13 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
             onBackPressedDispatcher.onBackPressed()
         }
         binding.repeatButton.drawAboveSystemBars()
+
+        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
+        val filter = IntentFilter()
+        filter.addAction(GPSRecordService.RECORDING_STARTED)
+        filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
+        filter.addAction(GPSRecordService.RECORDING_STOPPED)
+        registerReceiver(serviceStoppedReceiver, filter)
     }
 
     private fun setUpMusicControllers() {
@@ -75,6 +120,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         setUpPrevNext()
         setUpRepeatButton()
         setUpShuffleButton()
+        setUpGPSRecordButton()
         setUpProgressSlider()
         setupFavouriteToggle()
     }
@@ -140,6 +186,51 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         binding.shuffleButton.setOnClickListener { MusicPlayerRemote.toggleShuffleMode() }
     }
 
+    private fun setUpGPSRecordButton() {
+        binding.recordGPSButton?.setOnClickListener {
+            if (isRecordingGPS == false) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ),
+                        LOCATION_PERMISSION_REQUEST
+                    )
+                } else {
+                    startService(gpsRecordServiceIntent)
+                }
+            } else {
+                stopService(gpsRecordServiceIntent)
+                val mostRecentFile = getExternalFilesDir(null)?.listFiles()
+                    ?.filter { it.name.matches(Regex("\\d{14}")) }
+                    ?.sortedByDescending { it.name }
+                    ?.firstOrNull()
+                shareFile(mostRecentFile)
+            }
+        }
+        binding.recordGPSButton?.setOnLongClickListener {
+            if (!isWifiConnected(this)) {
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.not_wifi_connect_warning))
+                    .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
+                        dialog.dismiss()
+                        showFileSelectionDialog()
+                    }
+                    .setNegativeButton(getString(R.string.no), null)
+                    .show()
+            }
+            else{
+                showFileSelectionDialog()
+            }
+            true
+        }
+    }
+
     private fun setUpRepeatButton() {
         binding.repeatButton.setOnClickListener { MusicPlayerRemote.cycleRepeatMode() }
     }
@@ -169,6 +260,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         updateSong()
         updateRepeatState()
         updateShuffleState()
+        updateGPSRecordState()
         updateFavorite()
     }
 
@@ -214,6 +306,25 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         }
     }
 
+    fun updateGPSRecordState() {
+        when (isRecordingGPS) {
+            true -> {
+                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton?.setColorFilter(
+                    lastPlaybackControlsColor,
+                    PorterDuff.Mode.SRC_IN
+                )
+            }
+            false -> {
+                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton?.setColorFilter(
+                    lastDisabledPlaybackControlsColor,
+                    PorterDuff.Mode.SRC_IN
+                )
+            }
+        }
+    }
+
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         updateSong()
@@ -246,5 +357,51 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
 
         binding.songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
         binding.songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())
+    }
+
+    fun isWifiConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager.activeNetwork
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } else {
+            val activeNetworkInfo = connectivityManager.activeNetworkInfo
+            return activeNetworkInfo?.isConnected == true && activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
+        }
+    }
+
+    fun showFileSelectionDialog() {
+        val files = getExternalFilesDir(null)?.listFiles()
+            ?.filter { it.name.matches(Regex("\\d{14}")) }
+            ?.sortedByDescending{ it.name } ?: return
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.select_file_to_upload))
+            .setItems(files.map { it.name }.toTypedArray()) { dialog, which ->
+                dialog.dismiss()
+                shareFile(files[which])
+            }
+            .setPositiveButton(getString(R.string.close), null)
+            .show()
+    }
+    private fun shareFile(file: File?) {
+        if (file != null) {
+            val fileUri = FileProvider.getUriForFile(
+                this,
+                "${BuildConfig.APPLICATION_ID}.provider",
+                file
+            )
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/octet-stream"
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share File"))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(serviceStoppedReceiver)
     }
 }

@@ -31,6 +31,10 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <application
         android:name=".App"
         android:allowBackup="@bool/allowBackup"
@@ -188,16 +192,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
-
         <receiver
             android:name=".service.MediaButtonIntentReceiver"
             android:exported="true">
@@ -311,6 +305,18 @@
             </intent-filter>
         </service>
 
+        <service android:name=".service.GPSRecordService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <meta-data
             android:name="android.max_aspect"
             android:value="2.1" />
@@ -339,6 +345,7 @@
                 android:name="autoStoreLocales"
                 android:value="true" />
         </service>
+
     </application>
 
     <!--
