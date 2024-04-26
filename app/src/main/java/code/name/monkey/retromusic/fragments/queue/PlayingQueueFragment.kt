@@ -143,7 +143,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
 
     private fun resetToCurrentPosition() {
         binding.recyclerView.stopScroll()
-        linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
     }
 
     override fun onPause() {
