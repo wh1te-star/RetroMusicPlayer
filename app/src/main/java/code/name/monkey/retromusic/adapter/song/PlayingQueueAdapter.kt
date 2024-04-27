@@ -63,7 +63,7 @@ class PlayingQueueAdapter(
         super.onBindViewHolder(holder, position)
         val song = dataSet[position]
         holder.time?.text = MusicUtil.getReadableDurationString(song.duration)
-        if (holder.itemViewType == HISTORY || holder.itemViewType == CURRENT) {
+        if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
         }
     }
