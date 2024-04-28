@@ -2,12 +2,6 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <code.name.monkey.retromusic.preferences.NowPlayingScreenPreference
-        android:key="now_playing_screen_id"
-        android:layout="@layout/list_item_view"
-        android:title="@string/pref_title_now_playing_screen_appearance"
-        app:icon="@drawable/ic_play_circle_filled" />
-
     <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
         android:defaultValue="false"
         android:key="extra_song_info"
@@ -52,12 +46,6 @@
     <code.name.monkey.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
         android:layout="@layout/preference_category_title"
         android:title="@string/pref_header_album">
-
-        <code.name.monkey.retromusic.preferences.AlbumCoverStylePreference
-            android:key="album_cover_style_id"
-            android:layout="@layout/list_item_view"
-            android:title="@string/pref_title_album_cover_style"
-            app:icon="@drawable/ic_image" />
 
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATEListPreference
             android:defaultValue="0"
