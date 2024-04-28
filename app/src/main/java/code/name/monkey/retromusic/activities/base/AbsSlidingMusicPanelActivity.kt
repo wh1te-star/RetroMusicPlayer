@@ -19,18 +19,24 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
 import code.name.monkey.appthemehelper.util.VersionUtils
@@ -71,6 +77,7 @@ import code.name.monkey.retromusic.extensions.setNavigationBarColorPreOreo
 import code.name.monkey.retromusic.extensions.setTaskDescriptionColor
 import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.extensions.surfaceColor
+import code.name.monkey.retromusic.extensions.updateMargin
 import code.name.monkey.retromusic.extensions.whichFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
@@ -93,6 +100,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -144,6 +152,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         navigationBarColor
                     ) as Int
                 )
+                val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+                val peekHeight = bottomSheetBehavior.peekHeight
+                val statusBarHeight = getStatusBarHeight(binding.root)
+                val height = screenHeight - peekHeight + statusBarHeight
+                val adjustedMergin = peekHeight + height * slideOffset
+
+                Log.d("BottomSheet", "Peek Height: $peekHeight, Height: $height, Adjusted Margin: $adjustedMergin, Slide Offset: $slideOffset")
+
+                binding.menuButtonLeft?.let { setButtonMargin(it, adjustedMergin.toInt()) }
+                binding.menuButtonRight?.let { setButtonMargin(it, adjustedMergin.toInt()) }
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -154,6 +172,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         if (PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) {
                             keepScreenOn(true)
                         }
+                        binding.menuButtonLeft?.let { setButtonMargin(it, 128) }
+                        binding.menuButtonRight?.let { setButtonMargin(it, 128) }
                     }
 
                     STATE_COLLAPSED -> {
@@ -161,6 +181,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         if ((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) {
                             keepScreenOn(false)
                         }
+                        binding.menuButtonLeft?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
+                        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
                     }
 
                     STATE_SETTLING, STATE_DRAGGING -> {
@@ -181,6 +203,25 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
     }
 
+    private fun setButtonMargin(button: ExtendedFloatingActionButton, margin: Int) {
+        button.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            bottomMargin = margin
+        }
+    }
+
+    fun getStatusBarHeight(view: View): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowInsets = view.rootWindowInsets
+            windowInsets?.getInsets(WindowInsets.Type.statusBars())?.top ?: 0
+        } else {
+            val resourceId = view.resources.getIdentifier("status_bar_height", "dimen", "android")
+            if (resourceId > 0) {
+                view.resources.getDimensionPixelSize(resourceId)
+            } else {
+                0
+            }
+        }
+    }
     fun getBottomSheetBehavior() = bottomSheetBehavior
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -416,6 +457,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 libraryViewModel.setFabMargin(this, dip(R.dimen.mini_player_height))
             }
         }
+
+        binding.menuButtonLeft?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
+        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
     }
 
     fun setAllowDragging(allowDragging: Boolean) {
