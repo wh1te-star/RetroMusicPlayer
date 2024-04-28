@@ -41,15 +41,4 @@
             tools:layout="@layout/fragment_mini_player" />
 
     </FrameLayout>
-
-    <code.name.monkey.retromusic.views.TintedBottomNavigationView
-        android:id="@+id/navigationView"
-        style="@style/Widget.Material3.BottomNavigationView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:minHeight="@dimen/bottom_nav_height"
-        app:itemHorizontalTranslationEnabled="false"
-        app:menu="@menu/bottom_navigation_main"
-        tools:viewBindingType="com.google.android.material.navigation.NavigationBarView"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

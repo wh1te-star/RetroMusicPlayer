@@ -101,9 +101,9 @@ class MainActivity : AbsCastActivity() {
             )
         }
         navController.graph = navGraph
-        navigationView.setupWithNavController(navController)
+        navigationView?.setupWithNavController(navController)
         // Scroll Fragment to top
-        navigationView.setOnItemReselectedListener {
+        navigationView?.setOnItemReselectedListener {
             currentFragment(R.id.fragment_container).apply {
                 if (this is IScrollHelper) {
                     scrollToTop()
