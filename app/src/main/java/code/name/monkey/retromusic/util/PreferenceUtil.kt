@@ -567,6 +567,19 @@ object PreferenceUtil {
             putInt(PLAYLIST_GRID_SIZE, value)
         }
 
+    var albumCoverStyle: AlbumCoverStyle
+        get() = AlbumCoverStyle.Normal
+        set(value) = sharedPreferences.edit { putInt(ALBUM_COVER_STYLE, value.id) }
+
+
+    var nowPlayingScreen: NowPlayingScreen
+        get() = NowPlayingScreen.Normal
+        set(value) = sharedPreferences.edit {
+            putInt(NOW_PLAYING_SCREEN_ID, value.id)
+            // Also set a cover theme for that now playing
+            value.defaultCoverTheme?.let { coverTheme -> albumCoverStyle = coverTheme }
+        }
+
     val albumCoverTransform: ViewPager.PageTransformer
         get() {
             val style = sharedPreferences.getStringOrDefault(
