@@ -69,7 +69,6 @@ class MainActivity : AbsCastActivity() {
         super.onCreate(savedInstanceState)
         setTaskDescriptionColorAuto()
         hideStatusBar()
-        updateTabs()
         AppRater.appLaunched(this)
 
         setupNavigationController()
@@ -101,15 +100,6 @@ class MainActivity : AbsCastActivity() {
             )
         }
         navController.graph = navGraph
-        navigationView?.setupWithNavController(navController)
-        // Scroll Fragment to top
-        navigationView?.setOnItemReselectedListener {
-            currentFragment(R.id.fragment_container).apply {
-                if (this is IScrollHelper) {
-                    scrollToTop()
-                }
-            }
-        }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == navGraph.startDestinationId) {
                 currentFragment(R.id.fragment_container)?.enterTransition = null
@@ -120,16 +110,7 @@ class MainActivity : AbsCastActivity() {
                     if (PreferenceUtil.rememberLastTab) {
                         saveTab(destination.id)
                     }
-                    // Show Bottom Navigation Bar
-                    setBottomNavVisibility(visible = true, animate = true)
                 }
-                R.id.playing_queue_fragment -> {
-                    setBottomNavVisibility(visible = false)
-                }
-                else -> setBottomNavVisibility(
-                    visible = false,
-                    animate = true
-                ) // Hide Bottom Navigation Bar
             }
         }
     }

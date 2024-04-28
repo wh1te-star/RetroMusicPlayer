@@ -106,7 +106,6 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
         reenterTransition = MaterialFadeThrough()
 
         setUpBreadCrumbs()
-        checkForMargins()
         setUpRecyclerView()
         setUpAdapter()
         setUpTitle()
@@ -394,15 +393,6 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
 
     override fun onResume() {
         super.onResume()
-        checkForMargins()
-    }
-
-    private fun checkForMargins() {
-        if (mainActivity.isBottomNavVisible) {
-            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dip(R.dimen.bottom_nav_height)
-            }
-        }
     }
 
     private fun checkIsEmpty() {

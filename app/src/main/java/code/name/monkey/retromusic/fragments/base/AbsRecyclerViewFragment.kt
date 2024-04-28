@@ -61,7 +61,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         mainActivity.supportActionBar?.title = null
         initLayoutManager()
         initAdapter()
-        checkForMargins()
         setUpRecyclerView()
         setupToolbar()
         binding.shuffleButton.fitsSystemWindows = PreferenceUtil.isFullScreenMode
@@ -147,14 +146,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         binding.empty.isVisible = adapter!!.itemCount == 0
     }
 
-    private fun checkForMargins() {
-        if (mainActivity.isBottomNavVisible) {
-            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dip(R.dimen.bottom_nav_height)
-            }
-        }
-    }
-
     private fun initLayoutManager() {
         layoutManager = createLayoutManager()
     }
@@ -219,7 +210,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     override fun onResume() {
         super.onResume()
-        checkForMargins()
     }
 
     override fun onDestroyView() {

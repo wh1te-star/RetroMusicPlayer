@@ -167,14 +167,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
     }
 
-    private fun checkForMargins() {
-        if (mainActivity.isBottomNavVisible) {
-            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dip(R.dimen.bottom_nav_height)
-            }
-        }
-    }
-
     private fun setupRecyclerView() {
         searchAdapter = SearchAdapter(requireActivity(), emptyList())
         searchAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -248,7 +240,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     override fun onResume() {
         super.onResume()
-        checkForMargins()
     }
 
     override fun onDestroyView() {
