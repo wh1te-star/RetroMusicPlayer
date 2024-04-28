@@ -32,7 +32,6 @@ import code.name.monkey.retromusic.LYRICS_TYPE
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.SHOW_LYRICS
 import code.name.monkey.retromusic.adapter.album.AlbumCoverPagerAdapter
-import code.name.monkey.retromusic.adapter.album.AlbumCoverPagerAdapter.AlbumCoverFragment
 import code.name.monkey.retromusic.databinding.FragmentPlayerAlbumCoverBinding
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.surfaceColor
@@ -63,7 +62,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
     private var currentPosition: Int = 0
     val viewPager get() = binding.viewPager
 
-    private val colorReceiver = object : AlbumCoverFragment.ColorReceiver {
+    private val colorReceiver = object : AlbumCoverPagerAdapter.AlbumCoverFragment.ColorReceiver {
         override fun onColorReady(color: MediaNotificationProcessor, request: Int) {
             if (currentPosition == request) {
                 notifyColorChange(color)
@@ -130,11 +129,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
 
     private fun setupViewPager() {
         binding.viewPager.addOnPageChangeListener(this)
-        val nps = PreferenceUtil.nowPlayingScreen
-
-        if (nps == Full || nps == Classic || nps == Fit || nps == Gradient) {
-            binding.viewPager.offscreenPageLimit = 2
-        } else if (PreferenceUtil.isCarouselEffect) {
+        if (PreferenceUtil.isCarouselEffect) {
             val metrics = resources.displayMetrics
             val ratio = metrics.heightPixels.toFloat() / metrics.widthPixels.toFloat()
             binding.viewPager.clipToPadding = false
@@ -234,9 +229,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
     }
 
     private fun maybeInitLyrics() {
-        val nps = PreferenceUtil.nowPlayingScreen
-        // Don't show lyrics container for below conditions
-        if (lyricViewNpsList.contains(nps) && PreferenceUtil.showLyrics) {
+        if (PreferenceUtil.showLyrics) {
             showLyrics(true)
             if (PreferenceUtil.lyricsType == CoverLyricsType.REPLACE_COVER) {
                 progressViewUpdateHelper?.start()
@@ -285,16 +278,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
             surfaceColor().isColorLight
         )
 
-        when (PreferenceUtil.nowPlayingScreen) {
-            Flat, Normal, Material -> if (PreferenceUtil.isAdaptiveColor) {
-                setLRCViewColors(color.primaryTextColor, color.secondaryTextColor)
-            } else {
-                setLRCViewColors(primaryColor, secondaryColor)
-            }
-            Color, Classic -> setLRCViewColors(color.primaryTextColor, color.secondaryTextColor)
-            Blur -> setLRCViewColors(Color.WHITE, ColorUtil.withAlpha(Color.WHITE, 0.5f))
-            else -> setLRCViewColors(primaryColor, secondaryColor)
-        }
+        setLRCViewColors(color.primaryTextColor, color.secondaryTextColor)
     }
 
     fun setCallbacks(listener: Callbacks) {
@@ -313,5 +297,5 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
     }
 
     private val lyricViewNpsList =
-        listOf(Blur, Classic, Color, Flat, Material, MD3, Normal, Plain, Simple)
+        listOf(Normal)
 }

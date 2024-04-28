@@ -131,10 +131,6 @@ class ThemeSettingsFragment : AbsSettingsFragment() {
             restartActivity()
             true
         }
-
-        val adaptiveColor: ATESwitchPreference? = findPreference(ADAPTIVE_COLOR_APP)
-        adaptiveColor?.isEnabled =
-            PreferenceUtil.nowPlayingScreen in listOf(Normal, Material, Flat)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

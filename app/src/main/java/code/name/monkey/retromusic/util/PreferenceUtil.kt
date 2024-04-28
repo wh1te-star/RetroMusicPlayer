@@ -567,35 +567,6 @@ object PreferenceUtil {
             putInt(PLAYLIST_GRID_SIZE, value)
         }
 
-    var albumCoverStyle: AlbumCoverStyle
-        get() {
-            val id: Int = sharedPreferences.getInt(ALBUM_COVER_STYLE, 0)
-            for (albumCoverStyle in AlbumCoverStyle.values()) {
-                if (albumCoverStyle.id == id) {
-                    return albumCoverStyle
-                }
-            }
-            return AlbumCoverStyle.Card
-        }
-        set(value) = sharedPreferences.edit { putInt(ALBUM_COVER_STYLE, value.id) }
-
-
-    var nowPlayingScreen: NowPlayingScreen
-        get() {
-            val id: Int = sharedPreferences.getInt(NOW_PLAYING_SCREEN_ID, 0)
-            for (nowPlayingScreen in NowPlayingScreen.values()) {
-                if (nowPlayingScreen.id == id) {
-                    return nowPlayingScreen
-                }
-            }
-            return NowPlayingScreen.Adaptive
-        }
-        set(value) = sharedPreferences.edit {
-            putInt(NOW_PLAYING_SCREEN_ID, value.id)
-            // Also set a cover theme for that now playing
-            value.defaultCoverTheme?.let { coverTheme -> albumCoverStyle = coverTheme }
-        }
-
     val albumCoverTransform: ViewPager.PageTransformer
         get() {
             val style = sharedPreferences.getStringOrDefault(
