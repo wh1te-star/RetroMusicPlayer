@@ -33,6 +33,7 @@ import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -256,6 +257,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
         getButtonMargin()
+        binding.menuButtonLeft.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
+        binding.menuButtonRight.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.END)
+        }
     }
 
     private fun setupBottomSheet() {
