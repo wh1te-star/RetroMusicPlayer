@@ -163,10 +163,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
                 val adjustedMergin = peekHeight + height * slideOffset
 
-                //Log.d("BottomSheet", "Peek Height: $peekHeight, Height: $height, Adjusted Margin: $adjustedMergin, Slide Offset: $slideOffset")
-
-                binding.menuButtonLeft?.let { setButtonMargin(it, adjustedMergin.toInt() + leftButtonBottomMargin) }
-                binding.menuButtonRight?.let { setButtonMargin(it, adjustedMergin.toInt() + rightButtonBottomMargin) }
+                setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
+                setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -469,8 +467,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         }
 
-        binding.menuButtonLeft?.let  { setButtonMargin(it, bottomSheetBehavior.peekHeight + leftButtonBottomMargin) }
-        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight + rightButtonBottomMargin) }
+        setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
+        setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
     }
 
     fun setAllowDragging(allowDragging: Boolean) {

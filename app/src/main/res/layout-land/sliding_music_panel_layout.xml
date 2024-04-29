@@ -11,20 +11,46 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
+            app:defaultNavHost="true"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            tools:layout="@layout/fragment_home" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragment_container"
-                android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/colorSurface"
-                app:defaultNavHost="true"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout="@layout/fragment_home" />
-        </LinearLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/menuButtonLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|bottom"
+                android:layout_marginStart="64dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/keyboard"
+                android:textAppearance="@style/TextViewHeadline6"
+                app:icon="@drawable/ic_keyboard"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/menuButtonRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="64dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/keyboard"
+                android:textAppearance="@style/TextViewHeadline6"
+                app:icon="@drawable/ic_keyboard"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
             android:id="@+id/slidingPanel"
@@ -32,11 +58,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:behavior_hideable="true"
-            app:behavior_peekHeight="@dimen/mini_player_height"
+            app:behavior_peekHeight="0dp"
             app:enableEdgeToEdge="true"
             app:gestureInsetBottomIgnored="true"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            tools:visibility="visible">
+            tools:visibility="invisible">
 
             <FrameLayout
                 android:id="@+id/playerFragmentContainer"
@@ -51,6 +77,7 @@
                 tools:layout="@layout/fragment_mini_player" />
 
         </FrameLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
