@@ -40,6 +40,11 @@ import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ADAPTIVE_COLOR_APP
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
@@ -111,6 +116,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     companion object {
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
+    protected lateinit var navController: NavController
+    protected  lateinit var appBarConfiguration: AppBarConfiguration
 
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
@@ -396,6 +403,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         })
     }
+
+    val navigationView get() = binding.leftDrawer
 
     val slidingPanel get() = binding.slidingPanel
 

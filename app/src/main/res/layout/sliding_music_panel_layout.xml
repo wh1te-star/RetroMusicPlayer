@@ -85,7 +85,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        style="@style/SharpCorners" />
+        style="@style/SharpCorners"
+        app:menu="@menu/bottom_navigation_main"
+        />
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/rightDrawer"
