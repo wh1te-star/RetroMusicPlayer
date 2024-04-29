@@ -14,14 +14,17 @@
  */
 package code.name.monkey.retromusic.adapter.song
 
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import code.name.monkey.appthemehelper.ThemeStore.Companion.accentColor
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.glide.RetroGlideExtension
@@ -111,8 +114,16 @@ class PlayingQueueAdapter(
     }
 
     private fun setHighlight(holder: SongAdapter.ViewHolder) {
-        val color = Color.rgb(0, 255, 0)
-        holder.itemView.setBackgroundColor(color)
+        val color = accentColor(activity)
+        val colorARGB = Color.alpha(color) shl 24 or (Color.red(color) shl 16) or (Color.green(color) shl 8) or Color.blue(color)
+        val isDarkTheme = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val lighterColorARGB = if (isDarkTheme) {
+            ColorUtils.blendARGB(colorARGB, Color.BLACK, 0.8f)
+        } else {
+            ColorUtils.blendARGB(colorARGB, Color.WHITE, 0.8f)
+        }
+        val lighterColor = Color.argb(Color.alpha(lighterColorARGB), Color.red(lighterColorARGB), Color.green(lighterColorARGB), Color.blue(lighterColorARGB))
+        holder.itemView.setBackgroundColor(lighterColor)
     }
 
     override fun getPopupText(position: Int): String {
