@@ -261,4 +261,13 @@
         <item name="thumbRadius">6dp</item>
         <item name="haloRadius">18dp</item>
     </style>
+
+    <style name="SharpCorners" parent="Widget.MaterialComponents.NavigationView">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.retromusic.SharpCorners</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.retromusic.SharpCorners" parent="">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">0dp</item>
+    </style>
 </resources>

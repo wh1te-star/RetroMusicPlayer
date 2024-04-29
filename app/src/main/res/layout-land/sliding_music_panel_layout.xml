@@ -81,15 +81,17 @@
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/left_drawer"
+        android:id="@+id/leftDrawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start" />
+        android:layout_gravity="start"
+        style="@style/SharpCorners" />
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/right_drawer"
+        android:id="@+id/rightDrawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="end" />
+        android:layout_gravity="end"
+        style="@style/SharpCorners" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
