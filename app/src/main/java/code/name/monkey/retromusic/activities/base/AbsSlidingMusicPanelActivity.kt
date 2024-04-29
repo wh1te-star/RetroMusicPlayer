@@ -101,6 +101,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -156,7 +157,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 val peekHeight = bottomSheetBehavior.peekHeight
                 val statusBarHeight = getStatusBarHeight(binding.root)
                 val height = screenHeight - peekHeight + statusBarHeight
-                val adjustedMergin = peekHeight + height * slideOffset
+                val adjustedMergin = peekHeight + height * slideOffset + 32
 
                 Log.d("BottomSheet", "Peek Height: $peekHeight, Height: $height, Adjusted Margin: $adjustedMergin, Slide Offset: $slideOffset")
 
@@ -203,7 +204,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
     }
 
-    private fun setButtonMargin(button: ExtendedFloatingActionButton, margin: Int) {
+    private fun setButtonMargin(button: FloatingActionButton, margin: Int) {
         button.updateLayoutParams<ConstraintLayout.LayoutParams> {
             bottomMargin = margin
         }
