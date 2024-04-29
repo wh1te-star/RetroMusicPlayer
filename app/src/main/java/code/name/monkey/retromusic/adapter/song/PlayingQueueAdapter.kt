@@ -23,6 +23,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -65,6 +66,8 @@ class PlayingQueueAdapter(
         holder.time?.text = MusicUtil.getReadableDurationString(song.duration)
         if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
+        } else if (holder.itemViewType == CURRENT) {
+            setHighlight(holder)
         }
     }
 
@@ -105,6 +108,11 @@ class PlayingQueueAdapter(
         holder.paletteColorContainer?.alpha = alpha
         holder.dragView?.alpha = alpha
         holder.menu?.alpha = alpha
+    }
+
+    private fun setHighlight(holder: SongAdapter.ViewHolder) {
+        val color = Color.rgb(0, 255, 0)
+        holder.itemView.setBackgroundColor(color)
     }
 
     override fun getPopupText(position: Int): String {
