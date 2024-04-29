@@ -130,6 +130,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var navigationBarColorAnimator: ValueAnimator? = null
     private val argbEvaluator: ArgbEvaluator = ArgbEvaluator()
 
+    private var leftButtonBottomMargin = 0
+    private var rightButtonBottomMargin = 0
+
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             println("Handle back press ${bottomSheetBehavior.state}")
@@ -157,12 +160,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 val peekHeight = bottomSheetBehavior.peekHeight
                 val statusBarHeight = getStatusBarHeight(binding.root)
                 val height = screenHeight - peekHeight + statusBarHeight
-                val adjustedMergin = peekHeight + height * slideOffset + 32
 
-                Log.d("BottomSheet", "Peek Height: $peekHeight, Height: $height, Adjusted Margin: $adjustedMergin, Slide Offset: $slideOffset")
+                val adjustedMergin = peekHeight + height * slideOffset
 
-                binding.menuButtonLeft?.let { setButtonMargin(it, adjustedMergin.toInt()) }
-                binding.menuButtonRight?.let { setButtonMargin(it, adjustedMergin.toInt()) }
+                //Log.d("BottomSheet", "Peek Height: $peekHeight, Height: $height, Adjusted Margin: $adjustedMergin, Slide Offset: $slideOffset")
+
+                binding.menuButtonLeft?.let { setButtonMargin(it, adjustedMergin.toInt() + leftButtonBottomMargin) }
+                binding.menuButtonRight?.let { setButtonMargin(it, adjustedMergin.toInt() + rightButtonBottomMargin) }
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -173,8 +177,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         if (PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) {
                             keepScreenOn(true)
                         }
-                        binding.menuButtonLeft?.let { setButtonMargin(it, 128) }
-                        binding.menuButtonRight?.let { setButtonMargin(it, 128) }
                     }
 
                     STATE_COLLAPSED -> {
@@ -182,8 +184,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         if ((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) {
                             keepScreenOn(false)
                         }
-                        binding.menuButtonLeft?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
-                        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
                     }
 
                     STATE_SETTLING, STATE_DRAGGING -> {
@@ -202,6 +202,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 }
             }
         }
+    }
+
+    private fun getButtonMargin(){
+        val density = resources.displayMetrics.density
+        val leftLayoutParams = binding.menuButtonLeft?.layoutParams as ViewGroup.MarginLayoutParams
+        leftButtonBottomMargin = (leftLayoutParams.bottomMargin / density).toInt()
+        val rightLayoutParams = binding.menuButtonRight?.layoutParams as ViewGroup.MarginLayoutParams
+        rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
 
     private fun setButtonMargin(button: FloatingActionButton, margin: Int) {
@@ -248,6 +256,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         navigationBarColor = surfaceColor()
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
+
+        getButtonMargin()
     }
 
     private fun setupBottomSheet() {
@@ -459,8 +469,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         }
 
-        binding.menuButtonLeft?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
-        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight) }
+        binding.menuButtonLeft?.let  { setButtonMargin(it, bottomSheetBehavior.peekHeight + leftButtonBottomMargin) }
+        binding.menuButtonRight?.let { setButtonMargin(it, bottomSheetBehavior.peekHeight + rightButtonBottomMargin) }
     }
 
     fun setAllowDragging(allowDragging: Boolean) {

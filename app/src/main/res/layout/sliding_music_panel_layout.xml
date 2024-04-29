@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|bottom"
                 android:layout_marginStart="64dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="64dp"
                 android:text="@string/keyboard"
                 android:textAppearance="@style/TextViewHeadline6"
                 app:icon="@drawable/ic_keyboard"
