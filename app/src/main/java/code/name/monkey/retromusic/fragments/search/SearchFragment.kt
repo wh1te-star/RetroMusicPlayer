@@ -114,6 +114,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 activity?.optionButton?.isGone = true
             } else {
                 activity?.optionButton?.show()
+                activity?.optionButton?.setImageResource(R.drawable.ic_keyboard)
             }
         }
         binding.appBarLayout.statusBarForeground =
