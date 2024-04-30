@@ -46,6 +46,7 @@
                 android:layout_marginBottom="32dp"
                 android:text="@string/keyboard"
                 android:textAppearance="@style/TextViewHeadline6"
+                android:visibility="gone"
                 app:icon="@drawable/ic_keyboard"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
