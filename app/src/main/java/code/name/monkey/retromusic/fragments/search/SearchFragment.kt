@@ -172,6 +172,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 binding.empty.isVisible = searchAdapter.itemCount < 1
             }
         })
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = searchAdapter
+        }
     }
 
     private fun search(query: String) {
