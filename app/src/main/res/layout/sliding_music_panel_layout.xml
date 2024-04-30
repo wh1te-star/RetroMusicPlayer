@@ -39,6 +39,19 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/optionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|bottom"
+                android:layout_marginBottom="32dp"
+                android:text="@string/keyboard"
+                android:textAppearance="@style/TextViewHeadline6"
+                app:icon="@drawable/ic_keyboard"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
+                app:layout_constraintStart_toEndOf="@+id/menuButtonLeft" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/menuButtonRight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -152,7 +152,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var navigationBarColorAnimator: ValueAnimator? = null
     private val argbEvaluator: ArgbEvaluator = ArgbEvaluator()
 
+    lateinit var optionButton: FloatingActionButton
     private var leftButtonBottomMargin = 0
+    private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -186,6 +188,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 val adjustedMergin = peekHeight + height * slideOffset
 
                 setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
+                setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
                 setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
             }
 
@@ -228,6 +231,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         val density = resources.displayMetrics.density
         val leftLayoutParams = binding.menuButtonLeft?.layoutParams as ViewGroup.MarginLayoutParams
         leftButtonBottomMargin = (leftLayoutParams.bottomMargin / density).toInt()
+        val optionLayoutParams = binding.optionButton?.layoutParams as ViewGroup.MarginLayoutParams
+        optionButtonBottomMargin = (optionLayoutParams.bottomMargin / density).toInt()
         val rightLayoutParams = binding.menuButtonRight?.layoutParams as ViewGroup.MarginLayoutParams
         rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
@@ -306,6 +311,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             this.adapter = adapter
         }
         binding.leftDrawer.addHeaderView(leftMenu)
+        optionButton = binding.optionButton
     }
 
     protected fun setupNavigationController() {
@@ -558,6 +564,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
 
         setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
+        setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
         setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
     }
 

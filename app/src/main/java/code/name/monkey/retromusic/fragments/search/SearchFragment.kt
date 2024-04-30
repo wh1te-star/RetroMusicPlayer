@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.SearchAdapter
 import code.name.monkey.retromusic.databinding.FragmentSearchBinding
 import code.name.monkey.retromusic.extensions.*
@@ -90,9 +91,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 }
             }
         }
-        binding.keyboardPopup.apply {
-            accentColor()
-            setOnClickListener {
+        val activity = activity as? AbsSlidingMusicPanelActivity
+        activity?.optionButton?.let { optionButton ->
+            optionButton.setOnClickListener {
+                accentColor()
                 binding.searchView.focusAndShowKeyboard()
             }
         }
@@ -107,16 +109,11 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         view.doOnPreDraw {
             startPostponedEnterTransition()
         }
-        libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
-            binding.keyboardPopup.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = it
-            }
-        }
         KeyboardVisibilityEvent.setEventListener(requireActivity(), viewLifecycleOwner) {
             if (it) {
-                binding.keyboardPopup.isGone = true
+                activity?.optionButton?.isGone = true
             } else {
-                binding.keyboardPopup.show()
+                activity?.optionButton?.show()
             }
         }
         binding.appBarLayout.statusBarForeground =
@@ -175,20 +172,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 binding.empty.isVisible = searchAdapter.itemCount < 1
             }
         })
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = searchAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (dy > 0) {
-                        binding.keyboardPopup.shrink()
-                    } else if (dy < 0) {
-                        binding.keyboardPopup.extend()
-                    }
-                }
-            })
-        }
     }
 
     private fun search(query: String) {
