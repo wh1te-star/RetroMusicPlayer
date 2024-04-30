@@ -290,7 +290,20 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout)
+            val items = listOf(
+                Triple(R.drawable.avd_face, "Home", R.id.action_home),
+                Triple(R.drawable.avd_playlist, "Playing", R.id.action_playing),
+                Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
+                Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
+                Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
+                Triple(R.drawable.avd_album, "Album", R.id.action_album),
+                Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
+                Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
+                Triple(R.drawable.ic_search, "Search", R.id.action_search),
+            )
+
+            val adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+            this.adapter = adapter
         }
         binding.leftDrawer.addHeaderView(leftMenu)
     }
