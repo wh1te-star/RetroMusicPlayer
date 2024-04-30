@@ -30,6 +30,7 @@ import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -45,6 +46,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ADAPTIVE_COLOR_APP
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
@@ -97,6 +99,7 @@ import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
+import code.name.monkey.retromusic.views.OverflowScrollRecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
@@ -270,6 +273,29 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.menuButtonRight.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.END)
         }
+        val leftMenu = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                private val data = (1..50).map { "item number $it" }
+
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+                    val textView = TextView(parent.context)
+                    return object : RecyclerView.ViewHolder(textView) {}
+                }
+
+                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                    (holder.itemView as TextView).text = data[position]
+                }
+
+                override fun getItemCount(): Int {
+                    return data.size
+                }
+            }
+        }
+        binding.leftDrawer.addHeaderView(leftMenu)
     }
 
     private fun setupBottomSheet() {
