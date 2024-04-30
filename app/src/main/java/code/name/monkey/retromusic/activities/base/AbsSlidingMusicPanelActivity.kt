@@ -128,7 +128,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
     protected lateinit var navController: NavController
-    protected  lateinit var appBarConfiguration: AppBarConfiguration
+    protected lateinit var navInflater: NavInflater
+    protected lateinit var navGraph: NavGraph
+    protected lateinit var appBarConfiguration: AppBarConfiguration
 
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
@@ -325,8 +327,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     protected fun setupNavigationController() {
         navController = findNavController(R.id.fragment_container)
-        val navInflater = navController.navInflater
-        val navGraph = navInflater.inflate(R.navigation.main_graph)
+        navInflater = navController.navInflater
+        navGraph = navInflater.inflate(R.navigation.main_graph)
 
         val categoryInfo: CategoryInfo = PreferenceUtil.libraryCategory.first { it.visible }
         if (categoryInfo.visible) {
