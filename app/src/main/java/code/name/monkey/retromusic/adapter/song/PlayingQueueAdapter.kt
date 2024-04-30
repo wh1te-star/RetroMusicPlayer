@@ -69,8 +69,10 @@ class PlayingQueueAdapter(
         holder.time?.text = MusicUtil.getReadableDurationString(song.duration)
         if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
-        } else if (holder.itemViewType == CURRENT) {
+        } else if (holder.itemViewType == CURRENT && !isInQuickSelectMode) {
             setHighlight(holder)
+        } else {
+            resetHighlight(holder)
         }
     }
 
@@ -123,7 +125,12 @@ class PlayingQueueAdapter(
             ColorUtils.blendARGB(colorARGB, Color.WHITE, 0.8f)
         }
         val lighterColor = Color.argb(Color.alpha(lighterColorARGB), Color.red(lighterColorARGB), Color.green(lighterColorARGB), Color.blue(lighterColorARGB))
-        holder.itemView.setBackgroundColor(lighterColor)
+        holder.currentSongColorView.setBackgroundColor(lighterColor)
+        holder.currentSongColorView.visibility = View.VISIBLE
+    }
+
+    private fun resetHighlight(holder: SongAdapter.ViewHolder) {
+        holder.currentSongColorView.visibility = View.GONE
     }
 
     override fun getPopupText(position: Int): String {
@@ -179,9 +186,15 @@ class PlayingQueueAdapter(
         override fun onClick(v: View?) {
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
+                notifyDataSetChanged()
             } else {
                 MusicPlayerRemote.playSongAt(layoutPosition)
             }
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            notifyDataSetChanged()
+            return super.onLongClick(v)
         }
 
         override fun onSongMenuItemClick(item: MenuItem): Boolean {
