@@ -72,6 +72,7 @@ import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.PermissionActivity
+import code.name.monkey.retromusic.adapter.NavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
@@ -289,38 +290,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                private val data = (1..50).map { "item number $it" }
-
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-                    val view = LayoutInflater.from(parent.context).inflate(R.layout.item_navigation, parent, false)
-                    return object : RecyclerView.ViewHolder(view) {}
-                }
-
-                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    val itemView = holder.itemView
-                    val icon = itemView.findViewById<ImageView>(R.id.icon)
-                    val title = itemView.findViewById<TextView>(R.id.title)
-
-                    val itemNumber = data[position].substringAfter("item number ").substringBefore(" ").toInt()
-
-                    title.text = data[position]
-
-                    itemView.setOnClickListener {
-                        if (itemNumber % 2 == 0) {
-                            navController.navigate(R.id.action_album)
-                            binding.drawerLayout.closeDrawer(GravityCompat.START)
-                        } else {
-                            navController.navigate(R.id.action_folder)
-                            binding.drawerLayout.closeDrawer(GravityCompat.START)
-                        }
-                    }
-                }
-
-                override fun getItemCount(): Int {
-                    return data.size
-                }
-            }
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout)
         }
         binding.leftDrawer.addHeaderView(leftMenu)
     }
