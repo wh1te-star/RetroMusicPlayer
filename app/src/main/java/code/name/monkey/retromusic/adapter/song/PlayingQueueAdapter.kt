@@ -14,15 +14,19 @@
  */
 package code.name.monkey.retromusic.adapter.song
 
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import code.name.monkey.appthemehelper.ThemeStore.Companion.accentColor
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -63,8 +67,16 @@ class PlayingQueueAdapter(
         super.onBindViewHolder(holder, position)
         val song = dataSet[position]
         holder.time?.text = MusicUtil.getReadableDurationString(song.duration)
-        if (holder.itemViewType == HISTORY) {
+        if (isInQuickSelectMode){
+            resetHighlight(holder)
+            resetAlpha(holder)
+        } else if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
+        } else if (holder.itemViewType == CURRENT) {
+            setHighlight(holder)
+        } else {
+            resetHighlight(holder)
+            resetAlpha(holder)
         }
     }
 
@@ -105,6 +117,33 @@ class PlayingQueueAdapter(
         holder.paletteColorContainer?.alpha = alpha
         holder.dragView?.alpha = alpha
         holder.menu?.alpha = alpha
+    }
+
+    private fun resetAlpha(holder: SongAdapter.ViewHolder) {
+        holder.image?.alpha = 1.0f
+        holder.title?.alpha = 1.0f
+        holder.text?.alpha = 1.0f
+        holder.paletteColorContainer?.alpha = 1.0f
+        holder.dragView?.alpha = 1.0f
+        holder.menu?.alpha = 1.0f
+    }
+
+    private fun setHighlight(holder: SongAdapter.ViewHolder) {
+        val color = accentColor(activity)
+        val colorARGB = Color.alpha(color) shl 24 or (Color.red(color) shl 16) or (Color.green(color) shl 8) or Color.blue(color)
+        val isDarkTheme = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val lighterColorARGB = if (isDarkTheme) {
+            ColorUtils.blendARGB(colorARGB, Color.BLACK, 0.8f)
+        } else {
+            ColorUtils.blendARGB(colorARGB, Color.WHITE, 0.8f)
+        }
+        val lighterColor = Color.argb(Color.alpha(lighterColorARGB), Color.red(lighterColorARGB), Color.green(lighterColorARGB), Color.blue(lighterColorARGB))
+        holder.currentSongColorView.setBackgroundColor(lighterColor)
+        holder.currentSongColorView.visibility = View.VISIBLE
+    }
+
+    private fun resetHighlight(holder: SongAdapter.ViewHolder) {
+        holder.currentSongColorView.visibility = View.GONE
     }
 
     override fun getPopupText(position: Int): String {
@@ -160,9 +199,15 @@ class PlayingQueueAdapter(
         override fun onClick(v: View?) {
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
+                notifyDataSetChanged()
             } else {
                 MusicPlayerRemote.playSongAt(layoutPosition)
             }
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            notifyDataSetChanged()
+            return super.onLongClick(v)
         }
 
         override fun onSongMenuItemClick(item: MenuItem): Boolean {

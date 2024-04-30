@@ -182,6 +182,8 @@ open class SongAdapter(
         protected open val song: Song
             get() = dataSet[layoutPosition]
 
+        val currentSongColorView: View = itemView.findViewById(R.id.currentSongColorView)
+
         init {
             menu?.setOnClickListener(object : SongMenuHelper.OnClickSongMenu(activity) {
                 override val song: Song

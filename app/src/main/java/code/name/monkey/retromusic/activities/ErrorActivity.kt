@@ -68,13 +68,12 @@ class ErrorActivity : AppCompatActivity() {
                 }
                 .show()
         }
-        val errorActivityDrawableId = config.errorDrawable
         val errorImageView =
             findViewById<ImageView>(cat.ereza.customactivityoncrash.R.id.customactivityoncrash_error_activity_image)
-        if (errorActivityDrawableId != null) {
-            errorImageView.setImageResource(
-                errorActivityDrawableId
-            )
-        }
+        errorImageView.setImageResource(R.drawable.ic_error_activity)
+        val layoutParams = errorImageView.layoutParams
+        layoutParams.width = 500
+        layoutParams.height = 500
+        errorImageView.layoutParams = layoutParams
     }
 }
