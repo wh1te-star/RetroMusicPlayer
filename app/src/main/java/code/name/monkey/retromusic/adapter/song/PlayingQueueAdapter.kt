@@ -67,12 +67,16 @@ class PlayingQueueAdapter(
         super.onBindViewHolder(holder, position)
         val song = dataSet[position]
         holder.time?.text = MusicUtil.getReadableDurationString(song.duration)
-        if (holder.itemViewType == HISTORY) {
+        if (isInQuickSelectMode){
+            resetHighlight(holder)
+            resetAlpha(holder)
+        } else if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
-        } else if (holder.itemViewType == CURRENT && !isInQuickSelectMode) {
+        } else if (holder.itemViewType == CURRENT) {
             setHighlight(holder)
         } else {
             resetHighlight(holder)
+            resetAlpha(holder)
         }
     }
 
@@ -113,6 +117,15 @@ class PlayingQueueAdapter(
         holder.paletteColorContainer?.alpha = alpha
         holder.dragView?.alpha = alpha
         holder.menu?.alpha = alpha
+    }
+
+    private fun resetAlpha(holder: SongAdapter.ViewHolder) {
+        holder.image?.alpha = 1.0f
+        holder.title?.alpha = 1.0f
+        holder.text?.alpha = 1.0f
+        holder.paletteColorContainer?.alpha = 1.0f
+        holder.dragView?.alpha = 1.0f
+        holder.menu?.alpha = 1.0f
     }
 
     private fun setHighlight(holder: SongAdapter.ViewHolder) {
