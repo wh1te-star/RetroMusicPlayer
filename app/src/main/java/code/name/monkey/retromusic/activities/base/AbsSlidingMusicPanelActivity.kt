@@ -44,6 +44,7 @@ import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
+import androidx.navigation.contains
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -67,11 +68,13 @@ import code.name.monkey.retromusic.TAB_TEXT_MODE
 import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
+import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
+import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
 import code.name.monkey.retromusic.extensions.hide
 import code.name.monkey.retromusic.extensions.isColorLight
@@ -113,6 +116,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLIN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.eclipse.egit.github.core.service.LabelService
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -265,6 +269,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
 
         navigationBarColor = surfaceColor()
+        setupNavigationController()
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
@@ -293,8 +298,17 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     val icon = itemView.findViewById<ImageView>(R.id.icon)
                     val title = itemView.findViewById<TextView>(R.id.title)
 
-                    //icon.setImageResource(R.drawable.your_icon)
+                    val itemNumber = data[position].substringAfter("item number ").substringBefore(" ").toInt()
+
                     title.text = data[position]
+
+                    itemView.setOnClickListener {
+                        if (itemNumber % 2 == 0) {
+                            navController.navigate(R.id.action_album)
+                        } else {
+                            navController.navigate(R.id.action_folder)
+                        }
+                    }
                 }
 
                 override fun getItemCount(): Int {
@@ -303,6 +317,44 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         }
         binding.leftDrawer.addHeaderView(leftMenu)
+    }
+
+    protected fun setupNavigationController() {
+        navController = findNavController(R.id.fragment_container)
+        val navInflater = navController.navInflater
+        val navGraph = navInflater.inflate(R.navigation.main_graph)
+
+        val categoryInfo: CategoryInfo = PreferenceUtil.libraryCategory.first { it.visible }
+        if (categoryInfo.visible) {
+            if (!navGraph.contains(PreferenceUtil.lastTab)) PreferenceUtil.lastTab =
+                categoryInfo.category.id
+            navGraph.setStartDestination(
+                if (PreferenceUtil.rememberLastTab) {
+                    PreferenceUtil.lastTab.let {
+                        if (it == 0) {
+                            categoryInfo.category.id
+                        } else {
+                            it
+                        }
+                    }
+                } else categoryInfo.category.id
+            )
+        }
+        navController.graph = navGraph
+        navigationView.setupWithNavController(navController)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == navGraph.startDestinationId) {
+                currentFragment(R.id.fragment_container)?.enterTransition = null
+            }
+            when (destination.id) {
+                R.id.action_home, R.id.action_song, R.id.action_album, R.id.action_artist, R.id.action_folder, R.id.action_playlist, R.id.action_genre, R.id.action_search -> {
+                    // Save the last tab
+                    if (PreferenceUtil.rememberLastTab) {
+                        //saveTab(destination.id)
+                    }
+                }
+            }
+        }
     }
 
     private fun setupBottomSheet() {

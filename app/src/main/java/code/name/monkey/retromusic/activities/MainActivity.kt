@@ -71,49 +71,9 @@ class MainActivity : AbsCastActivity() {
         hideStatusBar()
         AppRater.appLaunched(this)
 
-        setupNavigationController()
-
         WhatsNewFragment.showChangeLog(this)
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
-    }
-
-    private fun setupNavigationController() {
-        val navController = findNavController(R.id.fragment_container)
-        val navInflater = navController.navInflater
-        val navGraph = navInflater.inflate(R.navigation.main_graph)
-
-        val categoryInfo: CategoryInfo = PreferenceUtil.libraryCategory.first { it.visible }
-        if (categoryInfo.visible) {
-            if (!navGraph.contains(PreferenceUtil.lastTab)) PreferenceUtil.lastTab =
-                categoryInfo.category.id
-            navGraph.setStartDestination(
-                if (PreferenceUtil.rememberLastTab) {
-                    PreferenceUtil.lastTab.let {
-                        if (it == 0) {
-                            categoryInfo.category.id
-                        } else {
-                            it
-                        }
-                    }
-                } else categoryInfo.category.id
-            )
-        }
-        navController.graph = navGraph
-        navigationView.setupWithNavController(navController)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == navGraph.startDestinationId) {
-                currentFragment(R.id.fragment_container)?.enterTransition = null
-            }
-            when (destination.id) {
-                R.id.action_home, R.id.action_song, R.id.action_album, R.id.action_artist, R.id.action_folder, R.id.action_playlist, R.id.action_genre, R.id.action_search -> {
-                    // Save the last tab
-                    if (PreferenceUtil.rememberLastTab) {
-                        saveTab(destination.id)
-                    }
-                }
-            }
-        }
     }
 
     private fun saveTab(id: Int) {
