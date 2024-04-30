@@ -44,6 +44,8 @@ import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
+import androidx.navigation.NavInflater
 import androidx.navigation.contains
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -305,8 +307,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     itemView.setOnClickListener {
                         if (itemNumber % 2 == 0) {
                             navController.navigate(R.id.action_album)
+                            binding.drawerLayout.closeDrawer(GravityCompat.START)
                         } else {
                             navController.navigate(R.id.action_folder)
+                            binding.drawerLayout.closeDrawer(GravityCompat.START)
                         }
                     }
                 }
