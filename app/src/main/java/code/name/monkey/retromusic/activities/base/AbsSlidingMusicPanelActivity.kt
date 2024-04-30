@@ -24,12 +24,14 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -282,12 +284,17 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 private val data = (1..50).map { "item number $it" }
 
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-                    val textView = TextView(parent.context)
-                    return object : RecyclerView.ViewHolder(textView) {}
+                    val view = LayoutInflater.from(parent.context).inflate(R.layout.item_navigation, parent, false)
+                    return object : RecyclerView.ViewHolder(view) {}
                 }
 
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    (holder.itemView as TextView).text = data[position]
+                    val itemView = holder.itemView
+                    val icon = itemView.findViewById<ImageView>(R.id.icon)
+                    val title = itemView.findViewById<TextView>(R.id.title)
+
+                    //icon.setImageResource(R.drawable.your_icon)
+                    title.text = data[position]
                 }
 
                 override fun getItemCount(): Int {
