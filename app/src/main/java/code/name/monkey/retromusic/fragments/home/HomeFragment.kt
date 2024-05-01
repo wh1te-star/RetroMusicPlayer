@@ -83,6 +83,7 @@ class HomeFragment :
         libraryViewModel.getHome().observe(viewLifecycleOwner) {
             homeAdapter.swapData(it)
         }
+        mainActivity.optionButton.hide()
 
         loadProfile()
         setupTitle()

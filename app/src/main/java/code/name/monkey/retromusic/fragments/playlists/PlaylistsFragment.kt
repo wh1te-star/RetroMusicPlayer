@@ -22,6 +22,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.retromusic.EXTRA_PLAYLIST_ID
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.adapter.playlist.PlaylistAdapter
 import code.name.monkey.retromusic.db.PlaylistWithSongs
 import code.name.monkey.retromusic.extensions.setUpMediaRouteButton
@@ -45,6 +46,7 @@ class PlaylistsFragment :
             else
                 adapter?.swapDataSet(listOf())
         }
+        (requireActivity() as MainActivity).optionButton.hide()
     }
 
     override val titleRes: Int

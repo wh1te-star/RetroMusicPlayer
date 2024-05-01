@@ -73,6 +73,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
 
         checkForPadding()
         mainActivity.collapsePanel()
+        mainActivity.optionButton.hide()
     }
 
     private fun setUpRecyclerView() {
