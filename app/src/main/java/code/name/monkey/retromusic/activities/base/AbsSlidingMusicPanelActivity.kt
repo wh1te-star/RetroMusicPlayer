@@ -312,6 +312,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
         binding.leftDrawer.addHeaderView(leftMenu)
         optionButton = binding.optionButton
+
+        binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
+        binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
     }
 
     protected fun setupNavigationController() {
