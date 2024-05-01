@@ -23,54 +23,41 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
-import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.util.VersionUtils
-import code.name.monkey.retromusic.ADAPTIVE_COLOR_APP
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
 import code.name.monkey.retromusic.CAROUSEL_EFFECT
 import code.name.monkey.retromusic.CIRCLE_PLAY_BUTTON
 import code.name.monkey.retromusic.EXTRA_SONG_INFO
 import code.name.monkey.retromusic.KEEP_SCREEN_ON
-import code.name.monkey.retromusic.LIBRARY_CATEGORIES
 import code.name.monkey.retromusic.NOW_PLAYING_SCREEN_ID
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.SCREEN_ON_LYRICS
 import code.name.monkey.retromusic.SWIPE_ANYWHERE_NOW_PLAYING
 import code.name.monkey.retromusic.SWIPE_DOWN_DISMISS
-import code.name.monkey.retromusic.TAB_TEXT_MODE
 import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
-import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.adapter.NavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
@@ -79,9 +66,7 @@ import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
-import code.name.monkey.retromusic.extensions.hide
 import code.name.monkey.retromusic.extensions.isColorLight
-import code.name.monkey.retromusic.extensions.isLandscape
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
 import code.name.monkey.retromusic.extensions.peekHeightAnimate
@@ -91,13 +76,10 @@ import code.name.monkey.retromusic.extensions.setLightStatusBar
 import code.name.monkey.retromusic.extensions.setLightStatusBarAuto
 import code.name.monkey.retromusic.extensions.setNavigationBarColorPreOreo
 import code.name.monkey.retromusic.extensions.setTaskDescriptionColor
-import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.extensions.surfaceColor
-import code.name.monkey.retromusic.extensions.updateMargin
 import code.name.monkey.retromusic.extensions.whichFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
-import code.name.monkey.retromusic.fragments.NowPlayingScreen.*
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
 import code.name.monkey.retromusic.fragments.other.MiniPlayerFragment
 import code.name.monkey.retromusic.fragments.player.normal.PlayerFragment
@@ -108,7 +90,6 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.views.OverflowScrollRecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
@@ -117,9 +98,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.eclipse.egit.github.core.service.LabelService
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -128,6 +107,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     companion object {
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
+
     protected lateinit var navController: NavController
     protected lateinit var navInflater: NavInflater
     protected lateinit var navGraph: NavGraph
@@ -283,6 +263,24 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
+        optionButton = binding.optionButton
+
+        setupMenu()
+    }
+
+    private fun setupMenu(){
+        val items = listOf(
+            Triple(R.drawable.avd_face, "Home", R.id.action_home),
+            Triple(R.drawable.avd_playlist, "Playing", R.id.action_playing),
+            Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
+            Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
+            Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
+            Triple(R.drawable.avd_album, "Album", R.id.action_album),
+            Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
+            Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
+            Triple(R.drawable.ic_search, "Search", R.id.action_search),
+        )
+
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
@@ -290,28 +288,25 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.menuButtonRight.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.END)
         }
-        val leftMenu = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
+
+        val leftMenuRecyclerView = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            val items = listOf(
-                Triple(R.drawable.avd_face, "Home", R.id.action_home),
-                Triple(R.drawable.avd_playlist, "Playing", R.id.action_playing),
-                Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
-                Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
-                Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
-                Triple(R.drawable.avd_album, "Album", R.id.action_album),
-                Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
-                Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
-                Triple(R.drawable.ic_search, "Search", R.id.action_search),
-            )
-
             val adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
             this.adapter = adapter
         }
-        binding.leftDrawer.addHeaderView(leftMenu)
-        optionButton = binding.optionButton
+        val rightMenuRecyclerView = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            val adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+            this.adapter = adapter
+        }
+        binding.leftDrawer.addHeaderView(leftMenuRecyclerView)
+        binding.rightDrawer.addHeaderView(rightMenuRecyclerView)
 
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)

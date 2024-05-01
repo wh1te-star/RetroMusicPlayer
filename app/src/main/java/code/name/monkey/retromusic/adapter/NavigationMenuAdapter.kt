@@ -33,7 +33,11 @@ class NavigationMenuAdapter(
         title.text = titleText
         itemView.setOnClickListener {
             navController.navigate(actionId)
-            drawerLayout.closeDrawer(GravityCompat.START)
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                drawerLayout.closeDrawer(GravityCompat.END);
+            }
         }
     }
 
