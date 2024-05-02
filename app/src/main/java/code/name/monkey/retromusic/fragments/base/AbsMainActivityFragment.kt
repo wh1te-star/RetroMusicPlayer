@@ -15,6 +15,7 @@
 package code.name.monkey.retromusic.fragments.base
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.core.view.MenuHost
@@ -35,5 +36,20 @@ abstract class AbsMainActivityFragment(@LayoutRes layout: Int) : AbsMusicService
         super.onViewCreated(view, savedInstanceState)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
+        setPaddingForBottomButtons(70)
+    }
+    protected fun setPaddingForBottomButtons(paddingDp: Int) {
+        val paddingPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            paddingDp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
+
+        view?.setPadding(
+            view?.paddingLeft ?: 0,
+            view?.paddingTop ?: 0,
+            view?.paddingRight ?: 0,
+            paddingPx
+        )
     }
 }
