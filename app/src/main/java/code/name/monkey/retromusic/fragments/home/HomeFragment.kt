@@ -72,8 +72,6 @@ class HomeFragment :
         enterTransition = MaterialFadeThrough().addTarget(binding.contentContainer)
         reenterTransition = MaterialFadeThrough().addTarget(binding.contentContainer)
 
-        checkForMargins()
-
         val homeAdapter = HomeAdapter(mainActivity)
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mainActivity)
@@ -85,6 +83,7 @@ class HomeFragment :
         libraryViewModel.getHome().observe(viewLifecycleOwner) {
             homeAdapter.swapData(it)
         }
+        mainActivity.optionButton.hide()
 
         loadProfile()
         setupTitle()
@@ -187,14 +186,6 @@ class HomeFragment :
         binding.lastAdded.elevatedAccentColor()
         binding.topPlayed.elevatedAccentColor()
         binding.actionShuffle.elevatedAccentColor()
-    }
-
-    private fun checkForMargins() {
-        if (mainActivity.isBottomNavVisible) {
-            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dip(R.dimen.bottom_nav_height)
-            }
-        }
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
@@ -312,7 +303,6 @@ class HomeFragment :
 
     override fun onResume() {
         super.onResume()
-        checkForMargins()
         libraryViewModel.forceReload(ReloadType.HomeSections)
         exitTransition = null
     }

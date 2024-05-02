@@ -116,6 +116,12 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/action_playing"
+        android:name="code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment"
+        android:label=""
+        tools:layout="@layout/fragment_playing_queue" />
+
+    <fragment
         android:id="@+id/user_info_fragment"
         android:name="code.name.monkey.retromusic.fragments.other.UserInfoFragment" />
 

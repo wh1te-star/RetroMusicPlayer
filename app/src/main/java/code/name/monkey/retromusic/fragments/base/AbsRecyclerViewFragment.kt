@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.databinding.FragmentMainRecyclerBinding
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
@@ -36,6 +37,7 @@ import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.interfaces.IScrollHelper
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ThemedFastScroller.create
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialFadeThrough
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
@@ -47,7 +49,8 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     private val binding get() = _binding!!
     protected var adapter: A? = null
     protected var layoutManager: LM? = null
-    val shuffleButton get() = binding.shuffleButton
+
+    lateinit var shuffleButton: FloatingActionButton
     abstract val isShuffleVisible: Boolean
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,36 +64,18 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         mainActivity.supportActionBar?.title = null
         initLayoutManager()
         initAdapter()
-        checkForMargins()
         setUpRecyclerView()
         setupToolbar()
-        binding.shuffleButton.fitsSystemWindows = PreferenceUtil.isFullScreenMode
+        val activity = activity as? AbsSlidingMusicPanelActivity
+        activity?.optionButton?.fitsSystemWindows = PreferenceUtil.isFullScreenMode
         // Add listeners when shuffle is visible
-        if (isShuffleVisible) {
-            binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (dy > 0) {
-                        binding.shuffleButton.hide()
-                    } else if (dy < 0) {
-                        binding.shuffleButton.show()
-                    }
-
-                }
-            })
-            binding.shuffleButton.apply {
-                setOnClickListener {
-                    onShuffleClicked()
-                }
-                accentColor()
+        mainActivity.optionButton.show()
+        mainActivity.optionButton.setImageResource(R.drawable.ic_shuffle)
+        mainActivity.optionButton.apply {
+            setOnClickListener {
+                onShuffleClicked()
             }
-        } else {
-            binding.shuffleButton.isVisible = false
-        }
-        libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
-            binding.shuffleButton.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = it
-            }
+            accentColor()
         }
     }
 
@@ -145,14 +130,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     private fun checkIsEmpty() {
         binding.emptyText.setText(emptyMessage)
         binding.empty.isVisible = adapter!!.itemCount == 0
-    }
-
-    private fun checkForMargins() {
-        if (mainActivity.isBottomNavVisible) {
-            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dip(R.dimen.bottom_nav_height)
-            }
-        }
     }
 
     private fun initLayoutManager() {
@@ -219,7 +196,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     override fun onResume() {
         super.onResume()
-        checkForMargins()
     }
 
     override fun onDestroyView() {

@@ -48,7 +48,6 @@ class LibraryFragment : AbsMainActivityFragment(R.layout.fragment_library) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mainActivity.setBottomNavVisibility(true)
         mainActivity.setSupportActionBar(binding.toolbar)
         mainActivity.supportActionBar?.title = null
         binding.toolbar.setNavigationOnClickListener {
@@ -80,7 +79,7 @@ class LibraryFragment : AbsMainActivityFragment(R.layout.fragment_library) {
             navGraph.setStartDestination(categoryInfo.category.id)
         }
         navController.graph = navGraph
-        NavigationUI.setupWithNavController(mainActivity.navigationView, navController)
+        //NavigationUI.setupWithNavController(mainActivity.navigationView, navController)
         navController.addOnDestinationChangedListener { _, _, _ ->
             binding.appBarLayout.setExpanded(true, true)
         }

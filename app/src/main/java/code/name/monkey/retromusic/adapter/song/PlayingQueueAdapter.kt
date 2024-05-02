@@ -138,12 +138,12 @@ class PlayingQueueAdapter(
             ColorUtils.blendARGB(colorARGB, Color.WHITE, 0.8f)
         }
         val lighterColor = Color.argb(Color.alpha(lighterColorARGB), Color.red(lighterColorARGB), Color.green(lighterColorARGB), Color.blue(lighterColorARGB))
-        holder.currentSongColorView.setBackgroundColor(lighterColor)
-        holder.currentSongColorView.visibility = View.VISIBLE
+        holder.currentSongColorView?.setBackgroundColor(lighterColor)
+        holder.currentSongColorView?.visibility = View.VISIBLE
     }
 
     private fun resetHighlight(holder: SongAdapter.ViewHolder) {
-        holder.currentSongColorView.visibility = View.GONE
+        holder.currentSongColorView?.visibility = View.GONE
     }
 
     override fun getPopupText(position: Int): String {
