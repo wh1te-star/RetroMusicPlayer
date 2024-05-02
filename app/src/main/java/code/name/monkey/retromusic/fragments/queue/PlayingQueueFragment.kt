@@ -19,6 +19,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -32,6 +35,7 @@ import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlayingQueueBinding
 import code.name.monkey.retromusic.extensions.accentColor
+import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.fragments.base.AbsMusicServiceFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.MusicUtil
@@ -42,7 +46,7 @@ import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeMana
 import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 
-class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_queue) {
+class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_queue) {
 
     private var _binding: FragmentPlayingQueueBinding? = null
     private val binding get() = _binding!!
@@ -52,9 +56,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
     private var recyclerViewTouchActionGuardManager: RecyclerViewTouchActionGuardManager? = null
     private var playingQueueAdapter: PlayingQueueAdapter? = null
     private lateinit var linearLayoutManager: LinearLayoutManager
-
-    val mainActivity: MainActivity
-        get() = activity as MainActivity
 
     private fun getUpNextAndQueueTime(): String {
         val duration = MusicPlayerRemote.getQueueDurationMillis(MusicPlayerRemote.position)
@@ -74,6 +75,15 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         checkForPadding()
         mainActivity.collapsePanel()
         mainActivity.optionButton.hide()
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        //yet implemented
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        //yet implemented
+        return false
     }
 
     private fun setUpRecyclerView() {
