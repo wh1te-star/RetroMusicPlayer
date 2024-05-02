@@ -271,7 +271,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private fun setupMenu(){
         val items = listOf(
             Triple(R.drawable.avd_face, "Home", R.id.action_home),
-            Triple(R.drawable.avd_playlist, "Playing", R.id.action_playing),
+            Triple(R.drawable.avd_queue, "Playing", R.id.action_playing),
             Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
             Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
             Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
