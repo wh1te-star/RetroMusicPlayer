@@ -15,7 +15,7 @@
 package code.name.monkey.retromusic.fragments.other
 
 import android.app.AlertDialog
-import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.media.AudioManager
@@ -23,9 +23,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.FragmentVolumeBinding
@@ -35,10 +35,9 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.volume.AudioVolumeObserver
 import code.name.monkey.retromusic.volume.OnAudioVolumeChangedListener
 import com.google.android.material.slider.Slider
-import com.google.android.material.textview.MaterialTextView
 
 class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChangedListener,
-    View.OnClickListener {
+    View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var _binding: FragmentVolumeBinding? = null
     private val binding get() = _binding!!
@@ -95,6 +94,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeSeekBar.value =
             audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
         binding.volumeSeekBar.addOnChangeListener(this)
+
+        PreferenceManager.getDefaultSharedPreferences(requireContext())
+            .registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
@@ -111,9 +113,17 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         _binding = null
     }
 
+    override fun onPause() {
+        super.onPause()
+        PreferenceManager.getDefaultSharedPreferences(requireContext())
+            .unregisterOnSharedPreferenceChangeListener(this)
+    }
+
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         val audioManager = audioManager
-        if (fromUser && value > 7) {
+        if (fromUser &&
+            value > previousVolume &&
+            value > PreferenceUtil.volumeWarnThreshold) {
             AlertDialog.Builder(requireContext())
                 .setTitle("Warning")
                 .setMessage("This is very high volume audio." +
@@ -178,4 +188,6 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             return VolumeFragment()
         }
     }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {}
 }

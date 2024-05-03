@@ -226,6 +226,10 @@ object PreferenceUtil {
         get() = sharedPreferences.getBoolean(
             TOGGLE_VOLUME, false
         )
+    val volumeWarnThreshold
+        get() = sharedPreferences.getInt(
+            VOLUME_WARN_THRESHOLD, 6
+        )
 
     var isInitializedBlacklist
         get() = sharedPreferences.getBoolean(
