@@ -5,38 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/volumeSeekSeekbarTitle"
+    <com.google.android.material.slider.Slider
+        android:id="@+id/volumeWarningSeekBar"
+        stepSize="1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="16dp"
-        android:text="Volume Warning Threshold"
-        android:textAppearance="@style/TextViewNormal"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/volumeWarningSeekBar"
+        android:value="6"
+        android:valueFrom="0"
+        android:valueTo="15"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/volumeWarningSeekBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:value="6"
-        android:valueFrom="0"
-        android:valueTo="15"
-        stepSize="1"
-        app:layout_constraintBottom_toTopOf="@+id/volumeLimitButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/volumeSeekSeekbarTitle" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/volumeWarningMin"
@@ -52,6 +33,9 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/volumeWarningSeekBar"
+        app:layout_constraintEnd_toStartOf="@+id/volumeWarningValue"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -63,14 +47,14 @@
         android:paddingStart="16dp"
         android:paddingTop="16dp"
         android:paddingEnd="16dp"
-        android:text="50"
+        android:text="6"
         android:textAppearance="@style/TextViewNormal"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/volumeWarningSeekBar"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/volumeWarningMax"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/volumeWarningMin" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/volumeWarningMax"
@@ -81,36 +65,20 @@
         android:paddingStart="16dp"
         android:paddingTop="16dp"
         android:paddingEnd="16dp"
-        android:text="100"
+        android:text="15"
         android:textAppearance="@style/TextViewNormal"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/volumeWarningSeekBar"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/volumeLimitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="Limit to the Current Volume"
-        android:textColor="@color/md_white_1000"
-        app:layout_constraintBottom_toTopOf="@+id/alwaysCurrentVolumeLimit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/volumeWarningSeekBar" />
+        app:layout_constraintStart_toEndOf="@+id/volumeWarningValue" />
 
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/alwaysCurrentVolumeLimit"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Always Limit to the Current Volume"
-        android:textAppearance="@style/TextViewSubtitle1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/volumeLimitButton" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

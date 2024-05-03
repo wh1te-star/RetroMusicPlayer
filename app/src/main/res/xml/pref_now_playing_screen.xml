@@ -96,8 +96,8 @@
             android:key="volume_warn_threshold"
             android:layout="@layout/list_item_view_seekbar"
             android:max="15"
-            android:summary="Volume Warning Threshold"
-            android:title="Threshold value that triggers a warning when exceeded"
+            android:summary="@string/volume_warning_threshold"
+            android:title="@string/volume_warning_threshold_sntence"
             app:icon="@drawable/ic_volume_up"
             app:showSeekBarValue="true" />
 

@@ -66,13 +66,13 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
-            val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_setting, null)
+            val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_warning_threshold, null)
             val volumeSeekBar = dialogLayout.findViewById<Slider>(R.id.volumeWarningSeekBar)
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
             volumeSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
 
             val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Volume Control Setting")
+            builder.setTitle(R.string.volume_warning_threshold)
             builder.setView(dialogLayout)
             builder.setPositiveButton("OK") { dialog, _ ->
                 sharedPreferences.edit()
@@ -81,6 +81,19 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                 dialog.dismiss()
             }
             builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            val dialog = builder.create()
+            dialog.show()
+            true
+        }
+        binding.volumeUp.setOnLongClickListener {
+            val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_limit, null)
+
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Current Max Volume Limit")
+            builder.setView(dialogLayout)
+            builder.setPositiveButton(R.string.close) { dialog, _ ->
                 dialog.dismiss()
             }
             val dialog = builder.create()

@@ -572,4 +572,6 @@
     <string name="not_wifi_connect_warning">You are not connected to Wi-Fi network.\nDo you want to upload a GPS recording file anyway?</string>
     <string name="close">Close</string>
     <string name="select_file_to_upload">Select the file to upload</string>
+    <string name="volume_warning_threshold">Volume Warning Threshold</string>
+    <string name="volume_warning_threshold_sntence">Threshold value that triggers a warning when exceeded</string>
 </resources>
