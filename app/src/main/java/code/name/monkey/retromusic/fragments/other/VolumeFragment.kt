@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.VOLUME_WARN_THRESHOLD
 import code.name.monkey.retromusic.databinding.FragmentVolumeBinding
 import code.name.monkey.retromusic.extensions.applyColor
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -66,10 +67,17 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_setting, null)
+            val volumeSeekBar = dialogLayout.findViewById<Slider>(R.id.volumeWarningSeekBar)
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            volumeSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
+
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Volume Control Setting")
             builder.setView(dialogLayout)
             builder.setPositiveButton("OK") { dialog, _ ->
+                sharedPreferences.edit()
+                    .putInt(VOLUME_WARN_THRESHOLD, volumeSeekBar.value.toInt())
+                    .apply()
                 dialog.dismiss()
             }
             builder.setNegativeButton("Cancel") { dialog, _ ->
