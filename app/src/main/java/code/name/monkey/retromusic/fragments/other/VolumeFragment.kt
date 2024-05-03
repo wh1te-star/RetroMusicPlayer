@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -36,6 +37,7 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.volume.AudioVolumeObserver
 import code.name.monkey.retromusic.volume.OnAudioVolumeChangedListener
 import com.google.android.material.slider.Slider
+import com.google.android.material.textview.MaterialTextView
 
 class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChangedListener,
     View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -67,16 +69,24 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_warning_threshold, null)
-            val volumeSeekBar = dialogLayout.findViewById<Slider>(R.id.volumeWarningSeekBar)
+            val volumeWarningSeekBar = dialogLayout.findViewById<Slider>(R.id.volumeWarningSeekBar)
+            val volumeWarningValue = dialogLayout.findViewById<MaterialTextView>(R.id.volumeWarningValue)
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-            volumeSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
+            volumeWarningSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
+            volumeWarningValue.text = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toString()
+            volumeWarningSeekBar.addOnChangeListener { slider, value, fromUser ->
+                volumeWarningValue.text = value.toInt().toString()
+            }
+            volumeWarningSeekBar.setLabelFormatter { value ->
+                value.toInt().toString()
+            }
 
-            val builder = AlertDialog.Builder(requireContext())
+                val builder = AlertDialog.Builder(requireContext())
             builder.setTitle(R.string.volume_warning_threshold)
             builder.setView(dialogLayout)
             builder.setPositiveButton("OK") { dialog, _ ->
                 sharedPreferences.edit()
-                    .putInt(VOLUME_WARN_THRESHOLD, volumeSeekBar.value.toInt())
+                    .putInt(VOLUME_WARN_THRESHOLD, volumeWarningSeekBar .value.toInt())
                     .apply()
                 dialog.dismiss()
             }
