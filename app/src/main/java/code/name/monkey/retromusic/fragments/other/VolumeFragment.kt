@@ -48,6 +48,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     private val audioManager: AudioManager
         get() = requireContext().getSystemService()!!
 
+    private var previousVolume = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,6 +61,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
@@ -75,7 +78,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             }
             val dialog = builder.create()
             dialog.show()
-            true // Return true to indicate the long click was handled
+            true
         }
     }
 
@@ -110,7 +113,26 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         val audioManager = audioManager
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+        if (fromUser && value > 7) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Warning")
+                .setMessage("This is very high volume audio." +
+                        "Are you sure you want to increase the volume?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    binding.volumeSeekBar.value = value
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+                    previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    binding.volumeSeekBar.value = previousVolume.toFloat()
+                    dialog.dismiss()
+                }
+                .show()
+        } else {
+            binding.volumeSeekBar.value = value
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        }
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
     }
