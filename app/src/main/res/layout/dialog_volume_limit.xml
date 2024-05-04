@@ -20,7 +20,7 @@
     <Button
         android:id="@+id/resetLimitButton"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/reset"
         app:layout_constraintBottom_toBottomOf="parent"
