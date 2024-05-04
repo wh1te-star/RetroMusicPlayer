@@ -558,4 +558,11 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">issue trackerのウェブサイトに移動します</string>
     <string name="your_account_data_is_only_used_for_authentication">あなたのアカウントは認証にのみ使用されます</string>
     <string name="exit_back_twice">終了するにはもう一度戻るを押す</string>
+    <string name="volume_warning_threshold">音量警告の閾値</string>
+    <string name="limit_to_current_volume">現在の音量に制限</string>
+    <string name="reset">リセット</string>
+    <string name="volume_warning_threshold_setence">超えたときに警告を出す閾値</string>
+    <string name="high_volume_warning">非常に大きな音量です。本当に音量を設定しますか？</string>
+    <string name="warning">警告</string>
+    <string name="max_volume_limit">最大音量の制限</string>
 </resources>

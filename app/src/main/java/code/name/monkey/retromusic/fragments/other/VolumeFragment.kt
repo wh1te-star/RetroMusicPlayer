@@ -121,7 +121,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             }
 
             val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Current Max Volume Limit")
+            builder.setTitle(getString(R.string.max_volume_limit))
             builder.setView(dialogLayout)
             builder.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
             val dialog = builder.create()
@@ -179,12 +179,11 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             ) {
                 isDialogShown = true
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Warning")
+                    .setTitle(getString(R.string.warning))
                     .setMessage(
-                        "This is extremely high volume audio." +
-                                "Are you sure you want to increase the volume?"
+                        getString(R.string.high_volume_warning)
                     )
-                    .setPositiveButton("Yes") { dialog, _ ->
+                    .setPositiveButton(R.string.yes) { dialog, _ ->
                         val newVolume =
                             binding.volumeSeekBar.value *
                             audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) /
@@ -197,7 +196,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                         )
                         isDialogShown = false
                     }
-                    .setNegativeButton("No") { dialog, _ ->
+                    .setNegativeButton(R.string.no) { dialog, _ ->
                         binding.volumeSeekBar.value = previousVolume.toFloat()
                         isDialogShown = false
                         dialog.dismiss()

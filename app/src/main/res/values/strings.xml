@@ -220,7 +220,7 @@
     <string name="image">Image</string>
     <string name="image_gradient">Gradient image</string>
     <string name="image_settings_summary">Change artist image download settings</string>
-    <string name="import_label">Import</string>
+    <string name="import_label" translatable="false">Import</string>
     <string name="import_playlist">Import playlist</string>
     <string name="import_playlist_message">It imports all playlists listed in the Android Media Store with songs, if the playlists already exists, the songs will get merged.</string>
     <string name="inserted_x_songs_into_playlist_x">Inserted %1$d songs into the playlist %2$s.</string>
@@ -573,5 +573,10 @@
     <string name="close">Close</string>
     <string name="select_file_to_upload">Select the file to upload</string>
     <string name="volume_warning_threshold">Volume Warning Threshold</string>
-    <string name="volume_warning_threshold_sntence">Threshold value that triggers a warning when exceeded</string>
+    <string name="volume_warning_threshold_setence">Threshold value that triggers a warning when exceeded</string>
+    <string name="limit_to_current_volume">Limit to Current Volume</string>
+    <string name="reset">Reset</string>
+    <string name="high_volume_warning">It is extremely high volume. Are you sure want to set the volume?</string>
+    <string name="warning">Warning</string>
+    <string name="max_volume_limit">Max Volume Limit</string>
 </resources>
