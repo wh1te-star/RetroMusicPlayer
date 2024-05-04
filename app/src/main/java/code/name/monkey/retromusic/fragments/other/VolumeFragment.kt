@@ -54,6 +54,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     private var currentMaxVolume = 0
 
+    private var isDialogShown = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -171,22 +173,38 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         val audioManager = audioManager
-        if (fromUser) {
+        if (fromUser && !isDialogShown) {
             if (value > previousVolume &&
                 value > PreferenceUtil.volumeWarnThreshold
             ) {
+                isDialogShown = true
                 AlertDialog.Builder(requireContext())
                     .setTitle("Warning")
-                    .setMessage("This is extremely high volume audio." +
+                    .setMessage(
+                        "This is extremely high volume audio." +
                                 "Are you sure you want to increase the volume?"
                     )
                     .setPositiveButton("Yes") { dialog, _ ->
-                        binding.volumeSeekBar.value = value
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+                        val newVolume =
+                            binding.volumeSeekBar.value *
+                            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) /
+                            binding.volumeSeekBar.valueTo
+                        binding.volumeSeekBar.value = newVolume
+                        audioManager.setStreamVolume(
+                            AudioManager.STREAM_MUSIC,
+                            newVolume.toInt(),
+                            0
+                        )
+                        isDialogShown = false
                     }
                     .setNegativeButton("No") { dialog, _ ->
                         binding.volumeSeekBar.value = previousVolume.toFloat()
+                        isDialogShown = false
                         dialog.dismiss()
+                    }
+                    .setOnCancelListener{
+                        binding.volumeSeekBar.value = previousVolume.toFloat()
+                        isDialogShown = false
                     }
                     .show()
             } else {
