@@ -108,8 +108,13 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeUp.setOnLongClickListener {
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_limit, null)
             val limitToCurrentVolumeButton = dialogLayout.findViewById<Button>(R.id.limitToCurrentVolumeButton)
+            val resetLimitButton = dialogLayout.findViewById<Button>(R.id.resetLimitButton)
             limitToCurrentVolumeButton.setOnClickListener{
                 currentMaxVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
+            }
+            resetLimitButton.setOnClickListener {
+                currentMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                 binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
             }
 
