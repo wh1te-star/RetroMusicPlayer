@@ -23,7 +23,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Button
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -64,18 +64,22 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        binding.volumeSeekBar.value = previousVolume.toFloat()
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_warning_threshold, null)
             val volumeWarningSeekBar = dialogLayout.findViewById<Slider>(R.id.volumeWarningSeekBar)
-            val volumeWarningValue = dialogLayout.findViewById<MaterialTextView>(R.id.volumeWarningValue)
+            val volumeWarningValueTextView = dialogLayout.findViewById<MaterialTextView>(R.id.volumeWarningValue)
+            val volumeWarningMaxTextView = dialogLayout.findViewById<MaterialTextView>(R.id.volumeWarningMax)
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
             volumeWarningSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
-            volumeWarningValue.text = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toString()
+            volumeWarningValueTextView.text = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toString()
+            volumeWarningSeekBar.valueTo = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat()
+            volumeWarningMaxTextView.text = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
             volumeWarningSeekBar.addOnChangeListener { slider, value, fromUser ->
-                volumeWarningValue.text = value.toInt().toString()
+                volumeWarningValueTextView.text = value.toInt().toString()
             }
             volumeWarningSeekBar.setLabelFormatter { value ->
                 value.toInt().toString()
