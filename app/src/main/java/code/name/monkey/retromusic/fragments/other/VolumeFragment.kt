@@ -146,6 +146,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             if (currentVolume > binding.volumeSeekBar.valueTo) {
                 binding.volumeSeekBar.valueTo = currentVolume.toFloat()
             }
+            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             binding.volumeSeekBar.value = currentVolume.toFloat()
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
         }
@@ -165,27 +166,28 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         val audioManager = audioManager
-        if (fromUser &&
-            value > previousVolume &&
-            value > PreferenceUtil.volumeWarnThreshold) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Warning")
-                .setMessage("This is very high volume audio." +
-                        "Are you sure you want to increase the volume?")
-                .setPositiveButton("Yes") { dialog, _ ->
-                    binding.volumeSeekBar.value = value
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
-                    previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-                }
-                .setNegativeButton("No") { dialog, _ ->
-                    binding.volumeSeekBar.value = previousVolume.toFloat()
-                    dialog.dismiss()
-                }
-                .show()
-        } else {
-            binding.volumeSeekBar.value = value
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
-            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        if (fromUser) {
+            if (value > previousVolume &&
+                value > PreferenceUtil.volumeWarnThreshold
+            ) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Warning")
+                    .setMessage("This is extremely high volume audio." +
+                                "Are you sure you want to increase the volume?"
+                    )
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        binding.volumeSeekBar.value = value
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                        binding.volumeSeekBar.value = previousVolume.toFloat()
+                        dialog.dismiss()
+                    }
+                    .show()
+            } else {
+                binding.volumeSeekBar.value = value
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+            }
         }
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
