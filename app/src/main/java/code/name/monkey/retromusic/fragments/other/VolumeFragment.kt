@@ -52,6 +52,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     private var previousVolume = 0
 
+    private var currentMaxVolume = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,6 +66,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        currentMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
         binding.volumeSeekBar.value = previousVolume.toFloat()
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
@@ -77,7 +81,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             volumeWarningSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
             volumeWarningValueTextView.text = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toString()
             volumeWarningSeekBar.valueTo = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat()
-            volumeWarningMaxTextView.text = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
+            volumeWarningMaxTextView.text = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toInt().toString()
             volumeWarningSeekBar.addOnChangeListener { slider, value, fromUser ->
                 volumeWarningValueTextView.text = value.toInt().toString()
             }
@@ -103,13 +107,16 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         }
         binding.volumeUp.setOnLongClickListener {
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_limit, null)
+            val limitToCurrentVolumeButton = dialogLayout.findViewById<Button>(R.id.limitToCurrentVolumeButton)
+            limitToCurrentVolumeButton.setOnClickListener{
+                currentMaxVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
+            }
 
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Current Max Volume Limit")
             builder.setView(dialogLayout)
-            builder.setPositiveButton(R.string.close) { dialog, _ ->
-                dialog.dismiss()
-            }
+            builder.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
             val dialog = builder.create()
             dialog.show()
             true
@@ -136,7 +143,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
         if (_binding != null) {
-            binding.volumeSeekBar.valueTo = maxVolume.toFloat()
+            if (currentVolume > binding.volumeSeekBar.valueTo) {
+                binding.volumeSeekBar.valueTo = currentVolume.toFloat()
+            }
             binding.volumeSeekBar.value = currentVolume.toFloat()
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
         }
