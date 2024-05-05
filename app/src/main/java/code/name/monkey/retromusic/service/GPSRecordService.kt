@@ -28,6 +28,7 @@ class GPSRecordService() : Service(), LocationListener {
     private lateinit var locationManager: LocationManager
     private lateinit var recordingFile: File
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
+    var doesFileSizeExceed = false
 
     companion object {
         val RECORDING_STARTED = "code.name.monkey.retromusic.RECORDING_STARTED"
@@ -95,8 +96,10 @@ class GPSRecordService() : Service(), LocationListener {
         }
 
         if (recordingFile.length() > storageSizeLimit){
-            sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
-            stopSelf();
+            if(!doesFileSizeExceed) {
+                sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
+                doesFileSizeExceed = true
+            }
         }
     }
 
@@ -106,14 +109,14 @@ class GPSRecordService() : Service(), LocationListener {
 
     override fun onProviderDisabled(provider: String) { }
 
-    override fun stopService(name: Intent?): Boolean {
+    override fun onDestroy() {
+        super.onDestroy()
         try {
             locationManager.removeUpdates(this)
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
         sendBroadcast(Intent(RECORDING_STOPPED))
-        return super.stopService(name)
     }
 
     fun registerListener(listener: TextViewUpdateListener) {

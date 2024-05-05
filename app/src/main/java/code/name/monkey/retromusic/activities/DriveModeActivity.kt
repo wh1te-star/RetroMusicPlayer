@@ -93,14 +93,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
 
     override fun onStart() {
         super.onStart()
-        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
-        bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         super.onStop()
-        gpsRecordService?.unregisterListener()
-        unbindService(serviceConnection)
     }
 
     private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -114,6 +110,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
             if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
                 Toast.makeText(context,
                     getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
+                unbindService(serviceConnection)
+                stopService(gpsRecordServiceIntent)
             }
             if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
                 Toast.makeText(context,
@@ -130,6 +128,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         setContentView(binding.root)
         setUpMusicControllers()
 
+        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
         lastPlaybackControlsColor = accentColor()
         binding.close.setOnClickListener {
@@ -232,10 +231,12 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
-                    gpsRecordService.startService(gpsRecordServiceIntent)
+                    bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+                    startService(gpsRecordServiceIntent)
                 }
             } else {
-                gpsRecordService.stopService(gpsRecordServiceIntent)
+                unbindService(serviceConnection)
+                stopService(gpsRecordServiceIntent)
                 val mostRecentFile = getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
                     ?.sortedByDescending { it.name }
