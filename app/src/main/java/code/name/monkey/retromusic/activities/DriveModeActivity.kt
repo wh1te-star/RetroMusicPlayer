@@ -17,9 +17,11 @@ package code.name.monkey.retromusic.activities
 import android.Manifest
 import android.app.AlertDialog
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -27,6 +29,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -50,6 +53,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
 import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
+import code.name.monkey.retromusic.service.TextViewUpdateListener
 import code.name.monkey.retromusic.util.MusicUtil
 import com.bumptech.glide.Glide
 import com.google.android.material.slider.Slider
@@ -64,7 +68,7 @@ import java.io.File
  * Created by hemanths on 2020-02-02.
  */
 
-class DriveModeActivity : AbsMusicServiceActivity(), Callback {
+class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Callback {
 
     private lateinit var binding: ActivityDriveModeBinding
     private var lastPlaybackControlsColor: Int = Color.GRAY
@@ -73,6 +77,26 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     private val repository: RealRepository by inject()
     private lateinit var gpsRecordServiceIntent: Intent
     private var isRecordingGPS = false
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder = service as GPSRecordService.LocalBinder
+            val yourService = binder.getService()
+            yourService.registerListener(this@DriveModeActivity)
+        }
+        override fun onServiceDisconnected(name: ComponentName) {}
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(this, GPSRecordService::class.java)
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(serviceConnection)
+    }
 
     private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -113,7 +137,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
         filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
-        binding?.gpsValue?.text = "sample text"
+        binding?.gpsValue?.isSingleLine = false
     }
 
     private fun setUpMusicControllers() {
@@ -404,5 +428,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(serviceStoppedReceiver)
+    }
+    override fun updateTextView(latitude: Double, longitude: Double) {
+        binding?.gpsValue?.setText("GPS Value\n$latitude\n$longitude")
     }
 }

@@ -20,6 +20,11 @@ import java.util.Locale
 
 class GPSRecordService() : Service(), LocationListener {
     private val binder = LocalBinder()
+    private var listener: TextViewUpdateListener? = null
+
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+
     private lateinit var locationManager: LocationManager
     private lateinit var recordingFile: File
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
@@ -69,10 +74,15 @@ class GPSRecordService() : Service(), LocationListener {
         val recordedValue = ByteArray(24)
         val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
 
+        latitude = location.latitude
+        longitude = location.longitude
+
         val currentTime = System.currentTimeMillis()
         buffer.putLong(currentTime)
-        buffer.putDouble(location.latitude)
-        buffer.putDouble(location.longitude)
+        buffer.putDouble(latitude)
+        buffer.putDouble(longitude)
+
+        updateTextView()
 
         try {
             writeToFile(recordingFile, recordedValue)
@@ -101,4 +111,20 @@ class GPSRecordService() : Service(), LocationListener {
         }
         sendBroadcast(Intent(RECORDING_STOPPED))
     }
+
+    fun registerListener(listener: TextViewUpdateListener) {
+        this.listener = listener
+    }
+
+    fun unregisterListener() {
+        this.listener = null
+    }
+
+    fun updateTextView() {
+        listener?.updateTextView(latitude, longitude)
+    }
+}
+
+interface TextViewUpdateListener {
+    fun updateTextView(latitude: Double, longitude: Double)
 }
