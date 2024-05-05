@@ -142,8 +142,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
         filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
-        binding?.gpsValue?.isSingleLine = false
-        binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+        binding.gpsValue.isSingleLine = false
+        binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
     }
 
     private fun setUpMusicControllers() {
@@ -218,7 +218,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
     }
 
     private fun setUpGPSRecordButton() {
-        binding.recordGPSButton?.setOnClickListener {
+        binding.recordGPSButton.setOnClickListener {
             if (isRecordingGPS == false) {
                 if (ContextCompat.checkSelfPermission(
                         this,
@@ -246,7 +246,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                 shareFile(mostRecentFile)
             }
         }
-        binding.recordGPSButton?.setOnLongClickListener {
+        binding.recordGPSButton.setOnLongClickListener {
             if (!isWifiConnected(this)) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.not_wifi_connect_warning))
@@ -342,19 +342,19 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
     fun updateGPSRecordState() {
         when (isRecordingGPS) {
             true -> {
-                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
-                binding.recordGPSButton?.setColorFilter(
+                binding.recordGPSButton.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton.setColorFilter(
                     lastPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
             false -> {
-                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
-                binding.recordGPSButton?.setColorFilter(
+                binding.recordGPSButton.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton.setColorFilter(
                     lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
-                binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+                binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
             }
         }
     }
@@ -442,6 +442,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
     override fun updateTextView(latitude: Double, longitude: Double) {
         val formattedLatitude = String.format("%+013.8f", latitude)
         val formattedLongitude = String.format("%+013.8f", longitude)
-        binding?.gpsValue?.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
+        binding.gpsValue?.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
     }
 }
