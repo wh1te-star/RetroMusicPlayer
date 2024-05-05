@@ -59,9 +59,7 @@
         android:backgroundTint="@color/semi_transparent"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
-        app:layout_constraintEnd_toStartOf="@+id/recordGPSButton"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toEndOf="@+id/image"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
         app:srcCompat="@drawable/ic_close" />
@@ -71,15 +69,12 @@
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_margin="16dp"
-        android:layout_marginEnd="16dp"
         android:background="@drawable/color_circle_gradient"
         android:backgroundTint="@color/semi_transparent"
         android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintBottom_toBottomOf="@+id/gpsValue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/gpsValue"
         app:srcCompat="@drawable/ic_favorite_border" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -199,7 +194,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gpsValue"
+        app:layout_constraintTop_toBottomOf="@+id/recordGPSButton"
         tools:ignore="RtlHardcoded,UnusedAttribute"
         tools:progress="20" />
 
@@ -229,20 +224,23 @@
         android:layout_height="72dp"
         android:background="?roundSelector"
         android:src="@drawable/ic_gps_recording"
-        app:layout_constraintBottom_toTopOf="@+id/gpsValue"
-        app:layout_constraintEnd_toStartOf="@+id/songFavourite"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
+        app:layout_constraintEnd_toStartOf="@+id/gpsValue"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/close"
         app:layout_constraintTop_toBottomOf="@+id/titleContainer" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/gpsValue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="72dp"
+        android:layout_marginStart="8dp"
         android:gravity="center"
         android:textColor="@color/md_white_1000"
-        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
-        app:layout_constraintTop_toBottomOf="@+id/recordGPSButton"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintEnd_toStartOf="@+id/songFavourite"
+        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
