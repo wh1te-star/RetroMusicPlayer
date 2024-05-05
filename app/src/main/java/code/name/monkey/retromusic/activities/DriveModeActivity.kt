@@ -34,6 +34,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
@@ -142,6 +143,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
         binding?.gpsValue?.isSingleLine = false
+        binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
     }
 
     private fun setUpMusicControllers() {
@@ -352,6 +354,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                     lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
+                binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
             }
         }
     }
@@ -435,6 +438,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         super.onDestroy()
         unregisterReceiver(serviceStoppedReceiver)
     }
+
     override fun updateTextView(latitude: Double, longitude: Double) {
         val formattedLatitude = String.format("%+013.8f", latitude)
         val formattedLongitude = String.format("%+013.8f", longitude)

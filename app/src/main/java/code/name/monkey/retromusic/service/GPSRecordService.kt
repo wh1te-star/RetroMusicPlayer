@@ -27,7 +27,8 @@ class GPSRecordService() : Service(), LocationListener {
 
     private lateinit var locationManager: LocationManager
     private lateinit var recordingFile: File
-    private val storageSizeLimit = 20000000000 //[byte] = 20GB
+    //private val storageSizeLimit = 20000000000 //[byte] = 20GB
+    private val storageSizeLimit = 100
     var doesFileSizeExceed = false
 
     companion object {
