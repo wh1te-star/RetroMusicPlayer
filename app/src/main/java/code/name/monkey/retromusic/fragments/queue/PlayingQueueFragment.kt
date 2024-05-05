@@ -23,7 +23,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -85,7 +84,7 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         mainActivity.optionButton.setImageResource(R.drawable.avd_music_note)
         mainActivity.optionButton.apply {
             setOnClickListener {
-                Toast.makeText(context, "option button", Toast.LENGTH_SHORT).show()
+                linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
             }
             accentColor()
         }
