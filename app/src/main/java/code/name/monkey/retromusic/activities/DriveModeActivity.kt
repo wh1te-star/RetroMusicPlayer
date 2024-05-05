@@ -71,30 +71,35 @@ import java.io.File
 class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Callback {
 
     private lateinit var binding: ActivityDriveModeBinding
+    private lateinit var gpsRecordService: GPSRecordService
     private var lastPlaybackControlsColor: Int = Color.GRAY
     private var lastDisabledPlaybackControlsColor: Int = Color.GRAY
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
     private val repository: RealRepository by inject()
     private lateinit var gpsRecordServiceIntent: Intent
     private var isRecordingGPS = false
+    private lateinit var binder: GPSRecordService.LocalBinder
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder = service as GPSRecordService.LocalBinder
-            val yourService = binder.getService()
-            yourService.registerListener(this@DriveModeActivity)
+            binder = service as GPSRecordService.LocalBinder
+            gpsRecordService = binder.getService()
+            gpsRecordService.registerListener(this@DriveModeActivity)
         }
-        override fun onServiceDisconnected(name: ComponentName) {}
+        override fun onServiceDisconnected(name: ComponentName) {
+            gpsRecordService.unregisterListener()
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        val intent = Intent(this, GPSRecordService::class.java)
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
+        bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         super.onStop()
+        gpsRecordService?.unregisterListener()
         unbindService(serviceConnection)
     }
 
@@ -118,6 +123,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
             }
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDriveModeBinding.inflate(layoutInflater)
@@ -131,7 +137,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         }
         binding.repeatButton.drawAboveSystemBars()
 
-        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
         val filter = IntentFilter()
         filter.addAction(GPSRecordService.RECORDING_STARTED)
         filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
@@ -227,10 +232,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
-                    startService(gpsRecordServiceIntent)
+                    gpsRecordService.startService(gpsRecordServiceIntent)
                 }
             } else {
-                stopService(gpsRecordServiceIntent)
+                gpsRecordService.stopService(gpsRecordServiceIntent)
                 val mostRecentFile = getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
                     ?.sortedByDescending { it.name }

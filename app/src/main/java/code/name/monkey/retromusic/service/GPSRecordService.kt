@@ -43,6 +43,10 @@ class GPSRecordService() : Service(), LocationListener {
         return binder
     }
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        return super.onUnbind(intent)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         try {
@@ -102,14 +106,14 @@ class GPSRecordService() : Service(), LocationListener {
 
     override fun onProviderDisabled(provider: String) { }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun stopService(name: Intent?): Boolean {
         try {
             locationManager.removeUpdates(this)
-        } catch (e: SecurityException) {
+        } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
         sendBroadcast(Intent(RECORDING_STOPPED))
+        return super.stopService(name)
     }
 
     fun registerListener(listener: TextViewUpdateListener) {
