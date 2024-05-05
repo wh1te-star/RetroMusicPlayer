@@ -113,6 +113,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
         filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
+        binding?.gpsValue?.text = "sample text"
     }
 
     private fun setUpMusicControllers() {
