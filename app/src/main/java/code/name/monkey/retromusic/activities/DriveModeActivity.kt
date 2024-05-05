@@ -430,6 +430,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         unregisterReceiver(serviceStoppedReceiver)
     }
     override fun updateTextView(latitude: Double, longitude: Double) {
-        binding?.gpsValue?.setText("GPS Value\n$latitude\n$longitude")
+        val formattedLatitude = String.format("%+013.8f", latitude)
+        val formattedLongitude = String.format("%+013.8f", longitude)
+        binding?.gpsValue?.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
     }
 }
