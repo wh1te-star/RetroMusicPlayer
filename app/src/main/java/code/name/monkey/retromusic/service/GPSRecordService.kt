@@ -106,7 +106,7 @@ class GPSRecordService : Service() {
         try {
             locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
-                1000,
+                100,
                 0.001f,
                 textViewLocationListener)
         } catch (e: SecurityException) {
@@ -136,8 +136,8 @@ class GPSRecordService : Service() {
         initializeRecordingFile()
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                2000,
-                20f,
+                1000,
+                10f,
                 recordingLocationListener)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
