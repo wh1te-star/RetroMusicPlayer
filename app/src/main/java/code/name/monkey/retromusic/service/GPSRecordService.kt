@@ -9,6 +9,7 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import code.name.monkey.retromusic.util.logD
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -19,7 +20,7 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.math.sqrt
 
-class GPSRecordService() : Service(), LocationListener {
+class GPSRecordService : Service() {
     private val binder = LocalBinder()
     private var listener: TextViewUpdateListener? = null
 
@@ -31,6 +32,8 @@ class GPSRecordService() : Service(), LocationListener {
     private var longitude: Double = 0.0
 
     private lateinit var locationManager: LocationManager
+    private lateinit var textViewLocationListener: LocationListener
+    private lateinit var recordingLocationListener: LocationListener
     private lateinit var recordingFile: File
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
     var doesFileSizeExceed = false
@@ -55,12 +58,75 @@ class GPSRecordService() : Service(), LocationListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+
+        initializeRecordingFile()
+        textViewLocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                logD("Location changed 1: $location")
+                updateTextView()
+            }
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
+            override fun onProviderEnabled(provider: String) { }
+            override fun onProviderDisabled(provider: String) { }
+        }
+        recordingLocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                logD("Location changed 2: $location")
+                previousTimestamp = timestamp
+                previousLatitude = latitude
+                previousLongitude = longitude
+
+                timestamp = System.currentTimeMillis()
+                latitude = location.latitude
+                longitude = location.longitude
+
+                val recordedValue = ByteArray(24)
+                val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
+                buffer.putLong(timestamp)
+                buffer.putDouble(latitude)
+                buffer.putDouble(longitude)
+
+                try {
+                    writeToFile(recordingFile, recordedValue)
+                } catch (e: IOException) {
+                    Log.e("GPSRecordService", "Error writing to file", e)
+                }
+                if (recordingFile.length() > storageSizeLimit) {
+                    if (!doesFileSizeExceed) {
+                        sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
+                        doesFileSizeExceed = true
+                    }
+                }
+            }
+            override fun onProviderEnabled(provider: String) { }
+            override fun onProviderDisabled(provider: String) { }
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
+        }
+
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0.001f, this)
+            locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+                1000,
+                0.001f,
+                textViewLocationListener)
+        } catch (e: SecurityException) {
+            Log.e("GPSRecordService", "Location permission not granted", e)
+        }
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                2000,
+                20f,
+                recordingLocationListener)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
 
+        sendBroadcast(Intent(RECORDING_STARTED))
+
+        return START_NOT_STICKY
+    }
+
+    private fun initializeRecordingFile() {
         val fileName = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
             .format(Calendar.getInstance().time)
         recordingFile = File(getExternalFilesDir(null), fileName)
@@ -68,10 +134,6 @@ class GPSRecordService() : Service(), LocationListener {
             recordingFile.delete()
         }
         recordingFile.createNewFile()
-
-        sendBroadcast(Intent(RECORDING_STARTED))
-
-        return START_NOT_STICKY
     }
 
     private fun writeToFile(localFile: File, recordedValue: ByteArray) {
@@ -80,48 +142,11 @@ class GPSRecordService() : Service(), LocationListener {
         }
     }
 
-    override fun onLocationChanged(location: Location) {
-        previousTimestamp = timestamp
-        previousLatitude = latitude
-        previousLongitude = longitude
-
-        timestamp = System.currentTimeMillis()
-        latitude = location.latitude
-        longitude = location.longitude
-
-        val recordedValue = ByteArray(24)
-        val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
-
-        buffer.putLong(timestamp)
-        buffer.putDouble(latitude)
-        buffer.putDouble(longitude)
-
-        updateTextView()
-
-        try {
-            writeToFile(recordingFile, recordedValue)
-        } catch (e: IOException) {
-            Log.e("GPSRecordService", "Error writing to file", e)
-        }
-
-        if (recordingFile.length() > storageSizeLimit){
-            if(!doesFileSizeExceed) {
-                sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
-                doesFileSizeExceed = true
-            }
-        }
-    }
-
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
-
-    override fun onProviderEnabled(provider: String) { }
-
-    override fun onProviderDisabled(provider: String) { }
-
     override fun onDestroy() {
         super.onDestroy()
         try {
-            locationManager.removeUpdates(this)
+            locationManager.removeUpdates(textViewLocationListener)
+            locationManager.removeUpdates(recordingLocationListener)
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
@@ -157,7 +182,7 @@ class GPSRecordService() : Service(), LocationListener {
         val distanceDeltaLongitude = deltaLongitude * earthRadiusKm
         val distanceKm = sqrt(
             distanceDeltaLatitude*distanceDeltaLatitude +
-            distanceDeltaLongitude*distanceDeltaLongitude)
+                    distanceDeltaLongitude*distanceDeltaLongitude)
 
         val speedKmH = distanceKm / timeDeltaHour
 

@@ -115,7 +115,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                 Toast.makeText(context,
                     getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
                 unbindService(serviceConnection)
-                stopService(gpsRecordServiceIntent)
             }
             if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
                 Toast.makeText(context,
@@ -145,6 +144,9 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
         filter.addAction(GPSRecordService.RECORDING_STOPPED)
         registerReceiver(serviceStoppedReceiver, filter)
+        bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        startService(gpsRecordServiceIntent)
+
         binding.gpsValue.isSingleLine = false
         binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
 
@@ -244,12 +246,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
-                    bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-                    startService(gpsRecordServiceIntent)
+                    //startrecording()
                 }
             } else {
-                unbindService(serviceConnection)
-                stopService(gpsRecordServiceIntent)
+                //endrecording()
                 val mostRecentFile = getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
                     ?.sortedByDescending { it.name }
@@ -448,6 +448,8 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(serviceStoppedReceiver)
+        unbindService(serviceConnection)
+        stopService(gpsRecordServiceIntent)
     }
 
     override fun updateTextView(latitude: Double, longitude: Double, speed: Double) {
