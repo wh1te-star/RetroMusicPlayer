@@ -63,6 +63,14 @@ class GPSRecordService : Service() {
         textViewLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 1: $location")
+                previousTimestamp = timestamp
+                previousLatitude = latitude
+                previousLongitude = longitude
+
+                timestamp = System.currentTimeMillis()
+                latitude = location.latitude
+                longitude = location.longitude
+
                 updateTextView()
             }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
@@ -72,14 +80,6 @@ class GPSRecordService : Service() {
         recordingLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 2: $location")
-                previousTimestamp = timestamp
-                previousLatitude = latitude
-                previousLongitude = longitude
-
-                timestamp = System.currentTimeMillis()
-                latitude = location.latitude
-                longitude = location.longitude
-
                 val recordedValue = ByteArray(24)
                 val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
                 buffer.putLong(timestamp)
@@ -112,16 +112,6 @@ class GPSRecordService : Service() {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                2000,
-                20f,
-                recordingLocationListener)
-        } catch (e: SecurityException) {
-            Log.e("GPSRecordService", "Location permission not granted", e)
-        }
-
-        sendBroadcast(Intent(RECORDING_STARTED))
 
         return START_NOT_STICKY
     }
@@ -142,15 +132,34 @@ class GPSRecordService : Service() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    public fun startRecording() {
+        initializeRecordingFile()
         try {
-            locationManager.removeUpdates(textViewLocationListener)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                2000,
+                20f,
+                recordingLocationListener)
+        } catch (e: SecurityException) {
+            Log.e("GPSRecordService", "Location permission not granted", e)
+        }
+        sendBroadcast(Intent(RECORDING_STARTED))
+    }
+    public fun stopRecording() {
+        try {
             locationManager.removeUpdates(recordingLocationListener)
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
         sendBroadcast(Intent(RECORDING_STOPPED))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            locationManager.removeUpdates(textViewLocationListener)
+        } catch (e: UninitializedPropertyAccessException) {
+            Log.e("GPSRecordService", "Failed to remove location updates", e)
+        }
     }
 
     fun registerListener(listener: TextViewUpdateListener) {

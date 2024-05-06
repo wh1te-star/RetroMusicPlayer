@@ -246,10 +246,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
-                    //startrecording()
+                    gpsRecordService.startRecording()
                 }
             } else {
-                //endrecording()
+                gpsRecordService.stopRecording()
                 val mostRecentFile = getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
                     ?.sortedByDescending { it.name }
