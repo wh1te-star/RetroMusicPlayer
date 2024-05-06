@@ -59,7 +59,6 @@ class GPSRecordService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
-        initializeRecordingFile()
         textViewLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 1: $location")
