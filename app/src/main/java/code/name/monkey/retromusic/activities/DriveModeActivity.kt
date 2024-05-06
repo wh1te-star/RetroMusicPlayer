@@ -147,10 +147,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         registerReceiver(serviceStoppedReceiver, filter)
         binding.gpsValue.isSingleLine = false
         binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+
         val speedText = SpannableString("speed (km/h)")
         speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-
-        val speedValue = SpannableString("54")
+        val speedValue = SpannableString("123")
         speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
         val finalText = TextUtils.concat(speedText, "\n", speedValue)
         binding.speedValue.isSingleLine = false
@@ -450,9 +450,16 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         unregisterReceiver(serviceStoppedReceiver)
     }
 
-    override fun updateTextView(latitude: Double, longitude: Double) {
+    override fun updateTextView(latitude: Double, longitude: Double, speed: Double) {
         val formattedLatitude = String.format("%+013.8f", latitude)
         val formattedLongitude = String.format("%+013.8f", longitude)
-        binding.gpsValue?.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
+        binding.gpsValue.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
+
+        val speedText = SpannableString("speed (km/h)")
+        speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val speedValue = SpannableString(speed.toInt().toString())
+        speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val finalText = TextUtils.concat(speedText, "\n", speedValue)
+        binding.speedValue.text = finalText
     }
 }

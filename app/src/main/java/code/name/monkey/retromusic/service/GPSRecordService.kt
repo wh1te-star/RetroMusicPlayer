@@ -17,11 +17,16 @@ import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.sqrt
 
 class GPSRecordService() : Service(), LocationListener {
     private val binder = LocalBinder()
     private var listener: TextViewUpdateListener? = null
 
+    private var previousTimestamp: Long = 0
+    private var previousLatitude: Double = 0.0
+    private var previousLongitude: Double = 0.0
+    private var timestamp: Long = 0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
 
@@ -76,14 +81,18 @@ class GPSRecordService() : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        val recordedValue = ByteArray(24)
-        val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
+        previousTimestamp = timestamp
+        previousLatitude = latitude
+        previousLongitude = longitude
 
+        timestamp = System.currentTimeMillis()
         latitude = location.latitude
         longitude = location.longitude
 
-        val currentTime = System.currentTimeMillis()
-        buffer.putLong(currentTime)
+        val recordedValue = ByteArray(24)
+        val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
+
+        buffer.putLong(timestamp)
         buffer.putDouble(latitude)
         buffer.putDouble(longitude)
 
@@ -128,10 +137,34 @@ class GPSRecordService() : Service(), LocationListener {
     }
 
     fun updateTextView() {
-        listener?.updateTextView(latitude, longitude)
+        val speed = calculateApproximateSpeedKmH(
+            timestamp, latitude, longitude,
+            previousTimestamp, previousLatitude, previousLongitude)
+        listener?.updateTextView(latitude, longitude, speed)
+    }
+    fun calculateApproximateSpeedKmH(
+        timestamp: Long, latitude: Double, longitude: Double,
+        previousTimestamp: Long, previousLatitude: Double, previousLongitude: Double
+    ): Double {
+        val timeDeltaMiliseconds = (timestamp - previousTimestamp)
+        val timeDeltaSeconds = timeDeltaMiliseconds / 1000.0
+        val timeDeltaHour = timeDeltaSeconds / 3600.0
+
+        val earthRadiusKm = 6371.0
+        val deltaLatitude = Math.toRadians(latitude - previousLatitude)
+        val deltaLongitude = Math.toRadians(longitude - previousLongitude)
+        val distanceDeltaLatitude = deltaLatitude * earthRadiusKm
+        val distanceDeltaLongitude = deltaLongitude * earthRadiusKm
+        val distanceKm = sqrt(
+            distanceDeltaLatitude*distanceDeltaLatitude +
+            distanceDeltaLongitude*distanceDeltaLongitude)
+
+        val speedKmH = distanceKm / timeDeltaHour
+
+        return speedKmH
     }
 }
 
 interface TextViewUpdateListener {
-    fun updateTextView(latitude: Double, longitude: Double)
+    fun updateTextView(latitude: Double, longitude: Double, speed: Double)
 }
