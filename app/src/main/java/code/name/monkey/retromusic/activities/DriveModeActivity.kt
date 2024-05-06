@@ -30,6 +30,9 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.AbsoluteSizeSpan
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -144,6 +147,14 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         registerReceiver(serviceStoppedReceiver, filter)
         binding.gpsValue.isSingleLine = false
         binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+        val speedText = SpannableString("speed (km/h)")
+        speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+
+        val speedValue = SpannableString("54")
+        speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val finalText = TextUtils.concat(speedText, "\n", speedValue)
+        binding.speedValue.isSingleLine = false
+        binding.speedValue.text = finalText
     }
 
     private fun setUpMusicControllers() {

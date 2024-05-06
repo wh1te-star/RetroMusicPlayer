@@ -58,11 +58,50 @@
         android:background="@drawable/color_circle_gradient"
         android:backgroundTint="@color/semi_transparent"
         android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintBottom_toBottomOf="@+id/speedValue"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/speedValue"
         app:srcCompat="@drawable/ic_close" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/speedValue"
+        android:layout_width="wrap_content"
+        android:layout_height="72dp"
+        android:gravity="center"
+        android:textColor="@color/md_white_1000"
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintEnd_toStartOf="@+id/recordGPSButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/close"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recordGPSButton"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="?roundSelector"
+        android:src="@drawable/ic_gps_recording"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
+        app:layout_constraintEnd_toStartOf="@+id/gpsValue"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/speedValue"
+        app:layout_constraintTop_toBottomOf="@+id/titleContainer" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/gpsValue"
+        android:layout_width="wrap_content"
+        android:layout_height="72dp"
+        android:gravity="center"
+        android:textColor="@color/md_white_1000"
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintEnd_toStartOf="@+id/songFavourite"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintVertical_bias="0.0" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/songFavourite"
@@ -217,30 +256,5 @@
         app:layout_constraintEnd_toEndOf="@+id/progressSlider"
         app:layout_constraintTop_toBottomOf="@+id/progressSlider"
         tools:text="@tools:sample/date/hhmmss" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/recordGPSButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        android:src="@drawable/ic_gps_recording"
-        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
-        app:layout_constraintEnd_toStartOf="@+id/gpsValue"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/close"
-        app:layout_constraintTop_toBottomOf="@+id/titleContainer" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/gpsValue"
-        android:layout_width="wrap_content"
-        android:layout_height="72dp"
-        android:layout_marginStart="8dp"
-        android:gravity="center"
-        android:textColor="@color/md_white_1000"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
-        app:layout_constraintEnd_toStartOf="@+id/songFavourite"
-        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
-        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
