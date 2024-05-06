@@ -93,6 +93,7 @@ class GPSRecordService : Service() {
                 if (recordingFile.length() > storageSizeLimit) {
                     if (!doesFileSizeExceed) {
                         sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
+                        stopRecording()
                         doesFileSizeExceed = true
                     }
                 }
@@ -133,6 +134,7 @@ class GPSRecordService : Service() {
 
     public fun startRecording() {
         initializeRecordingFile()
+        doesFileSizeExceed = false
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 1000,

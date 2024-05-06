@@ -114,7 +114,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
             if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
                 Toast.makeText(context,
                     getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
-                unbindService(serviceConnection)
             }
             if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
                 Toast.makeText(context,
