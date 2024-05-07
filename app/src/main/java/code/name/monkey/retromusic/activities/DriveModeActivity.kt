@@ -33,11 +33,15 @@ import android.os.IBinder
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
+import android.view.View
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.ListView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
@@ -148,6 +152,9 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
 
         binding.gpsValue.isSingleLine = false
         binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+        binding.gpsValue.setOnClickListener {
+            showDialogWithSingleSelectAndEditText()
+        }
 
         val speedText = SpannableString("speed (km/h)")
         speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
@@ -442,6 +449,24 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
             }
             startActivity(Intent.createChooser(shareIntent, "Share File"))
         }
+    }
+
+    fun showDialogWithSingleSelectAndEditText() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogView: View = inflater.inflate(R.layout.dialog_gps_accuracy_change, null)
+        val editText1 = dialogView.findViewById<EditText>(R.id.editText1)
+        val editText2  = dialogView.findViewById<EditText>(R.id.editText2)
+        editText1.setText(gpsRecordService.textviewMinTimeMs.toString())
+        editText2.setText(gpsRecordService.textviewMinDistanceM.toString())
+        builder.setView(dialogView)
+            .setPositiveButton("OK") { dialog, id ->
+                gpsRecordService.changeTextviewAccuracy(editText1.text.toString().toLong(), editText2.text.toString().toFloat())
+            }
+            .setNegativeButton("Cancel") { dialog, id ->
+            }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     override fun onDestroy() {

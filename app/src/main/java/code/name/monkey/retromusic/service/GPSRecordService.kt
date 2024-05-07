@@ -35,6 +35,12 @@ class GPSRecordService : Service() {
     private lateinit var textViewLocationListener: LocationListener
     private lateinit var recordingLocationListener: LocationListener
     private lateinit var recordingFile: File
+
+    public var textviewMinTimeMs = 100L
+    public var textviewMinDistanceM = 0.001f
+    private var recordingMinTimeMs = 1000L
+    private var recordingMinDistanceM = 10f
+
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
     var doesFileSizeExceed = false
 
@@ -106,8 +112,8 @@ class GPSRecordService : Service() {
         try {
             locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
-                100,
-                0.001f,
+                textviewMinTimeMs,
+                textviewMinDistanceM,
                 textViewLocationListener)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
@@ -137,8 +143,8 @@ class GPSRecordService : Service() {
         doesFileSizeExceed = false
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000,
-                10f,
+                recordingMinTimeMs,
+                recordingMinDistanceM,
                 recordingLocationListener)
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
@@ -160,6 +166,20 @@ class GPSRecordService : Service() {
             locationManager.removeUpdates(textViewLocationListener)
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
+        }
+    }
+
+    fun changeTextviewAccuracy(minTimeMS: Long, minDistanceM: Float) {
+        textviewMinTimeMs = minTimeMS
+        textviewMinDistanceM = minDistanceM
+        locationManager.removeUpdates(textViewLocationListener)
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                textviewMinTimeMs,
+                textviewMinDistanceM,
+                textViewLocationListener)
+        } catch (e: SecurityException) {
+            Log.e("GPSRecordService", "Location permission not granted", e)
         }
     }
 
