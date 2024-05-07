@@ -158,7 +158,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
 
         val speedText = SpannableString("speed (km/h)")
         speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-        val speedValue = SpannableString("123")
+        val speedValue = SpannableString("XXX")
         speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
         val finalText = TextUtils.concat(speedText, "\n", speedValue)
         binding.speedValue.isSingleLine = false
