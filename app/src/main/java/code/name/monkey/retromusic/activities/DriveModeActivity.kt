@@ -107,25 +107,20 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         super.onStop()
     }
 
-    private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (GPSRecordService.RECORDING_STARTED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
-                isRecordingGPS = true
-                updateGPSRecordState()
-            }
-            if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
-            }
-            if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show();
-                isRecordingGPS = false
-                updateGPSRecordState()
-            }
-        }
+    override fun onRecordingStarted() {
+        Toast.makeText(this, getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
+        isRecordingGPS = true
+        updateGPSRecordState()
+    }
+
+    override fun onRecordingStopped() {
+        Toast.makeText(this, getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show()
+        isRecordingGPS = false
+        updateGPSRecordState()
+    }
+
+    override fun onFileSizeExceeded() {
+        Toast.makeText(this, getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,11 +137,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
         }
         binding.repeatButton.drawAboveSystemBars()
 
-        val filter = IntentFilter()
-        filter.addAction(GPSRecordService.RECORDING_STARTED)
-        filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
-        filter.addAction(GPSRecordService.RECORDING_STOPPED)
-        registerReceiver(serviceStoppedReceiver, filter)
         bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         startService(gpsRecordServiceIntent)
 
@@ -471,7 +461,6 @@ class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Cal
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(serviceStoppedReceiver)
         unbindService(serviceConnection)
         stopService(gpsRecordServiceIntent)
     }

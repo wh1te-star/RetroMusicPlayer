@@ -101,7 +101,7 @@ class GPSRecordService : Service() {
                 }
                 if (recordingFile.length() > storageSizeLimit) {
                     if (!doesFileSizeExceed) {
-                        sendBroadcast(Intent(FILE_SIZE_EXCEEDED))
+                        listener?.onFileSizeExceeded()
                         stopRecording()
                         doesFileSizeExceed = true
                     }
@@ -152,7 +152,7 @@ class GPSRecordService : Service() {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
-        sendBroadcast(Intent(RECORDING_STARTED))
+        listener?.onRecordingStarted()
     }
     public fun stopRecording() {
         try {
@@ -160,7 +160,7 @@ class GPSRecordService : Service() {
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
-        sendBroadcast(Intent(RECORDING_STOPPED))
+        listener?.onRecordingStopped()
     }
 
     override fun onDestroy() {
@@ -230,5 +230,8 @@ class GPSRecordService : Service() {
 }
 
 interface TextViewUpdateListener {
+    fun onRecordingStarted()
+    fun onRecordingStopped()
+    fun onFileSizeExceeded()
     fun updateTextView(latitude: Double, longitude: Double, speed: Double)
 }
