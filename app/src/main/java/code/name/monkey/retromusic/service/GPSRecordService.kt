@@ -79,7 +79,7 @@ class GPSRecordService : Service() {
                 latitude = location.latitude
                 longitude = location.longitude
 
-                updateTextView()
+                updateTextView(location.speed)
             }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
             override fun onProviderEnabled(provider: String) { }
@@ -194,38 +194,8 @@ class GPSRecordService : Service() {
         this.listener = null
     }
 
-    fun updateTextView() {
-        val speed = calculateApproximateSpeedKmH(
-            timestamp, latitude, longitude,
-            previousTimestamp, previousLatitude, previousLongitude)
+    fun updateTextView(speed: Float) {
         listener?.updateTextView(latitude, longitude, speed)
-    }
-    fun calculateApproximateSpeedKmH(
-        timestamp: Long, latitude: Double, longitude: Double,
-        previousTimestamp: Long, previousLatitude: Double, previousLongitude: Double
-    ): Double {
-        val timeDeltaMiliseconds = (timestamp - previousTimestamp)
-        val timeDeltaSeconds = timeDeltaMiliseconds / 1000.0
-        val timeDeltaHour = timeDeltaSeconds / 3600.0
-
-        val EARTH_RADIUS_KM = 6371.0
-        val deltaLatitude = toRadians(latitude - previousLatitude)
-        val deltaLongitude = toRadians(longitude - previousLongitude)
-        val radianLatitude = toRadians(latitude)
-        val radianLongitude = toRadians(longitude)
-        val sinHalfDeltaLatitude = sin(deltaLatitude / 2)
-        val sinHalfDeltalongitude = sin(deltaLongitude / 2)
-
-        val a: Double = sinHalfDeltaLatitude*sinHalfDeltaLatitude
-                    + sinHalfDeltalongitude*sinHalfDeltalongitude
-                    + cos(radianLatitude) * cos(radianLongitude)
-        val c: Double = 2 * Math.atan2(sqrt(a), sqrt(1 - a))
-
-
-        val distanceKm = EARTH_RADIUS_KM * c
-        val speedKmH = distanceKm / timeDeltaHour
-
-        return speedKmH
     }
 }
 
@@ -233,5 +203,5 @@ interface TextViewUpdateListener {
     fun onRecordingStarted()
     fun onRecordingStopped()
     fun onFileSizeExceeded()
-    fun updateTextView(latitude: Double, longitude: Double, speed: Double)
+    fun updateTextView(latitude: Double, longitude: Double, speed: Float)
 }
