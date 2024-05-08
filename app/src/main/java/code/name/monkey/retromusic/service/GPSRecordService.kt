@@ -47,12 +47,6 @@ class GPSRecordService : Service() {
     private val storageSizeLimit = 20000000000 //[byte] = 20GB
     var doesFileSizeExceed = false
 
-    companion object {
-        val RECORDING_STARTED = "code.name.monkey.retromusic.RECORDING_STARTED"
-        val RECORDING_STOPPED = "code.name.monkey.retromusic.RECORDING_STOPPED"
-        val FILE_SIZE_EXCEEDED = "code.name.monkey.retromusic.FILE_SIZE_EXCEEDED"
-    }
-
     inner class LocalBinder : Binder() {
         fun getService(): GPSRecordService = this@GPSRecordService
     }
