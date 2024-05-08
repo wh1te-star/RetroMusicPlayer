@@ -13,11 +13,14 @@ import code.name.monkey.retromusic.util.logD
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.Math.toRadians
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class GPSRecordService : Service() {
@@ -205,15 +208,21 @@ class GPSRecordService : Service() {
         val timeDeltaSeconds = timeDeltaMiliseconds / 1000.0
         val timeDeltaHour = timeDeltaSeconds / 3600.0
 
-        val earthRadiusKm = 6371.0
-        val deltaLatitude = Math.toRadians(latitude - previousLatitude)
-        val deltaLongitude = Math.toRadians(longitude - previousLongitude)
-        val distanceDeltaLatitude = deltaLatitude * earthRadiusKm
-        val distanceDeltaLongitude = deltaLongitude * earthRadiusKm
-        val distanceKm = sqrt(
-            distanceDeltaLatitude*distanceDeltaLatitude +
-                    distanceDeltaLongitude*distanceDeltaLongitude)
+        val EARTH_RADIUS_KM = 6371.0
+        val deltaLatitude = toRadians(latitude - previousLatitude)
+        val deltaLongitude = toRadians(longitude - previousLongitude)
+        val radianLatitude = toRadians(latitude)
+        val radianLongitude = toRadians(longitude)
+        val sinHalfDeltaLatitude = sin(deltaLatitude / 2)
+        val sinHalfDeltalongitude = sin(deltaLongitude / 2)
 
+        val a: Double = sinHalfDeltaLatitude*sinHalfDeltaLatitude
+                    + sinHalfDeltalongitude*sinHalfDeltalongitude
+                    + cos(radianLatitude) * cos(radianLongitude)
+        val c: Double = 2 * Math.atan2(sqrt(a), sqrt(1 - a))
+
+
+        val distanceKm = EARTH_RADIUS_KM * c
         val speedKmH = distanceKm / timeDeltaHour
 
         return speedKmH
