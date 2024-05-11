@@ -69,7 +69,7 @@ class GPSRecordService : Service() {
                 previousLatitude = latitude
                 previousLongitude = longitude
 
-                timestamp = System.currentTimeMillis()
+                timestamp = location.time
                 latitude = location.latitude
                 longitude = location.longitude
 
