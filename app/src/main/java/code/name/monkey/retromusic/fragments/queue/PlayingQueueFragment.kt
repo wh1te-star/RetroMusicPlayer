@@ -39,12 +39,17 @@ import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.fragments.base.AbsMusicServiceFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
+import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ThemedFastScroller
+import com.google.android.material.snackbar.Snackbar
+import com.h6ah4i.android.widget.advrecyclerview.adapter.WrappedAdapter
 import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager
+import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstants
+import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem
 import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 
@@ -103,6 +108,20 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         recyclerViewTouchActionGuardManager = RecyclerViewTouchActionGuardManager()
         recyclerViewDragDropManager = RecyclerViewDragDropManager()
         recyclerViewSwipeManager = RecyclerViewSwipeManager()
+
+        recyclerViewSwipeManager?.onItemSwipeEventListener = object : RecyclerViewSwipeManager.OnItemSwipeEventListener {
+            override fun onItemSwipeStarted(position: Int) {}
+            override fun onItemSwipeFinished(position: Int, result: Int, afterSwipeReaction: Int) {
+                if (result == SwipeableItemConstants.RESULT_SWIPED_LEFT || result == SwipeableItemConstants.RESULT_SWIPED_RIGHT) {
+                    val snackbar = Snackbar.make(binding.recyclerView, "Song removed", Snackbar.LENGTH_LONG)
+                    snackbar.setAction("UNDO") {
+                        //playingQueueAdapter?.addSongBack(song)
+                        //playingQueueAdapter?.notifyItemInserted(position)
+                    }
+                    snackbar.show()
+                }
+            }
+        }
 
         playingQueueAdapter = PlayingQueueAdapter(
             requireActivity(),
