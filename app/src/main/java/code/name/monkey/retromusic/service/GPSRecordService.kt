@@ -73,7 +73,7 @@ class GPSRecordService : Service() {
                 latitude = location.latitude
                 longitude = location.longitude
 
-                updateTextView(location.speed)
+                updateTextView(location.speed*3.6f)
             }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
             override fun onProviderEnabled(provider: String) { }
