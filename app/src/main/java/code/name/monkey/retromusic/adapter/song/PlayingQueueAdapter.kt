@@ -263,10 +263,6 @@ class PlayingQueueAdapter(
     override fun onSetSwipeBackground(holder: ViewHolder, position: Int, result: Int) {
     }
 
-    fun isItemChecked(position: Int): Boolean {
-        return isChecked(dataSet[position])
-    }
-
     internal class SwipedResultActionRemoveItem(
         private val adapter: PlayingQueueAdapter,
         private val position: Int,
