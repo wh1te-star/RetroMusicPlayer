@@ -565,4 +565,5 @@
     <string name="high_volume_warning">非常に大きな音量です。本当に音量を設定しますか？</string>
     <string name="warning">警告</string>
     <string name="max_volume_limit">最大音量の制限</string>
+    <string name="song_removed">曲が削除されました</string>
 </resources>
