@@ -120,9 +120,11 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
             }
             override fun onItemSwipeFinished(position: Int, result: Int, afterSwipeReaction: Int) {
                 if (result == SwipeableItemConstants.RESULT_SWIPED_LEFT || result == SwipeableItemConstants.RESULT_SWIPED_RIGHT) {
+                    playingQueueAdapter?.notifyItemRemoved(positionToRemove)
                     val snackbar = Snackbar.make(binding.recyclerView, "Song removed", Snackbar.LENGTH_LONG)
                     snackbar.setAction("UNDO") {
                         MusicPlayerRemote.musicService?.addSong(positionToRemove, songToRemove)
+                        playingQueueAdapter?.notifyItemInserted(positionToRemove)
                     }
                     snackbar.show()
                 }
