@@ -215,7 +215,7 @@
     <string name="hinge">Завіса</string>
     <string name="history">Історія</string>
     <string name="history_cleared">Історію очищено</string>
-    <string name="history_undo_button">Скасувати</string>
+    <string name="snackbar_undo_button">Скасувати</string>
     <string name="home">Домашня сторінка</string>
     <string name="horizontal_flip">Горизонтальне перевернення</string>
     <string name="image">Зображення</string>

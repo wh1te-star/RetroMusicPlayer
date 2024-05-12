@@ -211,7 +211,7 @@
     <string name="hinge">ಹಿಂಜ್</string>
     <string name="history">ಹಿಸ್ಟರಿ</string>
     <string name="history_cleared">ಹಿಸ್ಟರಿಯನ್ನು ತೆರವುಗೊಳಿಸಲಾಗಿದೆ</string>
-    <string name="history_undo_button">ರದ್ದುಮಾಡು</string>
+    <string name="snackbar_undo_button">ರದ್ದುಮಾಡು</string>
     <string name="home">ಮುಖಪುಟ</string>
     <string name="horizontal_flip">ಸಮತಲ ಫ್ಲಿಪ್</string>
     <string name="image">ಚಿತ್ರ</string>

@@ -213,7 +213,7 @@
     <string name="hinge">Balama</string>
     <string name="history">Istoric</string>
     <string name="history_cleared">Istoric șters</string>
-    <string name="history_undo_button">Anulare</string>
+    <string name="snackbar_undo_button">Anulare</string>
     <string name="home">Acasă</string>
     <string name="horizontal_flip">Întoarcere pe orizontală</string>
     <string name="image">Imagine</string>

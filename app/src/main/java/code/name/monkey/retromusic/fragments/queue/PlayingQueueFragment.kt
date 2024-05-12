@@ -14,12 +14,7 @@
  */
 package code.name.monkey.retromusic.fragments.queue
 
-import android.content.res.ColorStateList
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import android.os.Bundle
-import android.service.autofill.Dataset
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -28,32 +23,25 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import code.name.monkey.appthemehelper.util.ColorUtil
-import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlayingQueueBinding
 import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
-import code.name.monkey.retromusic.fragments.base.AbsMusicServiceFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ThemedFastScroller
 import com.google.android.material.snackbar.Snackbar
-import com.h6ah4i.android.widget.advrecyclerview.adapter.WrappedAdapter
 import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstants
-import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem
 import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
-import kotlin.properties.Delegates
 
 class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_queue) {
 
@@ -121,8 +109,9 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
             override fun onItemSwipeFinished(position: Int, result: Int, afterSwipeReaction: Int) {
                 if (result == SwipeableItemConstants.RESULT_SWIPED_LEFT || result == SwipeableItemConstants.RESULT_SWIPED_RIGHT) {
                     playingQueueAdapter?.notifyItemRemoved(positionToRemove)
-                    val snackbar = Snackbar.make(binding.recyclerView, "Song removed", Snackbar.LENGTH_LONG)
-                    snackbar.setAction("UNDO") {
+                    val snackbar = Snackbar.make(binding.recyclerView,
+                        getString(R.string.song_removed), Snackbar.LENGTH_LONG)
+                    snackbar.setAction(R.string.snackbar_undo_button) {
                         MusicPlayerRemote.musicService?.addSong(positionToRemove, songToRemove)
                         playingQueueAdapter?.notifyItemInserted(positionToRemove)
                     }

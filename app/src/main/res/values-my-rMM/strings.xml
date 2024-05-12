@@ -209,7 +209,7 @@
     <string name="hinge">Hinge</string>
     <string name="history">မှတ်တမ်း</string>
     <string name="history_cleared">History cleared</string>
-    <string name="history_undo_button">Undo</string>
+    <string name="snackbar_undo_button">Undo</string>
     <string name="home">မူလ</string>
     <string name="horizontal_flip">ရေပြင်ညီအတိုင်းဟိုဘက်ဒီဘက်လှန်ခြင်း</string>
     <string name="image">ဓာတ်ပုံ</string>

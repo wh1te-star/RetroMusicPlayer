@@ -211,7 +211,7 @@
     <string name="hinge">Menteşe</string>
     <string name="history">Geçmiş</string>
     <string name="history_cleared">Geçmiş temizlendi</string>
-    <string name="history_undo_button">Geri al</string>
+    <string name="snackbar_undo_button">Geri al</string>
     <string name="home">Ana sayfa</string>
     <string name="horizontal_flip">Yatay çevir</string>
     <string name="image">Görüntü</string>

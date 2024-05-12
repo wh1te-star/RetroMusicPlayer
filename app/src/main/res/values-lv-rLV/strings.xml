@@ -213,7 +213,7 @@
     <string name="hinge">Hinge</string>
     <string name="history">Vēsture</string>
     <string name="history_cleared">Vēsture notīrīta</string>
-    <string name="history_undo_button">Atsaukt</string>
+    <string name="snackbar_undo_button">Atsaukt</string>
     <string name="home">Sākums</string>
     <string name="horizontal_flip">Horizontal flip</string>
     <string name="image">Attēls</string>

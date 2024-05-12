@@ -210,7 +210,7 @@
     <string name="hinge">ヒンジ</string>
     <string name="history">履歴</string>
     <string name="history_cleared">履歴を消去しました</string>
-    <string name="history_undo_button">元に戻す</string>
+    <string name="snackbar_undo_button">元に戻す</string>
     <string name="home">ホーム</string>
     <string name="horizontal_flip">水平方向に反転</string>
     <string name="image">画像</string>

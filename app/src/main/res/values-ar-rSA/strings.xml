@@ -222,7 +222,7 @@
     <string name="hinge">مفصل</string>
     <string name="history">السجل</string>
     <string name="history_cleared">تم مسح السجل</string>
-    <string name="history_undo_button">تراجع</string>
+    <string name="snackbar_undo_button">تراجع</string>
     <string name="home">الشاشة الرئيسية</string>
     <string name="horizontal_flip">تدوير عمودي</string>
     <string name="image">صورة</string>
