@@ -263,6 +263,10 @@ class PlayingQueueAdapter(
     override fun onSetSwipeBackground(holder: ViewHolder, position: Int, result: Int) {
     }
 
+    fun isItemChecked(position: Int): Boolean {
+        return isChecked(dataSet[position])
+    }
+
     internal class SwipedResultActionRemoveItem(
         private val adapter: PlayingQueueAdapter,
         private val position: Int,
@@ -280,6 +284,10 @@ class PlayingQueueAdapter(
             if (isPlaying(songToRemove!!)) {
                 playNextSong()
             }
+
+            if (adapter.isChecked(songToRemove!!))
+                adapter.toggleChecked(position)
+
             // Swipe animation is much smoother when we do the heavy lifting after it's completed
             adapter.setSongToRemove(songToRemove!!)
             removeFromQueue(songToRemove!!)
