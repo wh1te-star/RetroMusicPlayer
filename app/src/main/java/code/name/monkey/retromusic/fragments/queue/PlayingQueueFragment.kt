@@ -19,6 +19,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.service.autofill.Dataset
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -52,6 +53,7 @@ import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstant
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem
 import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
+import kotlin.properties.Delegates
 
 class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_queue) {
 
@@ -110,13 +112,17 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         recyclerViewSwipeManager = RecyclerViewSwipeManager()
 
         recyclerViewSwipeManager?.onItemSwipeEventListener = object : RecyclerViewSwipeManager.OnItemSwipeEventListener {
-            override fun onItemSwipeStarted(position: Int) {}
+            lateinit var songToRemove: Song
+            private var positionToRemove = 0
+            override fun onItemSwipeStarted(position: Int) {
+                positionToRemove = position
+                songToRemove = playingQueueAdapter?.dataSet?.get(position) as Song
+            }
             override fun onItemSwipeFinished(position: Int, result: Int, afterSwipeReaction: Int) {
                 if (result == SwipeableItemConstants.RESULT_SWIPED_LEFT || result == SwipeableItemConstants.RESULT_SWIPED_RIGHT) {
                     val snackbar = Snackbar.make(binding.recyclerView, "Song removed", Snackbar.LENGTH_LONG)
                     snackbar.setAction("UNDO") {
-                        //playingQueueAdapter?.addSongBack(song)
-                        //playingQueueAdapter?.notifyItemInserted(position)
+                        MusicPlayerRemote.musicService?.addSong(positionToRemove, songToRemove)
                     }
                     snackbar.show()
                 }
