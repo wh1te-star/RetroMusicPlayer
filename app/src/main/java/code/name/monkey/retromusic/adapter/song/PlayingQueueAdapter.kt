@@ -286,7 +286,7 @@ class PlayingQueueAdapter(
 
             // Swipe animation is much smoother when we do the heavy lifting after it's completed
             adapter.setSongToRemove(songToRemove!!)
-            removeFromQueue(songToRemove!!)
+            removeFromQueue(position)
         }
     }
 }

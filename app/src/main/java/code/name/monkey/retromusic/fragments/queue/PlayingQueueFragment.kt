@@ -113,7 +113,10 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
                         getString(R.string.song_removed), Snackbar.LENGTH_LONG)
                     snackbar.setAction(R.string.snackbar_undo_button) {
                         MusicPlayerRemote.musicService?.addSong(positionToRemove, songToRemove)
-                        playingQueueAdapter?.notifyItemInserted(positionToRemove)
+                        if (MusicPlayerRemote.musicService?.position!! >= positionToRemove) {
+                            MusicPlayerRemote.musicService?.position =
+                                MusicPlayerRemote.musicService?.nextPosition!!
+                        }
                     }
                     snackbar.show()
                 }
