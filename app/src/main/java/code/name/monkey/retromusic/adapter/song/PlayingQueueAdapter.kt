@@ -20,6 +20,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
@@ -39,6 +42,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
@@ -272,6 +276,7 @@ class PlayingQueueAdapter(
         private val activity: FragmentActivity
     ) : SwipeResultActionRemoveItem() {
 
+        private val slidingPanelHeight = 150
         private var songToRemove: Song? = null
         override fun onPerformAction() {
             // currentlyShownSnackbar = null
@@ -293,18 +298,15 @@ class PlayingQueueAdapter(
             removeFromQueue(position)
         }
         fun initializeSnackBar(position: Int, activity: FragmentActivity) {
-            val navHostFragment = activity.supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
-            val fragment = navHostFragment.childFragmentManager.fragments[0] as PlayingQueueFragment
-            val recyclerView = fragment.getRecyclerView()
-            val snackbar = Snackbar.make(recyclerView,
-                activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
-            snackbar.setAction(R.string.snackbar_undo_button) {
+            val view = activity.findViewById<FrameLayout>(R.id.slidingPanel)
+            val snackbar = Snackbar.make(view, activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
+            snackbar.setAction(activity.getString(R.string.snackbar_undo_button)) {
                 MusicPlayerRemote.musicService?.addSong(position, songToRemove!!)
                 if (MusicPlayerRemote.musicService?.position!! >= position) {
-                    MusicPlayerRemote.musicService?.position =
-                        MusicPlayerRemote.musicService?.nextPosition!!
+                    MusicPlayerRemote.musicService?.position = MusicPlayerRemote.musicService?.nextPosition!!
                 }
             }
+            snackbar.view.translationY -= slidingPanelHeight
             snackbar.show()
         }
     }
