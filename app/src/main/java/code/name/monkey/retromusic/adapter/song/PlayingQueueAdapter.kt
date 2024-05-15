@@ -297,6 +297,7 @@ class PlayingQueueAdapter(
             adapter.setSongToRemove(songToRemove!!)
             removeFromQueue(position)
         }
+
         fun initializeSnackBar(position: Int, activity: FragmentActivity) {
             val view = activity.findViewById<FrameLayout>(R.id.slidingPanel)
             val snackbar = Snackbar.make(view, activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
