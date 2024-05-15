@@ -15,23 +15,15 @@
 package code.name.monkey.retromusic.adapter.song
 
 import android.content.res.Configuration
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.fragment.NavHostFragment
-import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.ThemeStore.Companion.accentColor
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.extensions.accentColor
-import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -42,7 +34,6 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import com.bumptech.glide.Glide
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
@@ -276,7 +267,7 @@ class PlayingQueueAdapter(
         private val activity: FragmentActivity
     ) : SwipeResultActionRemoveItem() {
 
-        private val slidingPanelHeight = 150
+        private val bottomPadding = 330
         private var songToRemove: Song? = null
         override fun onPerformAction() {
             // currentlyShownSnackbar = null
@@ -307,7 +298,7 @@ class PlayingQueueAdapter(
                     MusicPlayerRemote.musicService?.position = MusicPlayerRemote.musicService?.nextPosition!!
                 }
             }
-            snackbar.view.translationY -= slidingPanelHeight
+            snackbar.view.translationY -= bottomPadding
             snackbar.show()
         }
     }
