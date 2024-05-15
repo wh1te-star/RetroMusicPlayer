@@ -23,10 +23,12 @@ import android.view.View
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.ThemeStore.Companion.accentColor
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.accentColor
+import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -37,6 +39,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
 import com.h6ah4i.android.widget.advrecyclerview.draggable.annotation.DraggableItemStateFlags
@@ -245,7 +248,7 @@ class PlayingQueueAdapter(
         return if (result == SwipeableItemConstants.RESULT_CANCELED) {
             SwipeResultActionDefault()
         } else {
-            SwipedResultActionRemoveItem(this, position)
+            SwipedResultActionRemoveItem(this, position, activity)
         }
     }
 
@@ -266,6 +269,7 @@ class PlayingQueueAdapter(
     internal class SwipedResultActionRemoveItem(
         private val adapter: PlayingQueueAdapter,
         private val position: Int,
+        private val activity: FragmentActivity
     ) : SwipeResultActionRemoveItem() {
 
         private var songToRemove: Song? = null
@@ -274,7 +278,7 @@ class PlayingQueueAdapter(
         }
 
         override fun onSlideAnimationEnd() {
-            // initializeSnackBar(adapter, position, activity, isPlaying)
+            initializeSnackBar(position, activity)
             songToRemove = adapter.dataSet[position]
             // If song removed was the playing song, then play the next song
             if (isPlaying(songToRemove!!)) {
@@ -287,6 +291,21 @@ class PlayingQueueAdapter(
             // Swipe animation is much smoother when we do the heavy lifting after it's completed
             adapter.setSongToRemove(songToRemove!!)
             removeFromQueue(position)
+        }
+        fun initializeSnackBar(position: Int, activity: FragmentActivity) {
+            val navHostFragment = activity.supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+            val fragment = navHostFragment.childFragmentManager.fragments[0] as PlayingQueueFragment
+            val recyclerView = fragment.getRecyclerView()
+            val snackbar = Snackbar.make(recyclerView,
+                activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
+            snackbar.setAction(R.string.snackbar_undo_button) {
+                MusicPlayerRemote.musicService?.addSong(position, songToRemove!!)
+                if (MusicPlayerRemote.musicService?.position!! >= position) {
+                    MusicPlayerRemote.musicService?.position =
+                        MusicPlayerRemote.musicService?.nextPosition!!
+                }
+            }
+            snackbar.show()
         }
     }
 }

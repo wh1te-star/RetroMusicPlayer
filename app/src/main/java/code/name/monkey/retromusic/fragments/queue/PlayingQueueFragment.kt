@@ -94,34 +94,14 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         return false
     }
 
+    fun getRecyclerView(): RecyclerView {
+        return binding.recyclerView
+    }
+
     private fun setUpRecyclerView() {
         recyclerViewTouchActionGuardManager = RecyclerViewTouchActionGuardManager()
         recyclerViewDragDropManager = RecyclerViewDragDropManager()
         recyclerViewSwipeManager = RecyclerViewSwipeManager()
-
-        recyclerViewSwipeManager?.onItemSwipeEventListener = object : RecyclerViewSwipeManager.OnItemSwipeEventListener {
-            lateinit var songToRemove: Song
-            private var positionToRemove = 0
-            override fun onItemSwipeStarted(position: Int) {
-                positionToRemove = position
-                songToRemove = playingQueueAdapter?.dataSet?.get(position) as Song
-            }
-            override fun onItemSwipeFinished(position: Int, result: Int, afterSwipeReaction: Int) {
-                if (result == SwipeableItemConstants.RESULT_SWIPED_LEFT || result == SwipeableItemConstants.RESULT_SWIPED_RIGHT) {
-                    playingQueueAdapter?.notifyItemRemoved(positionToRemove)
-                    val snackbar = Snackbar.make(binding.recyclerView,
-                        getString(R.string.song_removed), Snackbar.LENGTH_LONG)
-                    snackbar.setAction(R.string.snackbar_undo_button) {
-                        MusicPlayerRemote.musicService?.addSong(positionToRemove, songToRemove)
-                        if (MusicPlayerRemote.musicService?.position!! >= positionToRemove) {
-                            MusicPlayerRemote.musicService?.position =
-                                MusicPlayerRemote.musicService?.nextPosition!!
-                        }
-                    }
-                    snackbar.show()
-                }
-            }
-        }
 
         playingQueueAdapter = PlayingQueueAdapter(
             requireActivity(),
