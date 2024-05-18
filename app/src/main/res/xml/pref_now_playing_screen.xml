@@ -112,6 +112,13 @@
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
             android:layout="@layout/list_item_view_switch"
             app:defaultValue="false"
+            app:key="volume_always_limit"
+            app:summary="Always limit the max value of the volume slider to the current volume."
+            app:title="Always limit volume" />
+
+        <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:layout="@layout/list_item_view_switch"
+            app:defaultValue="false"
             app:icon="@drawable/ic_expand_less"
             app:key="expand_now_playing_panel"
             app:summary="@string/pref_summary_expand_now_playing_panel"

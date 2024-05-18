@@ -232,6 +232,11 @@ object PreferenceUtil {
             VOLUME_MAX_VALUE_TO, 10
         )
 
+    val alwaysLimitVolume
+        get() = sharedPreferences.getBoolean(
+            VOLUME_ALWAYS_LIMIT, false
+        )
+
     val volumeWarnThreshold
         get() = sharedPreferences.getInt(
             VOLUME_WARN_THRESHOLD, 6
