@@ -581,4 +581,5 @@
     <string name="max_volume_limit">Max Volume Limit</string>
     <string name="volume_max_value_to_sentence">The max value in the volume control seek bar.</string>
     <string name="volume_max_value_to">Volume Max Value</string>
+    <string name="always_limit_to_current_volume">Always limit to the current volume</string>
 </resources>
