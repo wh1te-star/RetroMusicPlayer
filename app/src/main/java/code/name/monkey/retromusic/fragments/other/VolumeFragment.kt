@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.VOLUME_ALWAYS_LIMIT
 import code.name.monkey.retromusic.VOLUME_MAX_VALUE_TO
 import code.name.monkey.retromusic.VOLUME_WARN_THRESHOLD
 import code.name.monkey.retromusic.databinding.FragmentVolumeBinding
@@ -38,6 +39,7 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.volume.AudioVolumeObserver
 import code.name.monkey.retromusic.volume.OnAudioVolumeChangedListener
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.slider.Slider
 import com.google.android.material.textview.MaterialTextView
 
@@ -116,6 +118,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             val dialogLayout = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_volume_limit, null)
             val limitToCurrentVolumeButton = dialogLayout.findViewById<Button>(R.id.limitToCurrentVolumeButton)
             val resetLimitButton = dialogLayout.findViewById<Button>(R.id.resetLimitButton)
+            val alwaysLimitCheckbox = dialogLayout.findViewById<MaterialCheckBox>(R.id.alwaysLimitCheckbox)
             limitToCurrentVolumeButton.setOnClickListener{
                 currentMaxVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                 binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
@@ -129,6 +132,17 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentMaxVolume)
                     .apply()
+            }
+            alwaysLimitCheckbox.isChecked = PreferenceUtil.alwaysLimitVolume
+            alwaysLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
+                sharedPreferences.edit()
+                    .putBoolean(VOLUME_ALWAYS_LIMIT, isChecked)
+                    .apply()
+                if (isChecked){
+                    binding.volumeSeekBar.valueTo =
+                        audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+
+                }
             }
 
             val builder = AlertDialog.Builder(requireContext())
@@ -163,7 +177,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
         if (_binding != null) {
-            if (currentVolume > binding.volumeSeekBar.valueTo) {
+            if (PreferenceUtil.alwaysLimitVolume == true || currentVolume > binding.volumeSeekBar.valueTo) {
                 binding.volumeSeekBar.valueTo = currentVolume.toFloat()
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentVolume)
