@@ -579,4 +579,6 @@
     <string name="high_volume_warning">It is extremely high volume. Are you sure want to set the volume?</string>
     <string name="warning">Warning</string>
     <string name="max_volume_limit">Max Volume Limit</string>
+    <string name="volume_max_value_to_sentence">The max value in the volume control seek bar.</string>
+    <string name="volume_max_value_to">Volume Max Value</string>
 </resources>

@@ -92,13 +92,21 @@
             app:title="@string/pref_title_toggle_volume" />
 
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
+            android:defaultValue="10"
+            android:key="volume_max_value_to"
+            android:layout="@layout/list_item_view_seekbar"
+            android:max="15"
+            android:summary="@string/volume_max_value_to_sentence"
+            android:title="@string/volume_max_value_to"
+            app:showSeekBarValue="true" />
+
+        <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
             android:defaultValue="6"
             android:key="volume_warn_threshold"
             android:layout="@layout/list_item_view_seekbar"
             android:max="15"
-            android:summary="@string/volume_warning_threshold"
-            android:title="@string/volume_warning_threshold_setence"
-            app:icon="@drawable/ic_volume_up"
+            android:summary="@string/volume_warning_threshold_setence"
+            android:title="@string/volume_warning_threshold"
             app:showSeekBarValue="true" />
 
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
