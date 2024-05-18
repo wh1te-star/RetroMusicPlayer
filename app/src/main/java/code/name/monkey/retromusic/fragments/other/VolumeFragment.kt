@@ -64,6 +64,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     private var isDialogShown = false
 
+    private val ZERO = 1
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -175,9 +176,12 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             .registerOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
+    override fun onAudioVolumeChanged(changedVolume: Int, maxVolume: Int) {
         if (_binding != null) {
-            if (PreferenceUtil.alwaysLimitVolume == true || currentVolume > binding.volumeSeekBar.valueTo) {
+            val currentVolume =
+                if (changedVolume == 0) ZERO
+                else changedVolume
+            if (PreferenceUtil.alwaysLimitVolume || currentVolume > binding.volumeSeekBar.valueTo) {
                 binding.volumeSeekBar.valueTo = currentVolume.toFloat()
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentVolume)
