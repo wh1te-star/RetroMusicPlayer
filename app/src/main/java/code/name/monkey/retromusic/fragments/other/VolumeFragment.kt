@@ -19,11 +19,13 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -74,16 +76,20 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.currentVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
+        binding.minVolumeValue.text = "0"
+        binding.maxVolumeValue.text = sharedPreferences.getInt(VOLUME_MAX_VALUE_TO, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)).toString()
+        binding.currentVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
+
         previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         currentMaxVolume = sharedPreferences.getInt(VOLUME_MAX_VALUE_TO, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC))
         binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
         binding.volumeSeekBar.value = previousVolume.toFloat()
         setTintable(ThemeStore.accentColor(requireContext()))
-        binding.minVolumeValue.text = "123"
-        binding.currentVolumeValue.text = "456"
-        binding.maxVolumeValue.text = "789"
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
@@ -93,8 +99,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             val volumeWarningMaxTextView = dialogLayout.findViewById<MaterialTextView>(R.id.volumeWarningMax)
             volumeWarningSeekBar.value = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toFloat()
             volumeWarningValueTextView.text = sharedPreferences.getInt(VOLUME_WARN_THRESHOLD, 0).toString()
-            volumeWarningSeekBar.valueTo = PreferenceUtil.volumeMaxValueTo.toFloat()
-            volumeWarningMaxTextView.text = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toInt().toString()
+            volumeWarningSeekBar.valueTo = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat()
+            volumeWarningMaxTextView.text = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
             volumeWarningSeekBar.addOnChangeListener { slider, value, fromUser ->
                 volumeWarningValueTextView.text = value.toInt().toString()
             }
@@ -126,6 +132,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             limitToCurrentVolumeButton.setOnClickListener{
                 currentMaxVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                 binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
+                binding.maxVolumeValue.text = currentMaxVolume.toString()
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentMaxVolume)
                     .apply()
@@ -133,6 +140,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             resetLimitButton.setOnClickListener {
                 currentMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                 binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
+                binding.maxVolumeValue.text = currentMaxVolume.toString()
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentMaxVolume)
                     .apply()
@@ -177,6 +185,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .registerOnSharedPreferenceChangeListener(this)
+
+        binding.currentVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
     }
 
     override fun onAudioVolumeChanged(changedVolume: Int, maxVolume: Int) {
@@ -189,10 +199,13 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                 sharedPreferences.edit()
                     .putInt(VOLUME_MAX_VALUE_TO, currentVolume)
                     .apply()
+                binding.maxVolumeValue.text = currentVolume.toString()
             }
             previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             binding.volumeSeekBar.value = currentVolume.toFloat()
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
+
+            binding.currentVolumeValue.text = currentVolume.toString()
         }
     }
 
@@ -221,14 +234,10 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                         getString(R.string.high_volume_warning)
                     )
                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                        val newVolume =
-                            binding.volumeSeekBar.value *
-                            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) /
-                            binding.volumeSeekBar.valueTo
-                        binding.volumeSeekBar.value = newVolume
+                        binding.volumeSeekBar.value = value
                         audioManager.setStreamVolume(
                             AudioManager.STREAM_MUSIC,
-                            newVolume.toInt(),
+                            value.toInt(),
                             0
                         )
                         isDialogShown = false
