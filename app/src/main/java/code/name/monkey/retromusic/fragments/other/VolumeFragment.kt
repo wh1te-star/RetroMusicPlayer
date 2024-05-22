@@ -80,7 +80,6 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.currentVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
         binding.minVolumeValue.text = "0"
         binding.maxVolumeValue.text = sharedPreferences.getInt(VOLUME_MAX_VALUE_TO, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)).toString()
         binding.currentVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
@@ -108,7 +107,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                 value.toInt().toString()
             }
 
-                val builder = AlertDialog.Builder(requireContext())
+            val builder = AlertDialog.Builder(requireContext())
             builder.setTitle(R.string.volume_warning_threshold)
             builder.setView(dialogLayout)
             builder.setPositiveButton("OK") { dialog, _ ->
@@ -303,5 +302,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {}
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == VOLUME_MAX_VALUE_TO){
+            sharedPreferences!!.edit().putInt(VOLUME_MAX_VALUE_TO, currentMaxVolume).apply()
+        }
+    }
 }

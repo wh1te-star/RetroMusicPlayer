@@ -14,11 +14,14 @@
  */
 package code.name.monkey.retromusic.fragments.settings
 
+import android.content.Context.AUDIO_SERVICE
 import android.content.SharedPreferences
+import android.media.AudioManager
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
+import code.name.monkey.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
 import code.name.monkey.retromusic.*
 import code.name.monkey.retromusic.util.PreferenceUtil
 
@@ -40,8 +43,23 @@ class NowPlayingSettingsFragment : AbsSettingsFragment(),
         }
     }
 
+    fun setMaxVolume(){
+        val audioManager = requireContext().getSystemService(AUDIO_SERVICE) as AudioManager
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+
+        val volumeWarnPreference = findPreference<Preference>("volume_warn_threshold")
+        if (volumeWarnPreference!= null && volumeWarnPreference is ATESeekBarPreference) {
+            volumeWarnPreference.max = maxVolume
+        }
+        val volumeMaxPreference = findPreference<Preference>("volume_max_value_to")
+        if (volumeMaxPreference!= null && volumeMaxPreference is ATESeekBarPreference) {
+            volumeMaxPreference.max = maxVolume
+        }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_now_playing_screen)
+        setMaxVolume()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,5 +79,10 @@ class NowPlayingSettingsFragment : AbsSettingsFragment(),
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         invalidateSettings()
+        val updatedValue = sharedPreferences.getInt(VOLUME_MAX_VALUE_TO, 3)
+        val preference = findPreference<Preference>(VOLUME_MAX_VALUE_TO)
+        if (preference is ATESeekBarPreference) {
+            preference.value = updatedValue
+        }
     }
 }
