@@ -81,6 +81,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeSeekBar.valueTo = currentMaxVolume.toFloat()
         binding.volumeSeekBar.value = previousVolume.toFloat()
         setTintable(ThemeStore.accentColor(requireContext()))
+        binding.minVolumeValue.text = "123"
+        binding.currentVolumeValue.text = "456"
+        binding.maxVolumeValue.text = "789"
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
         binding.volumeDown.setOnLongClickListener {
