@@ -33,6 +33,7 @@ import code.name.monkey.retromusic.volume.AudioVolumeObserver
 import code.name.monkey.retromusic.volume.OnAudioVolumeChangedListener
 import com.google.android.material.slider.Slider
 import java.text.Bidi
+import java.util.Locale
 
 class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChangedListener,
     View.OnClickListener {
@@ -77,9 +78,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             } else {
                 0.5f
             }
-        binding.maxVolumeValue.text = String.format("%.02f", systemVolume.toDouble())
-        binding.minVolumeValue.text = "0.00"
-        binding.currentVolumeValue.text = String.format("%.02f", mediaPlayerVolume*systemVolume)
+        binding.maxVolumeValue.text = String.format(Locale.getDefault(), "%.02f", systemVolume.toDouble())
+        binding.minVolumeValue.text = String.format(Locale.getDefault(), "%.02f", 0.0)
+        binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", mediaPlayerVolume*systemVolume)
         binding.volumeSeekBar.value = mediaPlayerVolume
     }
 
@@ -89,8 +90,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             binding.volumeSeekBar.value = mediaPlayerVolume
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
 
-            binding.maxVolumeValue.text = String.format("%.02f", currentVolume.toDouble())
-            binding.currentVolumeValue.text = String.format("%.02f", mediaPlayerVolume*currentVolume)
+            binding.maxVolumeValue.text = String.format(Locale.getDefault(), "%.02f", currentVolume.toDouble())
+            binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", mediaPlayerVolume*currentVolume)
         }
     }
 
@@ -102,7 +103,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         MusicPlayerRemote.musicService?.playback?.setVolume(value)
-        binding.currentVolumeValue.text = String.format("%.02f", value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))
+        binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
     }
