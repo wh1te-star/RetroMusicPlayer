@@ -68,13 +68,19 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         }
         audioVolumeObserver?.register(AudioManager.STREAM_MUSIC, this)
 
-        binding.volumeSeekBar.valueTo = 1.0f
-        binding.volumeSeekBar.value = 0.5f
         binding.volumeSeekBar.addOnChangeListener(this)
 
-        binding.maxVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
-        binding.minVolumeValue.text = "0.0"
-        binding.currentVolumeValue.text = "0.5"
+        val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val mediaPlayerVolume =
+            if (MusicPlayerRemote.musicService!= null && MusicPlayerRemote.musicService!!.playback!= null) {
+                MusicPlayerRemote.musicService!!.playback!!.getVolume()
+            } else {
+                0.5f
+            }
+        binding.maxVolumeValue.text = String.format("%.02f", systemVolume.toDouble())
+        binding.minVolumeValue.text = "0.00"
+        binding.currentVolumeValue.text = String.format("%.02f", mediaPlayerVolume*systemVolume)
+        binding.volumeSeekBar.value = mediaPlayerVolume
     }
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
@@ -83,8 +89,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             binding.volumeSeekBar.value = mediaPlayerVolume
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
 
-            binding.maxVolumeValue.text = currentVolume.toString()
-            binding.currentVolumeValue.text = (mediaPlayerVolume * currentVolume).toString()
+            binding.maxVolumeValue.text = String.format("%.02f", currentVolume.toDouble())
+            binding.currentVolumeValue.text = String.format("%.02f", mediaPlayerVolume*currentVolume)
         }
     }
 
@@ -96,7 +102,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         MusicPlayerRemote.musicService?.playback?.setVolume(value)
-        binding.currentVolumeValue.text = (value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).toString()
+        binding.currentVolumeValue.text = String.format("%.02f", value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
     }
