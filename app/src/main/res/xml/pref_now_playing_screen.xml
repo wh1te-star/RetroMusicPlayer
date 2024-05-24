@@ -91,31 +91,6 @@
             app:summary="@string/pref_summary_toggle_volume"
             app:title="@string/pref_title_toggle_volume" />
 
-        <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
-            android:defaultValue="10"
-            android:key="volume_max_value_to"
-            android:layout="@layout/list_item_view_seekbar"
-            android:max="15"
-            android:summary="@string/volume_max_value_to_sentence"
-            android:title="@string/volume_max_value_to"
-            app:showSeekBarValue="true" />
-
-        <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
-            android:defaultValue="6"
-            android:key="volume_warn_threshold"
-            android:layout="@layout/list_item_view_seekbar"
-            android:max="15"
-            android:summary="@string/volume_warning_threshold_setence"
-            android:title="@string/volume_warning_threshold"
-            app:showSeekBarValue="true" />
-
-        <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-            android:layout="@layout/list_item_view_switch"
-            app:defaultValue="false"
-            app:key="volume_always_limit"
-            app:summary="Always limit the max value of the volume slider to the current volume."
-            app:title="Always limit volume" />
-
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
             android:layout="@layout/list_item_view_switch"
             app:defaultValue="false"
