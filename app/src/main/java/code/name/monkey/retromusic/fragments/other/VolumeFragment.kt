@@ -32,6 +32,7 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.volume.AudioVolumeObserver
 import code.name.monkey.retromusic.volume.OnAudioVolumeChangedListener
 import com.google.android.material.slider.Slider
+import java.text.Bidi
 
 class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChangedListener,
     View.OnClickListener {
@@ -58,8 +59,6 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
-        binding.minVolumeValue.text = "0.0"
-        binding.maxVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
     }
 
     override fun onResume() {
@@ -72,16 +71,20 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeSeekBar.valueTo = 1.0f
         binding.volumeSeekBar.value = 0.5f
         binding.volumeSeekBar.addOnChangeListener(this)
+
+        binding.maxVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
+        binding.minVolumeValue.text = "0.0"
+        binding.currentVolumeValue.text = "0.5"
     }
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
         if (_binding != null) {
-            binding.volumeSeekBar.valueTo = maxVolume.toFloat()
-            binding.volumeSeekBar.value = currentVolume.toFloat()
+            val mediaPlayerVolume = MusicPlayerRemote.musicService!!.playback!!.getVolume()
+            binding.volumeSeekBar.value = mediaPlayerVolume
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
 
             binding.maxVolumeValue.text = currentVolume.toString()
-            binding.currentVolumeValue.text = MusicPlayerRemote.musicService?.playback?.getVolume().toString()
+            binding.currentVolumeValue.text = (mediaPlayerVolume * currentVolume).toString()
         }
     }
 
@@ -92,8 +95,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     }
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
-        val audioManager = audioManager
         MusicPlayerRemote.musicService?.playback?.setVolume(value)
+        binding.currentVolumeValue.text = (value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).toString()
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
     }
