@@ -74,7 +74,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
         (activity as AbsMusicServiceActivity).addOnServiceConnectedCallback {
             val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-            val mediaPlayerVolume = MusicPlayerRemote.musicService!!.playback!!.getVolume()
+            val mediaPlayerVolume = MusicPlayerRemote.getVolume()
             binding.maxVolumeValue.text = String.format(Locale.getDefault(), "%.02f", systemVolume.toDouble())
             binding.minVolumeValue.text = String.format(Locale.getDefault(), "%.02f", 0.0)
             binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", mediaPlayerVolume*systemVolume)
@@ -84,7 +84,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
         if (_binding != null) {
-            val mediaPlayerVolume = MusicPlayerRemote.musicService!!.playback!!.getVolume()
+            val mediaPlayerVolume = MusicPlayerRemote.getVolume()
             binding.volumeSeekBar.value = mediaPlayerVolume
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
 
@@ -100,7 +100,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     }
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
-        MusicPlayerRemote.musicService?.playback?.setVolume(value)
+        MusicPlayerRemote.setVolume(value)
         binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", value*audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)

@@ -107,8 +107,20 @@ object MusicPlayerRemote : KoinComponent {
             musicService!!.audioSessionId
         } else -1
 
-    val isServiceConnected: Boolean
-        get() = musicService != null
+    fun getVolume(): Float {
+        if (musicService != null) {
+            return musicService!!.volume
+        }
+        return -0.1f
+    }
+
+    fun setVolume(volume: Float): Boolean {
+        if (musicService != null) {
+            musicService?.volume = volume
+            return true
+        }
+        return false
+    }
 
     fun bindToService(context: Context, callback: ServiceConnection): ServiceToken? {
 
