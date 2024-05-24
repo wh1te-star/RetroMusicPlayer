@@ -37,6 +37,8 @@ class CastPlayer : Playback {
 
     override fun seek(whereto: Int, force: Boolean) = whereto
 
+    override fun getVolume() = 0.0f
+
     override fun setVolume(vol: Float) = true
 
     override fun setAudioSessionId(sessionId: Int) = true

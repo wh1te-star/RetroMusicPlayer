@@ -58,6 +58,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
+        binding.minVolumeValue.text = "0.0"
+        binding.maxVolumeValue.text = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toString()
     }
 
     override fun onResume() {
@@ -67,11 +69,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         }
         audioVolumeObserver?.register(AudioManager.STREAM_MUSIC, this)
 
-        val audioManager = audioManager
-        binding.volumeSeekBar.valueTo =
-            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat()
-        binding.volumeSeekBar.value =
-            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+        binding.volumeSeekBar.valueTo = 1.0f
+        binding.volumeSeekBar.value = 0.5f
         binding.volumeSeekBar.addOnChangeListener(this)
     }
 
@@ -80,6 +79,9 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             binding.volumeSeekBar.valueTo = maxVolume.toFloat()
             binding.volumeSeekBar.value = currentVolume.toFloat()
             binding.volumeDown.setImageResource(if (currentVolume == 0) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
+
+            binding.maxVolumeValue.text = currentVolume.toString()
+            binding.currentVolumeValue.text = MusicPlayerRemote.musicService?.playback?.getVolume().toString()
         }
     }
 
@@ -91,7 +93,7 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         val audioManager = audioManager
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+        MusicPlayerRemote.musicService?.playback?.setVolume(value)
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
     }

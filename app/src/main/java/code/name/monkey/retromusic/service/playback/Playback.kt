@@ -47,6 +47,8 @@ interface Playback {
 
     fun seek(whereto: Int, force: Boolean): Int
 
+    fun getVolume(): Float
+
     fun setVolume(vol: Float): Boolean
 
     fun setAudioSessionId(sessionId: Int): Boolean
