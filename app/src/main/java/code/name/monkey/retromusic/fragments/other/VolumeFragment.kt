@@ -62,6 +62,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
     private var previousVolume = 0.0f
 
+    private var finalSeekValue = 0f
+
     private var currentMaxVolume = 0.0f
 
     private var isDialogShown = false
@@ -164,6 +166,13 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
             dialog.show()
             true
         }
+        binding.volumeSeekBar.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                finalSeekValue = slider.value
+            }
+        })
     }
 
     override fun onResume() {
@@ -219,7 +228,6 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
     }
 
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
-        val audioManager = audioManager
         if (fromUser && !isDialogShown) {
             if (value > previousVolume &&
                 value > PreferenceUtil.volumeWarnThreshold
@@ -231,30 +239,29 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
                         getString(R.string.high_volume_warning)
                     )
                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                        binding.volumeSeekBar.value = value
-                        audioManager.setStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            value.toInt(),
-                            0
-                        )
+                        binding.volumeSeekBar.value = finalSeekValue
+                        setFloatVolue(finalSeekValue)
                         isDialogShown = false
+                        binding.currentVolumeValue.text = finalSeekValue.toString()
                     }
                     .setNegativeButton(R.string.no) { dialog, _ ->
                         binding.volumeSeekBar.value = previousVolume
                         isDialogShown = false
+                        binding.currentVolumeValue.text = previousVolume.toString()
                         dialog.dismiss()
                     }
                     .setOnCancelListener{
                         binding.volumeSeekBar.value = previousVolume
                         isDialogShown = false
+                        binding.currentVolumeValue.text = previousVolume.toString()
                     }
                     .show()
             } else {
                 binding.volumeSeekBar.value = value
+                binding.currentVolumeValue.text = value.toString()
                 setFloatVolue(value)
             }
         }
-        binding.currentVolumeValue.text = value.toString()
 
         setPauseWhenZeroVolume(value < 1f)
         binding.volumeDown.setImageResource(if (value == 0f) R.drawable.ic_volume_off else R.drawable.ic_volume_down)
