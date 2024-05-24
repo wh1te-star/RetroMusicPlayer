@@ -215,6 +215,14 @@ class MusicService : MediaBrowserServiceCompat(),
 
     private var queuesRestored = false
 
+    var volume = 0.0f
+        private set(value) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit {
+                putFloat(CURRENT_VOLUME, value)
+            }
+            prepareNext()
+        }
+
     var repeatMode = 0
         private set(value) {
             when (value) {
@@ -1276,6 +1284,9 @@ class MusicService : MediaBrowserServiceCompat(),
         repeatMode = PreferenceManager.getDefaultSharedPreferences(this).getInt(
             SAVED_REPEAT_MODE, 0
         )
+        volume = PreferenceManager.getDefaultSharedPreferences(this).getFloat(
+            CURRENT_VOLUME, 0.5f
+        )
         handleAndSendChangeInternal(SHUFFLE_MODE_CHANGED)
         handleAndSendChangeInternal(REPEAT_MODE_CHANGED)
         serviceScope.launch {
@@ -1393,6 +1404,7 @@ class MusicService : MediaBrowserServiceCompat(),
         const val SAVED_POSITION_IN_TRACK = "POSITION_IN_TRACK"
         const val SAVED_SHUFFLE_MODE = "SHUFFLE_MODE"
         const val SAVED_REPEAT_MODE = "REPEAT_MODE"
+        const val CURRENT_VOLUME = "CURRENT_VOLUME"
         const val SHUFFLE_MODE_NONE = 0
         const val SHUFFLE_MODE_SHUFFLE = 1
         const val REPEAT_MODE_ALL = 0

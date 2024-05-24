@@ -44,15 +44,17 @@ abstract class AbsMusicServiceActivity : AbsBaseActivity(), IMusicServiceEventLi
 
     private val mMusicServiceEventListeners = ArrayList<IMusicServiceEventListener>()
     private val repository: RealRepository by inject()
-    private var serviceToken: MusicPlayerRemote.ServiceToken? = null
+    public var serviceToken: MusicPlayerRemote.ServiceToken? = null
     private var musicStateReceiver: MusicStateReceiver? = null
     private var receiverRegistered: Boolean = false
+    private val serviceConnectedCallbacks = mutableListOf<(AbsMusicServiceActivity) -> Unit>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         serviceToken = MusicPlayerRemote.bindToService(this, object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
                 this@AbsMusicServiceActivity.onServiceConnected()
+                serviceConnectedCallbacks.forEach { it(this@AbsMusicServiceActivity) }
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
@@ -61,6 +63,13 @@ abstract class AbsMusicServiceActivity : AbsBaseActivity(), IMusicServiceEventLi
         })
 
         setPermissionDeniedMessage(getString(R.string.permission_external_storage_denied))
+    }
+    fun addOnServiceConnectedCallback(callback: (AbsMusicServiceActivity) -> Unit) {
+        serviceConnectedCallbacks.add(callback)
+    }
+
+    fun removeOnServiceConnectedCallback(callback: (AbsMusicServiceActivity) -> Unit) {
+        serviceConnectedCallbacks.remove(callback)
     }
 
     override fun onDestroy() {

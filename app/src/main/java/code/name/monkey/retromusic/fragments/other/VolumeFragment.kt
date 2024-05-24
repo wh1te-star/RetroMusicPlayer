@@ -25,6 +25,7 @@ import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.databinding.FragmentVolumeBinding
 import code.name.monkey.retromusic.extensions.applyColor
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -71,17 +72,14 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
         binding.volumeSeekBar.addOnChangeListener(this)
 
-        val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-        val mediaPlayerVolume =
-            if (MusicPlayerRemote.musicService!= null && MusicPlayerRemote.musicService!!.playback!= null) {
-                MusicPlayerRemote.musicService!!.playback!!.getVolume()
-            } else {
-                0.5f
-            }
-        binding.maxVolumeValue.text = String.format(Locale.getDefault(), "%.02f", systemVolume.toDouble())
-        binding.minVolumeValue.text = String.format(Locale.getDefault(), "%.02f", 0.0)
-        binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", mediaPlayerVolume*systemVolume)
-        binding.volumeSeekBar.value = mediaPlayerVolume
+        (activity as AbsMusicServiceActivity).addOnServiceConnectedCallback {
+            val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            val mediaPlayerVolume = MusicPlayerRemote.musicService!!.playback!!.getVolume()
+            binding.maxVolumeValue.text = String.format(Locale.getDefault(), "%.02f", systemVolume.toDouble())
+            binding.minVolumeValue.text = String.format(Locale.getDefault(), "%.02f", 0.0)
+            binding.currentVolumeValue.text = String.format(Locale.getDefault(), "%.02f", mediaPlayerVolume*systemVolume)
+            binding.volumeSeekBar.value = mediaPlayerVolume
+        }
     }
 
     override fun onAudioVolumeChanged(currentVolume: Int, maxVolume: Int) {
