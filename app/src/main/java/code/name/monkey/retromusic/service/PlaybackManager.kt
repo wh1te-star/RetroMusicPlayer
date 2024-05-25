@@ -48,12 +48,13 @@ class PlaybackManager(val context: Context) {
             } else {
                 openAudioEffectSession()
                 if (playbackLocation == PlaybackLocation.LOCAL) {
+                    val currentVolume = getCurrentVolume()
                     if (playback is CrossFadePlayer) {
                         if (!(playback as CrossFadePlayer).isCrossFading) {
-                            AudioFader.startFadeAnimator(playback!!, true)
+                            AudioFader.startFadeAnimator(playback!!, true, currentVolume)
                         }
                     } else {
-                        AudioFader.startFadeAnimator(playback!!, true)
+                        AudioFader.startFadeAnimator(playback!!, true, currentVolume)
                     }
                 }
                 playback?.start()
@@ -68,7 +69,7 @@ class PlaybackManager(val context: Context) {
                 closeAudioEffectSession()
                 onPause()
             } else {
-                AudioFader.startFadeAnimator(playback!!, false) {
+                AudioFader.startFadeAnimator(playback!!, false, getCurrentVolume()) {
                     //Code to run when Animator Ends
                     playback?.pause()
                     closeAudioEffectSession()
@@ -95,6 +96,11 @@ class PlaybackManager(val context: Context) {
     fun setCrossFadeDuration(duration: Int) {
         playback?.setCrossFadeDuration(duration)
     }
+
+    fun getCurrentVolume(): Float = if(playback is MultiPlayer)
+        (playback as MultiPlayer).volume
+    else
+        (playback as CrossFadePlayer).volume
 
     /**
      * @param crossFadeDuration CrossFade duration

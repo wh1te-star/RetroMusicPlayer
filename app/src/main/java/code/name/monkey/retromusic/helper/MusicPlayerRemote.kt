@@ -123,7 +123,7 @@ object MusicPlayerRemote : KoinComponent {
 
     fun setVolume(volume: Float): Boolean {
         if (musicService != null) {
-            musicService?.setVolue(volume)
+            musicService?.setVolume(volume)
             return true
         }
         return false

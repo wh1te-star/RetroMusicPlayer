@@ -45,7 +45,7 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
         }
     }
 
-    private var _volume = 0.0f
+    private var _volume = 0.2f
     var volume: Float
         get() = _volume
         set(value) {

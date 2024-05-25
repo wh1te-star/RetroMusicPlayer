@@ -215,7 +215,7 @@ class MusicService : MediaBrowserServiceCompat(),
 
     private var queuesRestored = false
 
-    fun setVolue(volume: Float){
+    fun setVolume(volume: Float){
         playback!!.setVolume(volume)
         prepareNext()
         handleAndSendChangeInternal(VOLUME_CHANGED)

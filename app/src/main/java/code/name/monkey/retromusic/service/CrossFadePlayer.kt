@@ -110,7 +110,6 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
     override fun setVolume(vol: Float): Boolean {
         cancelFade()
         return try {
-            volume = vol
             player1.setVolume(vol, vol)
             player2.setVolume(vol, vol)
             getCurrentPlayer()?.setVolume(vol, vol)
