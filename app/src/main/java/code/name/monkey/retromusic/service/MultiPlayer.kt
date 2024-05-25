@@ -211,7 +211,6 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
 
     override fun setVolume(vol: Float): Boolean {
         return try {
-            volume = vol
             mCurrentMediaPlayer.setVolume(vol, vol)
             mNextMediaPlayer?.setVolume(vol, vol)
             true
