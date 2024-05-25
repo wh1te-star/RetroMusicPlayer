@@ -31,8 +31,6 @@ import code.name.monkey.retromusic.util.logE
 class MultiPlayer(context: Context) : LocalPlayback(context) {
     private var mCurrentMediaPlayer = MediaPlayer()
     private var mNextMediaPlayer: MediaPlayer? = null
-    private var mCurrentMediaPlayerVolume = 0.5f
-    private var mNextMediaPlayerVolume = 0.5f
     override var callbacks: PlaybackCallbacks? = null
 
     /**
@@ -211,14 +209,10 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun getVolume(): Float {
-        return mCurrentMediaPlayerVolume
-    }
-
     override fun setVolume(vol: Float): Boolean {
         return try {
-            mCurrentMediaPlayerVolume = vol
             mCurrentMediaPlayer.setVolume(vol, vol)
+            mNextMediaPlayer?.setVolume(vol, vol)
             true
         } catch (e: IllegalStateException) {
             false

@@ -215,19 +215,11 @@ class MusicService : MediaBrowserServiceCompat(),
 
     private var queuesRestored = false
 
-    private var _volume = 0.0f
-    var volume: Float
-        get() = _volume
-        set(value) {
-            _volume = value
-            PreferenceManager.getDefaultSharedPreferences(this).edit {
-                putFloat(CURRENT_VOLUME, value)
-                apply()
-            }
-            playback!!.setVolume(value)
-            prepareNext()
-            handleAndSendChangeInternal(VOLUME_CHANGED)
-        }
+    fun setVolue(volume: Float){
+        playback!!.setVolume(volume)
+        prepareNext()
+        handleAndSendChangeInternal(VOLUME_CHANGED)
+    }
 
     var repeatMode = 0
         private set(value) {
@@ -1289,9 +1281,6 @@ class MusicService : MediaBrowserServiceCompat(),
         )
         repeatMode = PreferenceManager.getDefaultSharedPreferences(this).getInt(
             SAVED_REPEAT_MODE, 0
-        )
-        volume = PreferenceManager.getDefaultSharedPreferences(this).getFloat(
-            CURRENT_VOLUME, 0.5f
         )
         handleAndSendChangeInternal(SHUFFLE_MODE_CHANGED)
         handleAndSendChangeInternal(REPEAT_MODE_CHANGED)

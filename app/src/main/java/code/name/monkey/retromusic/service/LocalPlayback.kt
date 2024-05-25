@@ -9,11 +9,13 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.PlaybackParams
 import androidx.annotation.CallSuper
+import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
+import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.showToast
@@ -42,6 +44,18 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
             }
         }
     }
+
+    private var _volume = 0.0f
+    var volume: Float
+        get() = _volume
+        set(value) {
+            _volume = value
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putFloat(MusicService.CURRENT_VOLUME, value)
+                apply()
+            }
+        }
+
 
     private var isPausedByTransientLossOfFocus = false
 

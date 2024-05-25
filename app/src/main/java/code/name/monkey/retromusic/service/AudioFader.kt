@@ -15,6 +15,7 @@ class AudioFader {
             context: Context,
             fadeInMp: MediaPlayer,
             fadeOutMp: MediaPlayer,
+            currentVolume: Float,
             endAction: (animator: Animator) -> Unit, /* Code to run when Animator Ends*/
         ): Animator? {
             // Get Global animator scale
@@ -25,14 +26,14 @@ class AudioFader {
             if (duration == 0F) {
                 return null
             }
-            return ValueAnimator.ofFloat(0f, 1f).apply {
+            return ValueAnimator.ofFloat(0f, currentVolume).apply {
                 this.duration = duration.toLong()
                 addUpdateListener { animation: ValueAnimator ->
                     fadeInMp.setVolume(
                         animation.animatedValue as Float, animation.animatedValue as Float
                     )
-                    fadeOutMp.setVolume(1 - animation.animatedValue as Float,
-                        1 - animation.animatedValue as Float)
+                    fadeOutMp.setVolume(currentVolume - animation.animatedValue as Float,
+                        currentVolume - animation.animatedValue as Float)
                 }
                 doOnEnd {
                     endAction(it)

@@ -28,7 +28,10 @@ import code.name.monkey.retromusic.extensions.showToast
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.SongRepository
 import code.name.monkey.retromusic.service.CastPlayer
+import code.name.monkey.retromusic.service.CrossFadePlayer
+import code.name.monkey.retromusic.service.MultiPlayer
 import code.name.monkey.retromusic.service.MusicService
+import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.getExternalStorageDirectory
 import code.name.monkey.retromusic.util.logE
 import org.koin.core.component.KoinComponent
@@ -109,14 +112,18 @@ object MusicPlayerRemote : KoinComponent {
 
     fun getVolume(): Float {
         if (musicService != null) {
-            return musicService!!.volume
+            if (PreferenceUtil.isCrossfadeEnabled) {
+                return (musicService?.playback as CrossFadePlayer).volume
+            }else{
+                return (musicService?.playback as MultiPlayer).volume
+            }
         }
         return -0.1f
     }
 
     fun setVolume(volume: Float): Boolean {
         if (musicService != null) {
-            musicService?.volume = volume
+            musicService?.setVolue(volume)
             return true
         }
         return false

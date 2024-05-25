@@ -38,7 +38,6 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
     private var crossFadeAnimator: Animator? = null
     override var callbacks: PlaybackCallbacks? = null
     private var crossFadeDuration = PreferenceUtil.crossFadeDuration
-    private var currentVolume = 0.0f
     var isCrossFading = false
 
     init {
@@ -108,14 +107,12 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun getVolume(): Float {
-        return currentVolume
-    }
-
     override fun setVolume(vol: Float): Boolean {
         cancelFade()
         return try {
-            currentVolume = vol
+            volume = vol
+            player1.setVolume(vol, vol)
+            player2.setVolume(vol, vol)
             getCurrentPlayer()?.setVolume(vol, vol)
             true
         } catch (e: IllegalStateException) {
@@ -242,7 +239,7 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
 
     private fun crossFade(fadeInMp: MediaPlayer, fadeOutMp: MediaPlayer) {
         isCrossFading = true
-        crossFadeAnimator = createFadeAnimator(context, fadeInMp, fadeOutMp) {
+        crossFadeAnimator = createFadeAnimator(context, fadeInMp, fadeOutMp, volume) {
             crossFadeAnimator = null
             durationListener.start()
             isCrossFading = false
