@@ -72,6 +72,8 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
 
         binding.volumeSeekBar.addOnChangeListener(this)
 
+        // At the resume timing of the first application open, the MusicPlayerRemote.getVolume() cannot be called, because this returns null.
+        // So I added this callback to wait for the MusicPlayerRemote.getVolume() to be initialized.
         (activity as AbsMusicServiceActivity).addOnServiceConnectedCallback {
             val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             val mediaPlayerVolume = MusicPlayerRemote.getVolume()
