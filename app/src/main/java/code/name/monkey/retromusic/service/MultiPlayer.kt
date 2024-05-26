@@ -209,10 +209,11 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun setVolume(vol: Float): Boolean {
+    override fun setVolume(volume: Float): Boolean {
         return try {
-            mCurrentMediaPlayer.setVolume(vol, vol)
-            mNextMediaPlayer?.setVolume(vol, vol)
+            val actualVolume = volume * fadeVolume * focusVolume
+            mCurrentMediaPlayer.setVolume(actualVolume, actualVolume)
+            mNextMediaPlayer?.setVolume(actualVolume, actualVolume)
             true
         } catch (e: IllegalStateException) {
             false

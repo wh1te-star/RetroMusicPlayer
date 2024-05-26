@@ -46,14 +46,38 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
     }
 
     private var _volume = 0.2f
-    var volume: Float
+    private var volume: Float
         get() = _volume
         set(value) {
             _volume = value
+        }
+
+    private var _baseVolume = 0.2f
+    var baseVolume: Float
+        get() = _baseVolume
+        set(value) {
+            _baseVolume = value
+            volume = baseVolume * fadeVolume * focusVolume
             PreferenceManager.getDefaultSharedPreferences(context).edit {
                 putFloat(MusicService.CURRENT_VOLUME, value)
                 apply()
             }
+        }
+
+    private var _fadeVolume = 1.0f
+    var fadeVolume: Float
+        get() = _fadeVolume
+        set(value) {
+            _fadeVolume = value
+            volume = baseVolume * fadeVolume * focusVolume
+        }
+
+    private var _focusVolume = 1.0f
+    var focusVolume: Float
+        get() = _focusVolume
+        set(value) {
+            _focusVolume = value
+            volume = baseVolume * fadeVolume * focusVolume
         }
 
 
@@ -67,7 +91,7 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
                     callbacks?.onPlayStateChanged()
                     isPausedByTransientLossOfFocus = false
                 }
-                setVolume(Volume.NORMAL)
+                focusVolume = Volume.NORMAL
             }
             AudioManager.AUDIOFOCUS_LOSS -> {
                 // Lost focus for an unbounded amount of time: stop playback and release media playback
@@ -88,7 +112,7 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // Lost focus for a short time, but it's ok to keep playing
                 // at an attenuated level
-                setVolume(Volume.DUCK)
+                focusVolume = Volume.DUCK
             }
         }
     }

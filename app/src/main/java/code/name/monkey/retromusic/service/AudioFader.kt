@@ -13,10 +13,8 @@ class AudioFader {
     companion object {
         fun createFadeAnimator(
             context: Context,
-            fadeInMp: MediaPlayer,
-            fadeOutMp: MediaPlayer,
-            currentVolume: Float,
-            endAction: (animator: Animator) -> Unit, /* Code to run when Animator Ends*/
+            onUpdate: (ValueAnimator) -> Unit,
+            onEnd: (Animator) -> Unit /* Code to run when Animator Ends*/
         ): Animator? {
             // Get Global animator scale
             val animScale = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
@@ -26,17 +24,11 @@ class AudioFader {
             if (duration == 0F) {
                 return null
             }
-            return ValueAnimator.ofFloat(0f, currentVolume).apply {
+            return ValueAnimator.ofFloat(0f, 1.0f).apply {
                 this.duration = duration.toLong()
-                addUpdateListener { animation: ValueAnimator ->
-                    fadeInMp.setVolume(
-                        animation.animatedValue as Float, animation.animatedValue as Float
-                    )
-                    fadeOutMp.setVolume(currentVolume - animation.animatedValue as Float,
-                        currentVolume - animation.animatedValue as Float)
-                }
+                addUpdateListener(onUpdate)
                 doOnEnd {
-                    endAction(it)
+                    onEnd(it)
                 }
             }
         }

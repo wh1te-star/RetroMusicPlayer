@@ -107,12 +107,12 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun setVolume(vol: Float): Boolean {
+    override fun setVolume(volume: Float): Boolean {
         cancelFade()
+        val actualVolume = volume * fadeVolume * focusVolume
         return try {
-            player1.setVolume(vol, vol)
-            player2.setVolume(vol, vol)
-            getCurrentPlayer()?.setVolume(vol, vol)
+            player1.setVolume(actualVolume, actualVolume)
+            player2.setVolume(actualVolume, actualVolume)
             true
         } catch (e: IllegalStateException) {
             e.printStackTrace()
@@ -238,11 +238,22 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
 
     private fun crossFade(fadeInMp: MediaPlayer, fadeOutMp: MediaPlayer) {
         isCrossFading = true
-        crossFadeAnimator = createFadeAnimator(context, fadeInMp, fadeOutMp, volume) {
-            crossFadeAnimator = null
-            durationListener.start()
-            isCrossFading = false
-        }
+        val crossFadeAnimator = createFadeAnimator(context,
+            onUpdate = { animation ->
+                val baseVolume = baseVolume
+                val fadeVolume = animation.animatedValue as Float
+                val focusVolume = focusVolume
+                val fadeInVolume = baseVolume * fadeVolume * focusVolume
+                val fadeOutVolume = baseVolume - baseVolume * fadeVolume * focusVolume
+                fadeInMp.setVolume(fadeInVolume, fadeInVolume)
+                fadeOutMp.setVolume(fadeOutVolume, fadeOutVolume)
+            },
+            onEnd = { animator ->
+                crossFadeAnimator = null
+                durationListener.start()
+                isCrossFading = false
+            }
+        )
         crossFadeAnimator?.start()
     }
 

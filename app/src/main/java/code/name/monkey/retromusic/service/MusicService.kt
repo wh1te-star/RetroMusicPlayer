@@ -217,6 +217,10 @@ class MusicService : MediaBrowserServiceCompat(),
 
     fun setVolume(volume: Float){
         playback!!.setVolume(volume)
+        if (playback is MultiPlayer)
+            (playback as MultiPlayer).baseVolume = volume
+        else
+            (playback as CrossFadePlayer).baseVolume = volume
         prepareNext()
         handleAndSendChangeInternal(VOLUME_CHANGED)
     }
@@ -387,11 +391,14 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     fun back(force: Boolean) {
+        /*
         if (songProgressMillis > 2000) {
             seek(0)
         } else {
             playPreviousSong(force)
         }
+         */
+        playPreviousSong(force)
     }
 
     fun clearQueue() {

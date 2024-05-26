@@ -98,9 +98,9 @@ class PlaybackManager(val context: Context) {
     }
 
     fun getCurrentVolume(): Float = if(playback is MultiPlayer)
-        (playback as MultiPlayer).volume
+        (playback as MultiPlayer).baseVolume
     else
-        (playback as CrossFadePlayer).volume
+        (playback as CrossFadePlayer).baseVolume
 
     /**
      * @param crossFadeDuration CrossFade duration

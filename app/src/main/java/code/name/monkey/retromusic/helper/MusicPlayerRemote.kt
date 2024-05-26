@@ -113,9 +113,9 @@ object MusicPlayerRemote : KoinComponent {
     fun getVolume(): Float {
         if (musicService != null) {
             if (PreferenceUtil.isCrossfadeEnabled) {
-                return (musicService?.playback as CrossFadePlayer).volume
+                return (musicService?.playback as CrossFadePlayer).baseVolume
             }else{
-                return (musicService?.playback as MultiPlayer).volume
+                return (musicService?.playback as MultiPlayer).baseVolume
             }
         }
         return -0.1f
