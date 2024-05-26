@@ -14,6 +14,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.service.AudioFader.Companion.createFadeAnimator
 import code.name.monkey.retromusic.service.playback.Playback.PlaybackCallbacks
 import code.name.monkey.retromusic.util.PreferenceUtil
+import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.util.logE
 import kotlinx.coroutines.*
 
@@ -238,22 +239,11 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
 
     private fun crossFade(fadeInMp: MediaPlayer, fadeOutMp: MediaPlayer) {
         isCrossFading = true
-        val crossFadeAnimator = createFadeAnimator(context,
-            onUpdate = { animation ->
-                val baseVolume = baseVolume
-                val fadeVolume = animation.animatedValue as Float
-                val focusVolume = focusVolume
-                val fadeInVolume = baseVolume * fadeVolume * focusVolume
-                val fadeOutVolume = baseVolume - baseVolume * fadeVolume * focusVolume
-                fadeInMp.setVolume(fadeInVolume, fadeInVolume)
-                fadeOutMp.setVolume(fadeOutVolume, fadeOutVolume)
-            },
-            onEnd = { animator ->
-                crossFadeAnimator = null
-                durationListener.start()
-                isCrossFading = false
-            }
-        )
+        crossFadeAnimator = createFadeAnimator(context, fadeInMp, fadeOutMp, baseVolume) {
+            crossFadeAnimator = null
+            durationListener.start()
+            isCrossFading = false
+        }
         crossFadeAnimator?.start()
     }
 

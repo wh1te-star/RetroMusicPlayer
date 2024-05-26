@@ -391,14 +391,11 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     fun back(force: Boolean) {
-        /*
         if (songProgressMillis > 2000) {
             seek(0)
         } else {
             playPreviousSong(force)
         }
-         */
-        playPreviousSong(force)
     }
 
     fun clearQueue() {
