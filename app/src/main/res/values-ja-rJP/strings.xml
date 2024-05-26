@@ -489,6 +489,7 @@
     <string name="social_stories">ストーリーを共有</string>
     <string name="song">曲</string>
     <string name="song_duration">曲の長さ</string>
+    <string name="song_removed">曲が削除されました</string>
     <string name="songs">曲</string>
     <string name="sort_order">順番をソート</string>
     <string name="sort_order_a_z">昇順</string>

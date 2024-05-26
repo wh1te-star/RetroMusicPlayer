@@ -213,7 +213,7 @@
     <string name="hinge">Hinge</string>
     <string name="history">Istorija reprodukovanja</string>
     <string name="history_cleared">History cleared</string>
-    <string name="snackbar_undo_button">Опозови</string>
+    <string name="history_undo_button">Опозови</string>
     <string name="home">Pocetak</string>
     <string name="horizontal_flip">Horizontal flip</string>
     <string name="image">Слика</string>

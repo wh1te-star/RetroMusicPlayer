@@ -211,7 +211,7 @@
     <string name="hinge">Dobradiça</string>
     <string name="history">Histórico</string>
     <string name="history_cleared">Histórico apagado</string>
-    <string name="snackbar_undo_button">Desfazer</string>
+    <string name="history_undo_button">Desfazer</string>
     <string name="home">Tela Inicial</string>
     <string name="horizontal_flip">Giro horizontal</string>
     <string name="image">Imagem</string>

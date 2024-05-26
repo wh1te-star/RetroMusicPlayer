@@ -211,7 +211,7 @@
     <string name="hinge">لولا</string>
     <string name="history">تاریخچه پخش اهنگ</string>
     <string name="history_cleared">تاریخچه پاک شد</string>
-    <string name="snackbar_undo_button">بازگشت به قبل</string>
+    <string name="history_undo_button">بازگشت به قبل</string>
     <string name="home">صفحه اصلی</string>
     <string name="horizontal_flip">حالت افقی</string>
     <string name="image">تصویر</string>

@@ -215,7 +215,7 @@
     <string name="hinge">Петля</string>
     <string name="history">История</string>
     <string name="history_cleared">История очищена</string>
-    <string name="snackbar_undo_button">Отменить</string>
+    <string name="history_undo_button">Отменить</string>
     <string name="home">Главная</string>
     <string name="horizontal_flip">Горизонтальный поворот</string>
     <string name="image">Изображение</string>

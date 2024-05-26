@@ -209,7 +209,7 @@
     <string name="hinge">旋转</string>
     <string name="history">历史记录</string>
     <string name="history_cleared">已清除历史记录</string>
-    <string name="snackbar_undo_button">撤销</string>
+    <string name="history_undo_button">撤销</string>
     <string name="home">主页</string>
     <string name="horizontal_flip">水平翻转</string>
     <string name="image">图片</string>

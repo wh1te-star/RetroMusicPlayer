@@ -211,7 +211,7 @@
     <string name="hinge">Giro</string>
     <string name="history">Historial</string>
     <string name="history_cleared">Historial borrado</string>
-    <string name="snackbar_undo_button">Deshacer</string>
+    <string name="history_undo_button">Deshacer</string>
     <string name="home">Inicio</string>
     <string name="horizontal_flip">Giro horizontal</string>
     <string name="image">Imagen</string>

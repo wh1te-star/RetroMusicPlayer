@@ -209,7 +209,7 @@
     <string name="hinge">旋轉風</string>
     <string name="history">歷史記錄</string>
     <string name="history_cleared">已清除歷史記錄</string>
-    <string name="snackbar_undo_button">復原</string>
+    <string name="history_undo_button">復原</string>
     <string name="home">首頁</string>
     <string name="horizontal_flip">水平翻轉風</string>
     <string name="image">圖片風</string>

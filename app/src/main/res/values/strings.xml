@@ -490,7 +490,7 @@
     <string name="simple">Simple</string>
     <string name="sleep_timer_canceled">Sleep timer canceled.</string>
     <string name="sleep_timer_set">Sleep timer set for %d minutes from now.</string>
-    <string name="snackbar_undo_button">Undo</string>
+    <string name="history_undo_button">Undo</string>
     <string name="social">Social</string>
     <string name="social_stories">Share story</string>
     <string name="song">Song</string>

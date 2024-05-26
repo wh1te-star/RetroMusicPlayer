@@ -211,7 +211,7 @@
     <string name="hinge">ஒட்டு</string>
     <string name="history">வரலாறு</string>
     <string name="history_cleared">வரலாறு அழிக்கப்பட்டது</string>
-    <string name="snackbar_undo_button">செயல்தவிர்</string>
+    <string name="history_undo_button">செயல்தவிர்</string>
     <string name="home">முகப்பு</string>
     <string name="horizontal_flip">சமமாக சுழற்று</string>
     <string name="image">படம்</string>

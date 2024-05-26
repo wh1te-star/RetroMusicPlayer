@@ -292,7 +292,7 @@ class PlayingQueueAdapter(
         fun initializeSnackBar(position: Int, activity: FragmentActivity) {
             val view = activity.findViewById<FrameLayout>(R.id.slidingPanel)
             val snackbar = Snackbar.make(view, activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
-            snackbar.setAction(activity.getString(R.string.snackbar_undo_button)) {
+            snackbar.setAction(activity.getString(R.string.history_undo_button)) {
                 MusicPlayerRemote.musicService?.addSong(position, songToRemove!!)
                 if (MusicPlayerRemote.musicService?.position!! >= position) {
                     MusicPlayerRemote.musicService?.position = MusicPlayerRemote.musicService?.nextPosition!!

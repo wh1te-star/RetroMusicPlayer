@@ -211,7 +211,7 @@
     <string name="hinge">Ρολάρισμα</string>
     <string name="history">Ιστορικό</string>
     <string name="history_cleared">Το ιστορικό διαγράφηκε</string>
-    <string name="snackbar_undo_button">Αναίρεση</string>
+    <string name="history_undo_button">Αναίρεση</string>
     <string name="home">Αρχική</string>
     <string name="horizontal_flip">Οριζόντια αναστροφή</string>
     <string name="image">Εικόνα</string>

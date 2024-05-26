@@ -211,7 +211,7 @@
     <string name="hinge">Hinge</string>
     <string name="history">History</string>
     <string name="history_cleared">History cleared</string>
-    <string name="snackbar_undo_button">Undo</string>
+    <string name="history_undo_button">Undo</string>
     <string name="home">Ghar</string>
     <string name="horizontal_flip">Horizontal flip</string>
     <string name="image">Image</string>

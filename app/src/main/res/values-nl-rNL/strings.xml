@@ -211,7 +211,7 @@
     <string name="hinge">Scharnier</string>
     <string name="history">Geschiedenis</string>
     <string name="history_cleared">Geschiedenis gewist</string>
-    <string name="snackbar_undo_button">Ongedaan maken</string>
+    <string name="history_undo_button">Ongedaan maken</string>
     <string name="home">Start</string>
     <string name="horizontal_flip">Flip horizontaal</string>
     <string name="image">Afbeelding</string>

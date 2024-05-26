@@ -211,7 +211,7 @@
     <string name="hinge">Blättern</string>
     <string name="history">Verlauf</string>
     <string name="history_cleared">Verlauf gelöscht</string>
-    <string name="snackbar_undo_button">Rückgängig</string>
+    <string name="history_undo_button">Rückgängig</string>
     <string name="home">Willkommensbildschirm</string>
     <string name="horizontal_flip">Horizontale Drehung</string>
     <string name="image">Bild</string>
