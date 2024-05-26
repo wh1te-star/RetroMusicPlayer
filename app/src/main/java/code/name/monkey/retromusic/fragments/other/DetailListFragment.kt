@@ -264,7 +264,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
                             getString(R.string.history_cleared),
                             Snackbar.LENGTH_LONG
                         )
-                            .setAction(getString(R.string.history_undo_button)) {
+                            .setAction(getString(R.string.snackbar_undo_button)) {
                                 libraryViewModel.restoreHistory()
                             }
                             .setActionTextColor(Color.YELLOW)

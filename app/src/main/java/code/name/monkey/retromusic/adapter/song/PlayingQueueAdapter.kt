@@ -15,18 +15,15 @@
 package code.name.monkey.retromusic.adapter.song
 
 import android.content.res.Configuration
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.ThemeStore.Companion.accentColor
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -37,6 +34,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
 import com.h6ah4i.android.widget.advrecyclerview.draggable.annotation.DraggableItemStateFlags
@@ -245,7 +243,7 @@ class PlayingQueueAdapter(
         return if (result == SwipeableItemConstants.RESULT_CANCELED) {
             SwipeResultActionDefault()
         } else {
-            SwipedResultActionRemoveItem(this, position)
+            SwipedResultActionRemoveItem(this, position, activity)
         }
     }
 
@@ -266,23 +264,42 @@ class PlayingQueueAdapter(
     internal class SwipedResultActionRemoveItem(
         private val adapter: PlayingQueueAdapter,
         private val position: Int,
+        private val activity: FragmentActivity
     ) : SwipeResultActionRemoveItem() {
 
+        private val bottomPadding = 330
         private var songToRemove: Song? = null
         override fun onPerformAction() {
             // currentlyShownSnackbar = null
         }
 
         override fun onSlideAnimationEnd() {
-            // initializeSnackBar(adapter, position, activity, isPlaying)
+            initializeSnackBar(position, activity)
             songToRemove = adapter.dataSet[position]
             // If song removed was the playing song, then play the next song
             if (isPlaying(songToRemove!!)) {
                 playNextSong()
             }
+
+            if (adapter.isChecked(songToRemove!!))
+                adapter.toggleChecked(position)
+
             // Swipe animation is much smoother when we do the heavy lifting after it's completed
             adapter.setSongToRemove(songToRemove!!)
-            removeFromQueue(songToRemove!!)
+            removeFromQueue(position)
+        }
+
+        fun initializeSnackBar(position: Int, activity: FragmentActivity) {
+            val view = activity.findViewById<FrameLayout>(R.id.slidingPanel)
+            val snackbar = Snackbar.make(view, activity.getString(R.string.song_removed), Snackbar.LENGTH_LONG)
+            snackbar.setAction(activity.getString(R.string.snackbar_undo_button)) {
+                MusicPlayerRemote.musicService?.addSong(position, songToRemove!!)
+                if (MusicPlayerRemote.musicService?.position!! >= position) {
+                    MusicPlayerRemote.musicService?.position = MusicPlayerRemote.musicService?.nextPosition!!
+                }
+            }
+            snackbar.view.translationY -= bottomPadding
+            snackbar.show()
         }
     }
 }

@@ -214,7 +214,6 @@
     <string name="hinge">Hinge</string>
     <string name="history">History</string>
     <string name="history_cleared">History cleared</string>
-    <string name="history_undo_button">Undo</string>
     <string name="home">Home</string>
     <string name="horizontal_flip">Horizontal flip</string>
     <string name="image">Image</string>
@@ -491,10 +490,12 @@
     <string name="simple">Simple</string>
     <string name="sleep_timer_canceled">Sleep timer canceled.</string>
     <string name="sleep_timer_set">Sleep timer set for %d minutes from now.</string>
+    <string name="snackbar_undo_button">Undo</string>
     <string name="social">Social</string>
     <string name="social_stories">Share story</string>
     <string name="song">Song</string>
     <string name="song_duration">Song duration</string>
+    <string name="song_removed">Song removed</string>
     <string name="songs">Songs</string>
     <string name="sort_order">Sort order</string>
     <string name="sort_order_a_z">Ascending</string>

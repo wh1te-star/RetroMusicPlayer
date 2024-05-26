@@ -17,9 +17,11 @@ package code.name.monkey.retromusic.activities
 import android.Manifest
 import android.app.AlertDialog
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -27,6 +29,15 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.AbsoluteSizeSpan
+import android.view.View
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.ListView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -50,6 +61,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
 import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
+import code.name.monkey.retromusic.service.TextViewUpdateListener
 import code.name.monkey.retromusic.util.MusicUtil
 import com.bumptech.glide.Glide
 import com.google.android.material.slider.Slider
@@ -64,42 +76,60 @@ import java.io.File
  * Created by hemanths on 2020-02-02.
  */
 
-class DriveModeActivity : AbsMusicServiceActivity(), Callback {
+class DriveModeActivity : AbsMusicServiceActivity(), TextViewUpdateListener, Callback {
 
     private lateinit var binding: ActivityDriveModeBinding
+    private lateinit var gpsRecordService: GPSRecordService
     private var lastPlaybackControlsColor: Int = Color.GRAY
     private var lastDisabledPlaybackControlsColor: Int = Color.GRAY
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
     private val repository: RealRepository by inject()
     private lateinit var gpsRecordServiceIntent: Intent
     private var isRecordingGPS = false
+    private lateinit var binder: GPSRecordService.LocalBinder
 
-    private val serviceStoppedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (GPSRecordService.RECORDING_STARTED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
-                isRecordingGPS = true
-                updateGPSRecordState()
-            }
-            if (GPSRecordService.FILE_SIZE_EXCEEDED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show();
-            }
-            if (GPSRecordService.RECORDING_STOPPED.equals(intent.getAction())) {
-                Toast.makeText(context,
-                    getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show();
-                isRecordingGPS = false
-                updateGPSRecordState()
-            }
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            binder = service as GPSRecordService.LocalBinder
+            gpsRecordService = binder.getService()
+            gpsRecordService.registerListener(this@DriveModeActivity)
+        }
+        override fun onServiceDisconnected(name: ComponentName) {
+            gpsRecordService.unregisterListener()
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onRecordingStarted() {
+        Toast.makeText(this, getString(R.string.gps_recording_started), Toast.LENGTH_SHORT).show()
+        isRecordingGPS = true
+        updateGPSRecordState()
+    }
+
+    override fun onRecordingStopped() {
+        Toast.makeText(this, getString(R.string.gps_recording_stopped), Toast.LENGTH_SHORT).show()
+        isRecordingGPS = false
+        updateGPSRecordState()
+    }
+
+    override fun onFileSizeExceeded() {
+        Toast.makeText(this, getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_SHORT).show()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDriveModeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpMusicControllers()
 
+        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
         lastPlaybackControlsColor = accentColor()
         binding.close.setOnClickListener {
@@ -107,12 +137,22 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         }
         binding.repeatButton.drawAboveSystemBars()
 
-        gpsRecordServiceIntent = Intent(this, GPSRecordService::class.java)
-        val filter = IntentFilter()
-        filter.addAction(GPSRecordService.RECORDING_STARTED)
-        filter.addAction(GPSRecordService.FILE_SIZE_EXCEEDED)
-        filter.addAction(GPSRecordService.RECORDING_STOPPED)
-        registerReceiver(serviceStoppedReceiver, filter)
+        bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        startService(gpsRecordServiceIntent)
+
+        binding.gpsValue.isSingleLine = false
+        binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+        binding.gpsValue.setOnClickListener {
+            showDialogWithSingleSelectAndEditText()
+        }
+
+        val speedText = SpannableString("speed (km/h)")
+        speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val speedValue = SpannableString("XXX")
+        speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val finalText = TextUtils.concat(speedText, "\n", speedValue)
+        binding.speedValue.isSingleLine = false
+        binding.speedValue.text = finalText
     }
 
     private fun setUpMusicControllers() {
@@ -187,7 +227,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     }
 
     private fun setUpGPSRecordButton() {
-        binding.recordGPSButton?.setOnClickListener {
+        binding.recordGPSButton.setOnClickListener {
             if (isRecordingGPS == false) {
                 if (ContextCompat.checkSelfPermission(
                         this,
@@ -202,10 +242,10 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
-                    startService(gpsRecordServiceIntent)
+                    gpsRecordService.startRecording()
                 }
             } else {
-                stopService(gpsRecordServiceIntent)
+                gpsRecordService.stopRecording()
                 val mostRecentFile = getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
                     ?.sortedByDescending { it.name }
@@ -213,7 +253,7 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
                 shareFile(mostRecentFile)
             }
         }
-        binding.recordGPSButton?.setOnLongClickListener {
+        binding.recordGPSButton.setOnLongClickListener {
             if (!isWifiConnected(this)) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.not_wifi_connect_warning))
@@ -309,18 +349,19 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
     fun updateGPSRecordState() {
         when (isRecordingGPS) {
             true -> {
-                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
-                binding.recordGPSButton?.setColorFilter(
+                binding.recordGPSButton.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton.setColorFilter(
                     lastPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
             false -> {
-                binding.recordGPSButton?.setImageResource(R.drawable.ic_gps_recording)
-                binding.recordGPSButton?.setColorFilter(
+                binding.recordGPSButton.setImageResource(R.drawable.ic_gps_recording)
+                binding.recordGPSButton.setColorFilter(
                     lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
+                binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
             }
         }
     }
@@ -400,8 +441,40 @@ class DriveModeActivity : AbsMusicServiceActivity(), Callback {
         }
     }
 
+    fun showDialogWithSingleSelectAndEditText() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogView: View = inflater.inflate(R.layout.dialog_gps_accuracy_change, null)
+        val editText1 = dialogView.findViewById<EditText>(R.id.editText1)
+        val editText2  = dialogView.findViewById<EditText>(R.id.editText2)
+        editText1.setText(gpsRecordService.textviewMinTimeMs.toString())
+        editText2.setText(gpsRecordService.textviewMinDistanceM.toString())
+        builder.setView(dialogView)
+            .setPositiveButton("OK") { dialog, id ->
+                gpsRecordService.changeTextviewAccuracy(editText1.text.toString().toLong(), editText2.text.toString().toFloat())
+            }
+            .setNegativeButton("Cancel") { dialog, id ->
+            }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(serviceStoppedReceiver)
+        unbindService(serviceConnection)
+        stopService(gpsRecordServiceIntent)
+    }
+
+    override fun updateTextView(latitude: Double, longitude: Double, speed: Float) {
+        val formattedLatitude = String.format("%+013.8f", latitude)
+        val formattedLongitude = String.format("%+013.8f", longitude)
+        binding.gpsValue.setText("GPS Value\n$formattedLatitude\n$formattedLongitude")
+
+        val speedText = SpannableString("speed (km/h)")
+        speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val speedValue = SpannableString(speed.toInt().toString())
+        speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+        val finalText = TextUtils.concat(speedText, "\n", speedValue)
+        binding.speedValue.text = finalText
     }
 }

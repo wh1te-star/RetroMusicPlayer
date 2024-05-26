@@ -211,7 +211,7 @@
     <string name="hinge">Zsanér</string>
     <string name="history">Előzmény</string>
     <string name="history_cleared">Előzmények törölve</string>
-    <string name="history_undo_button">Visszavonás</string>
+    <string name="snackbar_undo_button">Visszavonás</string>
     <string name="home">Kezdőlap</string>
     <string name="horizontal_flip">Vízszintes forgatás</string>
     <string name="image">Kép</string>

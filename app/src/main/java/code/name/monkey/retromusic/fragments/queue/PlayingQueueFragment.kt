@@ -32,6 +32,7 @@ import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlayingQueueBinding
 import code.name.monkey.retromusic.extensions.accentColor
@@ -39,6 +40,7 @@ import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.fragments.base.AbsMusicServiceFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.MusicUtil
+import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ThemedFastScroller
 import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
@@ -74,7 +76,18 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
 
         checkForPadding()
         mainActivity.collapsePanel()
-        mainActivity.optionButton.hide()
+
+        val activity = activity as? AbsSlidingMusicPanelActivity
+        activity?.optionButton?.fitsSystemWindows = PreferenceUtil.isFullScreenMode
+
+        mainActivity.optionButton.show()
+        mainActivity.optionButton.setImageResource(R.drawable.avd_music_note)
+        mainActivity.optionButton.apply {
+            setOnClickListener {
+                linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
+            }
+            accentColor()
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

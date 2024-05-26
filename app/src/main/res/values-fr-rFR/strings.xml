@@ -211,7 +211,7 @@
     <string name="hinge">Charnière</string>
     <string name="history">Historique</string>
     <string name="history_cleared">Historique effacé</string>
-    <string name="history_undo_button">Annuler</string>
+    <string name="snackbar_undo_button">Annuler</string>
     <string name="home">Accueil</string>
     <string name="horizontal_flip">Balayage horizontal</string>
     <string name="image">Image</string>

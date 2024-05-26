@@ -210,7 +210,7 @@ tiếp tục xảy ra hãy \"Xóa dữ liệu ứng dụng\"</string>
     <string name="hinge">Bản lề</string>
     <string name="history">Lịch sử</string>
     <string name="history_cleared">Đã xóa lịch sử</string>
-    <string name="history_undo_button">Hoàn tác</string>
+    <string name="snackbar_undo_button">Hoàn tác</string>
     <string name="home">Trang chủ</string>
     <string name="horizontal_flip">Lật ngang</string>
     <string name="image">Hình ảnh</string>

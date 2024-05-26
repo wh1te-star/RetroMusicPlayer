@@ -211,7 +211,7 @@
     <string name="hinge">Bisagra</string>
     <string name="history">Kasaysayan</string>
     <string name="history_cleared">History cleared</string>
-    <string name="history_undo_button">Undo</string>
+    <string name="snackbar_undo_button">Undo</string>
     <string name="home">Asilo</string>
     <string name="horizontal_flip">Pahalang na pini-flip</string>
     <string name="image">Larawan</string>

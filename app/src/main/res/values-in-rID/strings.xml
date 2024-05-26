@@ -209,7 +209,7 @@
     <string name="hinge">Engsel</string>
     <string name="history">Riwayat</string>
     <string name="history_cleared">Riwayat dibersihkan</string>
-    <string name="history_undo_button">Batalkan pilihan</string>
+    <string name="snackbar_undo_button">Batalkan pilihan</string>
     <string name="home">Beranda</string>
     <string name="horizontal_flip">Balik horisontal</string>
     <string name="image">Gambar</string>
