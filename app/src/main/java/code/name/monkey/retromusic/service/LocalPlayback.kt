@@ -54,7 +54,11 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
 
     private var _baseVolume = 0.2f
     var baseVolume: Float
-        get() = _baseVolume
+        get() {
+            _baseVolume = PreferenceManager.getDefaultSharedPreferences(context).getFloat(
+                MusicService.CURRENT_VOLUME, 0.2f)
+            return _baseVolume
+        }
         set(value) {
             _baseVolume = value
             volume = baseVolume * fadeVolume * focusVolume
