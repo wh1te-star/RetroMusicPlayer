@@ -105,6 +105,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
+
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
 
