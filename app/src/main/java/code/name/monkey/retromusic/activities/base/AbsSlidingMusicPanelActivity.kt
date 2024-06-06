@@ -105,7 +105,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
-
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
 
@@ -219,8 +218,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setButtonMargin(button: FloatingActionButton, margin: Int) {
+        val actualMargin = maxOf(margin, windowInsets.getBottomInsets())
         button.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            bottomMargin = margin
+            bottomMargin = actualMargin
         }
     }
 
