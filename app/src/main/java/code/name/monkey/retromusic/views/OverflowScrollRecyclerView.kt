@@ -1,39 +1,67 @@
 package code.name.monkey.retromusic.views
 
-import android.content.Context
-import android.util.AttributeSet
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.graphics.Canvas;
+import android.widget.EdgeEffect;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
+import androidx.recyclerview.widget.RecyclerView;
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 
-class OverflowScrollRecyclerView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
-    private val startOverflow: Int = 0, private val endOverflow: Int = 0
-) : RecyclerView(context, attrs, defStyleAttr) {
+class OverflowScrollRecyclerView(absSlidingMusicPanelActivity: AbsSlidingMusicPanelActivity) : RecyclerView.EdgeEffectFactory() {
+    override fun createEdgeEffect(recyclerView: RecyclerView, direction: Int): EdgeEffect {
+        return object : EdgeEffect(recyclerView.context) {
+            private var anim: SpringAnimation? = null
 
-    init {
-        layoutManager = LinearLayoutManager(context)
-        setPadding(0, startOverflow, 0, endOverflow)
-    }
+            override fun onPull(deltaDistance: Float) {
+                super.onPull(deltaDistance)
+                handlePull(deltaDistance)
+            }
 
-    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
-        super.onScrollChanged(l, t, oldl, oldt)
-        adjustScrollPosition()
-    }
+            override fun onPull(deltaDistance: Float, displacement: Float) {
+                super.onPull(deltaDistance, displacement)
+                handlePull(deltaDistance)
+            }
 
-    private fun adjustScrollPosition() {
-        val layoutManager = layoutManager as? LinearLayoutManager ?: return
-        val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+            private fun handlePull(deltaDistance: Float) {
+                val sign = if (direction == DIRECTION_BOTTOM) -1 else 1
+                val translationYDelta = sign * recyclerView.width * deltaDistance * 0.2f
+                recyclerView.translationY += translationYDelta
+                anim?.cancel()
+            }
 
-        val firstView = layoutManager.findViewByPosition(firstVisibleItemPosition)
-        val lastView = layoutManager.findViewByPosition(lastVisibleItemPosition)
+            override fun onRelease() {
+                super.onRelease()
+                if (recyclerView.translationY != 0f) {
+                    anim = createAnim()
+                    anim?.start()
+                }
+            }
 
-        if (firstView != null && firstView.top < startOverflow) {
-            scrollBy(0, firstView.top - startOverflow)
-        }
+            override fun onAbsorb(velocity: Int) {
+                super.onAbsorb(velocity)
+                val sign = if (direction == DIRECTION_BOTTOM) -1 else 1
+                val translationVelocity = sign * velocity * 0.5f
+                anim?.cancel()
+                anim = createAnim()
+                anim?.setStartVelocity(translationVelocity)
+                anim?.start()
+            }
 
-        if (lastView != null && lastView.bottom > height - endOverflow) {
-            scrollBy(0, lastView.bottom - (height - endOverflow))
+            private fun createAnim(): SpringAnimation {
+                return SpringAnimation(recyclerView, SpringAnimation.TRANSLATION_Y).setSpring(
+                    SpringForce().setFinalPosition(0f)
+                        .setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY)
+                        .setStiffness(SpringForce.STIFFNESS_LOW)
+                )
+            }
+
+            override fun draw(canvas: Canvas): Boolean {
+                return false
+            }
+
+            override fun isFinished(): Boolean {
+                return anim?.isRunning != true
+            }
         }
     }
 }

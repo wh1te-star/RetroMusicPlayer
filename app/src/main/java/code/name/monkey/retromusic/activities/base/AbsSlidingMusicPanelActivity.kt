@@ -43,6 +43,8 @@ import androidx.navigation.NavInflater
 import androidx.navigation.contains
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
@@ -290,24 +292,28 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             binding.drawerLayout.openDrawer(GravityCompat.END)
         }
 
-        val leftMenuRecyclerView = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
+        val leftMenuRecyclerView = RecyclerView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            val adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
-            this.adapter = adapter
+            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
+            setPadding(0, 500, 0, 500)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
         }
-        val rightMenuRecyclerView = OverflowScrollRecyclerView(this, startOverflow = 500, endOverflow = 500).apply {
+
+        val rightMenuRecyclerView = RecyclerView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            val adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
-            this.adapter = adapter
+            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
+            setPadding(0, 500, 0, 500)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
         }
-        binding.leftDrawer.addHeaderView(leftMenuRecyclerView)
-        binding.rightDrawer.addHeaderView(rightMenuRecyclerView)
+
+        binding.leftDrawer.addView(leftMenuRecyclerView)
+        binding.rightDrawer.addView(rightMenuRecyclerView)
 
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
