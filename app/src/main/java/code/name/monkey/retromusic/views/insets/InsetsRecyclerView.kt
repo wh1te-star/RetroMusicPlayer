@@ -17,6 +17,7 @@ class InsetsRecyclerView @JvmOverloads constructor(
                 type(navigationBars = true) {
                     padding(vertical = true)
                 }
+                setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom + 150)
             }
     }
 }
