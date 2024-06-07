@@ -71,13 +71,18 @@ abstract class AbsSettingsFragment : ATEPreferenceFragmentCompat() {
             listView.overScrollMode = View.OVER_SCROLL_NEVER
         }
 
-        listView.updatePadding(bottom = dip(R.dimen.mini_player_height))
         listView.applyInsetter {
             type(navigationBars = true) {
                 padding(vertical = true)
             }
         }
         invalidateSettings()
+
+        activity?.findViewById<androidx.fragment.app.FragmentContainerView>(R.id.contentFrame)
+            ?.apply {
+                setPadding(paddingLeft, paddingTop, paddingRight, dip(R.dimen.mini_player_height)+170)
+            }
+
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
