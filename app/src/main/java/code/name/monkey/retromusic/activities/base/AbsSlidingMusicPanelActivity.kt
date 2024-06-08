@@ -68,6 +68,7 @@ import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
+import code.name.monkey.retromusic.extensions.inflate
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
@@ -101,6 +102,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLIN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.zip.Inflater
 
 
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
@@ -291,13 +293,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             binding.drawerLayout.openDrawer(GravityCompat.END)
         }
 
-        val leftMenuRecyclerView = RecyclerView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+        val leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
+        binding.leftDrawer.addView(leftDrawerInflaterRoot)
+        leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            setPadding(0, 500, 0, 500)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+        }
+        leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.navigationMenuLeft).apply {
+            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
             adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
         }
 
@@ -307,11 +310,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            setPadding(0, 500, 0, 500)
+            setPadding(0, 500, 0, 0)
             adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
         }
 
-        binding.leftDrawer.addView(leftMenuRecyclerView)
         binding.rightDrawer.addView(rightMenuRecyclerView)
 
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
