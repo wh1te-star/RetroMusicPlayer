@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_driving_mode"
+        android:icon="@drawable/ic_car"
+        android:orderInCategory="0"
+        android:title="@string/action_driving_mode"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_sleep_timer"
         android:icon="@drawable/ic_sleep_timer"
         android:orderInCategory="0"
