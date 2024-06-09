@@ -29,6 +29,7 @@ import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -68,6 +69,7 @@ import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
+import code.name.monkey.retromusic.extensions.getTopInsets
 import code.name.monkey.retromusic.extensions.inflate
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
@@ -139,6 +141,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var leftButtonBottomMargin = 0
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
+
+    private lateinit var leftDrawerInflaterRoot: View
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -220,6 +224,15 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
 
+    private fun setNavigationMenuMargin() {
+        leftDrawerInflaterRoot.findViewById<ImageView>(R.id.artistImageInLeftMenu).apply {
+            setImageResource(R.drawable.avd_face)
+            updateLayoutParams<ConstraintLayout.LayoutParams> {
+                topMargin = windowInsets.getTopInsets()
+            }
+        }
+    }
+
     private fun setButtonMargin(button: FloatingActionButton, margin: Int) {
         val actualMargin = maxOf(margin, windowInsets.getBottomInsets())
         button.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -293,7 +306,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             binding.drawerLayout.openDrawer(GravityCompat.END)
         }
 
-        val leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
+        leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
         binding.leftDrawer.addView(leftDrawerInflaterRoot)
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
@@ -572,6 +585,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
         setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
         setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
+        setNavigationMenuMargin()
     }
 
     fun setAllowDragging(allowDragging: Boolean) {

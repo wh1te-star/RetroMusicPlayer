@@ -11,3 +11,11 @@ fun WindowInsetsCompat?.getBottomInsets(): Int {
         this?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: RetroUtil.navigationBarHeight
     }
 }
+
+fun WindowInsetsCompat?.getTopInsets(): Int {
+    return if (PreferenceUtil.isFullScreenMode) {
+        return 0
+    } else {
+        this?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
+    }
+}
