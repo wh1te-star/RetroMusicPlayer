@@ -287,21 +287,21 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun setupMenu(){
         val homeNavigationitems = listOf(
-            Triple(R.drawable.avd_face, "Home", R.id.action_home),
-            Triple(R.drawable.avd_queue, "Playing", R.id.action_playing),
-            Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
-            Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
-            Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
-            Triple(R.drawable.avd_album, "Album", R.id.action_album),
-            Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
-            Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
-            Triple(R.drawable.ic_search, "Search", R.id.action_search),
+            Triple(R.drawable.avd_face, getString(R.string.home), R.id.action_home),
+            Triple(R.drawable.avd_queue, getString(R.string.now_playing), R.id.action_playing),
+            Triple(R.drawable.avd_playlist, getString(R.string.playlists), R.id.action_playlist),
+            Triple(R.drawable.avd_folder, getString(R.string.folders), R.id.action_folder),
+            Triple(R.drawable.avd_music_note, getString(R.string.songs), R.id.action_song),
+            Triple(R.drawable.avd_album, getString(R.string.albums), R.id.action_album),
+            Triple(R.drawable.avd_artist, getString(R.string.artist), R.id.action_artist),
+            Triple(R.drawable.avd_guitar, getString(R.string.genre), R.id.action_genre),
+            Triple(R.drawable.ic_search, getString(R.string.action_search), R.id.action_search),
         )
         val gotoNavigationitems = listOf(
-            Triple(R.drawable.avd_album, "Go to the album", R.id.action_go_to_album),
-            Triple(R.drawable.avd_artist, "Go to the artist", R.id.action_go_to_artist),
-            Triple(R.drawable.avd_guitar, "Go to the genre", R.id.action_go_to_genre),
-            Triple(R.drawable.ic_lyrics, "Go to the lyrics", R.id.action_go_to_lyrics),
+            Triple(R.drawable.avd_album, getString(R.string.action_go_to_album), R.id.action_go_to_album),
+            Triple(R.drawable.avd_artist, getString(R.string.action_go_to_artist), R.id.action_go_to_artist),
+            Triple(R.drawable.avd_guitar, getString(R.string.action_go_to_genre), R.id.action_go_to_genre),
+            Triple(R.drawable.ic_lyrics, getString(R.string.action_go_to_lyrics), R.id.action_go_to_lyrics),
         )
 
         getButtonMargin()
