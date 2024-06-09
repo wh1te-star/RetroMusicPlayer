@@ -62,7 +62,8 @@ import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.PermissionActivity
-import code.name.monkey.retromusic.adapter.NavigationMenuAdapter
+import code.name.monkey.retromusic.adapter.GotoNavigationMenuAdapter
+import code.name.monkey.retromusic.adapter.HomeNavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
@@ -70,7 +71,6 @@ import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
 import code.name.monkey.retromusic.extensions.getTopInsets
-import code.name.monkey.retromusic.extensions.inflate
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
@@ -104,9 +104,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.zip.Inflater
 
 
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
@@ -288,7 +286,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setupMenu(){
-        val items = listOf(
+        val homeNavigationitems = listOf(
             Triple(R.drawable.avd_face, "Home", R.id.action_home),
             Triple(R.drawable.avd_queue, "Playing", R.id.action_playing),
             Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
@@ -298,6 +296,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
             Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
             Triple(R.drawable.ic_search, "Search", R.id.action_search),
+        )
+        val gotoNavigationitems = listOf(
+            Triple(R.drawable.avd_album, "Go to the album", R.id.action_go_to_album),
+            Triple(R.drawable.avd_artist, "Go to the artist", R.id.action_go_to_artist),
+            Triple(R.drawable.avd_guitar, "Go to the genre", R.id.action_go_to_genre),
+            Triple(R.drawable.ic_lyrics, "Go to the lyrics", R.id.action_go_to_lyrics),
         )
 
         getButtonMargin()
@@ -312,11 +316,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.leftDrawer.addView(leftDrawerInflaterRoot)
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
+            adapter = GotoNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, gotoNavigationitems)
         }
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.navigationMenuLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
+            adapter = HomeNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, homeNavigationitems)
         }
 
         val rightMenuRecyclerView = RecyclerView(this).apply {
@@ -326,7 +330,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             )
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
             setPadding(0, 500, 0, 0)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
+            adapter = HomeNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, homeNavigationitems)
         }
 
         binding.rightDrawer.addView(rightMenuRecyclerView)

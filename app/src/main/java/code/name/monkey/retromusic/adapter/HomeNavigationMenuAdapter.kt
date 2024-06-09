@@ -10,13 +10,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.retromusic.R
-import com.google.android.material.navigation.NavigationView
 
-class NavigationMenuAdapter(
+class HomeNavigationMenuAdapter(
     private val navController: NavController,
     private val drawerLayout: DrawerLayout,
     private val items: List<Triple<Int, String, Int>>
-) : RecyclerView.Adapter<NavigationMenuAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<HomeNavigationMenuAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_navigation, parent, false)
