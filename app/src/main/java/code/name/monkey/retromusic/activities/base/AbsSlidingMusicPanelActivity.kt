@@ -94,6 +94,7 @@ import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
+import code.name.monkey.retromusic.views.UnswipableDrawerLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
@@ -103,6 +104,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.zip.Inflater
 
@@ -300,21 +302,21 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
         }
         binding.menuButtonRight.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.END)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
 
         leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
         binding.leftDrawer.addView(leftDrawerInflaterRoot)
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
         }
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.navigationMenuLeft).apply {
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
         }
 
         val rightMenuRecyclerView = RecyclerView(this).apply {
@@ -324,7 +326,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             )
             layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
             setPadding(0, 500, 0, 0)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
+            adapter = NavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, items)
         }
 
         binding.rightDrawer.addView(rightMenuRecyclerView)
