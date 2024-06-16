@@ -30,6 +30,7 @@
 
     <item
         android:id="@+id/drawerCloseButton2"
+        android:title=""
         app:actionLayout="@layout/navigation_close_button" />
 
     <item
@@ -87,5 +88,6 @@
 
     <item
         android:id="@+id/drawerCloseButton3"
+        android:title=""
         app:actionLayout="@layout/navigation_close_button" />
 </menu>
