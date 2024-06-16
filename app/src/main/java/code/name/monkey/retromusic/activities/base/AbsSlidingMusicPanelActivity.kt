@@ -23,7 +23,6 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +30,6 @@ import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -41,7 +38,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
@@ -50,8 +46,6 @@ import androidx.navigation.contains
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
@@ -70,15 +64,12 @@ import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.PermissionActivity
-import code.name.monkey.retromusic.adapter.GotoNavigationMenuAdapter
-import code.name.monkey.retromusic.adapter.HomeNavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
-import code.name.monkey.retromusic.extensions.getTopInsets
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
@@ -113,7 +104,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -362,7 +352,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             )
         }
         navController.graph = navGraph
-        navigationView.setupWithNavController(navController)
+        leftDrawer.setupWithNavController(navController)
+        rightDrawer.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == navGraph.startDestinationId) {
                 currentFragment(R.id.fragment_container)?.enterTransition = null
@@ -376,7 +367,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 }
             }
         }
-        navigationView.setNavigationItemSelectedListener { item ->
+        leftDrawer.setNavigationItemSelectedListener { item ->
+            handleNavigationItemSelected(item)
+        }
+        rightDrawer.setNavigationItemSelectedListener { item ->
             handleNavigationItemSelected(item)
         }
     }
@@ -567,7 +561,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         })
     }
 
-    val navigationView get() = binding.leftDrawer
+    val leftDrawer get() = binding.leftDrawer
+    val rightDrawer get() = binding.rightDrawer
 
     val slidingPanel get() = binding.slidingPanel
 
