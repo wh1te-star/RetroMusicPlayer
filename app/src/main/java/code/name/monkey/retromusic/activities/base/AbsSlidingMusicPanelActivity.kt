@@ -262,6 +262,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setContentView(binding.root)
         binding.root.setOnApplyWindowInsetsListener { _, insets ->
             windowInsets = WindowInsetsCompat.toWindowInsetsCompat(insets)
+            setupDrawerMenuInset(binding.leftDrawer)
+            setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
         chooseFragmentForTheme()
@@ -286,11 +288,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
-            setupDrawerMenuInset(leftDrawer)
         }
         binding.menuButtonRight.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
-            setupDrawerMenuInset(rightDrawer)
         }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
