@@ -20,9 +20,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -672,12 +674,25 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         updateDrawerHeaderInfo(rightDrawer)
     }
 
-    fun updateDrawerHeaderInfo(drawerLayout: NavigationView){
+    fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
         val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
-        val drawerArtistName= drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
+        val drawerArtistName = drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
         val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
+
         drawerArtistName.text = currentSong.artistName
         drawerAlbumName.text = currentSong.albumName
-        drawerImageView.setImageURI(currentSong.albumArtUri)
+
+        val uri = currentSong.albumArtUri
+        try {
+            val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                drawerImageView.setImageBitmap(bitmap)
+                inputStream.close()
+            }
+        } catch (e: Exception) {
+            drawerImageView.setImageResource(R.drawable.default_album_art)
+            Log.e("DrawerHeader", "Error loading album art", e)
+        }
     }
 }
