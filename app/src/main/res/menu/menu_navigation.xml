@@ -8,7 +8,7 @@
         android:title=""/>
 
     <item
-        android:title="Current Song"
+        android:title="@string/current_song"
         android:enabled="false"/>
 
     <group android:checkableBehavior="single">
@@ -28,7 +28,7 @@
     </group>
 
     <item
-        android:title="Navigation"
+        android:title="@string/device"
         android:enabled="false"/>
 
     <group android:checkableBehavior="single">

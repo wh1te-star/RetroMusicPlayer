@@ -559,4 +559,6 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">issue trackerのウェブサイトに移動します</string>
     <string name="your_account_data_is_only_used_for_authentication">あなたのアカウントは認証にのみ使用されます</string>
     <string name="exit_back_twice">終了するにはもう一度戻るを押す</string>
+    <string name="current_song">現在の曲</string>
+    <string name="device">デバイス</string>
 </resources>
