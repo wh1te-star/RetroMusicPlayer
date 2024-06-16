@@ -48,6 +48,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -408,6 +409,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
             R.id.nav_search -> {
                 navController.navigate(R.id.action_search)
+            }
+            R.id.action_settings -> {
+                navController.navigate(R.id.settings_fragment)
             }
             R.id.drawerCloseButton1,R.id.drawerCloseButton2,  R.id.drawerCloseButton3, -> {}
             else -> return false

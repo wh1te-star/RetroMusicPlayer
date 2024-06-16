@@ -85,6 +85,11 @@
             android:icon="@drawable/avd_guitar"
             android:title="@string/genre" />
 
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/action_settings" />
+
     </group>
 
     <item
