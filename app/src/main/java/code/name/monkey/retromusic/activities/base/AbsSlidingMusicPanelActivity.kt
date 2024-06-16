@@ -453,6 +453,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.nav_search -> {
                 navController.navigate(R.id.action_search)
             }
+            R.id.drawerCloseButton1,R.id.drawerCloseButton2,  R.id.drawerCloseButton3, -> {}
             else -> return false
         }
         (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
