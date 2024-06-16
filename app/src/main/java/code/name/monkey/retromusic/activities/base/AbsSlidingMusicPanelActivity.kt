@@ -107,6 +107,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -667,12 +668,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
-        val imageView = findViewById<ImageView>(R.id.drawerImageView)
-        val drawerArtistName = findViewById<TextView>(R.id.drawerArtistName)
-        val drawerAlbumName = findViewById<TextView>(R.id.drawerAlbumName)
-        drawerArtistName.text = currentSong.artistName
-        drawerAlbumName.text = currentSong.albumName
-        imageView.setImageURI(currentSong.albumArtUri)
+        updateDrawerHeaderInfo(leftDrawer)
+        updateDrawerHeaderInfo(rightDrawer)
     }
 
+    fun updateDrawerHeaderInfo(drawerLayout: NavigationView){
+        val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
+        val drawerArtistName= drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
+        val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
+        drawerArtistName.text = currentSong.artistName
+        drawerAlbumName.text = currentSong.albumName
+        drawerImageView.setImageURI(currentSong.albumArtUri)
+    }
 }
