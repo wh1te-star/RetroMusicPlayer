@@ -9,23 +9,22 @@
     android:paddingBottom="15dp">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/drawerImageView"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginBottom="10dp"
-        android:scaleType="fitCenter"
-        android:src="@mipmap/ic_launcher_round" />
+        android:scaleType="fitCenter" />
 
     <TextView
+        android:id="@+id/drawerArtistName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="User Name"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/drawerAlbumName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="user@example.com"
         android:textColor="#FFFFFF" />
 </LinearLayout>

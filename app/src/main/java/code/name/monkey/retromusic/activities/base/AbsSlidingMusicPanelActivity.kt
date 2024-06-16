@@ -30,6 +30,8 @@ import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -65,6 +67,7 @@ import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
+import code.name.monkey.retromusic.extensions.albumArtUri
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
@@ -661,4 +664,15 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
     }
+
+    override fun onPlayingMetaChanged() {
+        super.onPlayingMetaChanged()
+        val imageView = findViewById<ImageView>(R.id.drawerImageView)
+        val drawerArtistName = findViewById<TextView>(R.id.drawerArtistName)
+        val drawerAlbumName = findViewById<TextView>(R.id.drawerAlbumName)
+        drawerArtistName.text = currentSong.artistName
+        drawerAlbumName.text = currentSong.albumName
+        imageView.setImageURI(currentSong.albumArtUri)
+    }
+
 }
