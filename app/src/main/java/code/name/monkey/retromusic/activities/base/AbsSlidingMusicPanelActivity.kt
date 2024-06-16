@@ -142,8 +142,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
 
-    private lateinit var leftDrawerInflaterRoot: View
-
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             println("Handle back press ${bottomSheetBehavior.state}")
@@ -224,15 +222,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
 
-    private fun setNavigationMenuMargin() {
-        leftDrawerInflaterRoot.findViewById<ImageView>(R.id.artistImageInLeftMenu).apply {
-            setImageResource(R.drawable.avd_face)
-            updateLayoutParams<ConstraintLayout.LayoutParams> {
-                topMargin = windowInsets.getTopInsets()
-            }
-        }
-    }
-
     private fun setButtonMargin(button: FloatingActionButton, margin: Int) {
         val actualMargin = maxOf(margin, windowInsets.getBottomInsets())
         button.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -286,6 +275,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setupMenu(){
+        val gotoNavigationitems = listOf(
+            Triple(R.drawable.avd_album, getString(R.string.action_go_to_album), R.id.action_go_to_album),
+            Triple(R.drawable.avd_artist, getString(R.string.action_go_to_artist), R.id.action_go_to_artist),
+            Triple(R.drawable.avd_guitar, getString(R.string.action_go_to_genre), R.id.action_go_to_genre),
+            Triple(R.drawable.ic_lyrics, getString(R.string.action_go_to_lyrics), R.id.action_go_to_lyrics),
+        )
         val homeNavigationitems = listOf(
             Triple(R.drawable.avd_face, getString(R.string.home), R.id.action_home),
             Triple(R.drawable.avd_queue, getString(R.string.now_playing), R.id.action_playing),
@@ -297,12 +292,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             Triple(R.drawable.avd_guitar, getString(R.string.genre), R.id.action_genre),
             Triple(R.drawable.ic_search, getString(R.string.action_search), R.id.action_search),
         )
-        val gotoNavigationitems = listOf(
-            Triple(R.drawable.avd_album, getString(R.string.action_go_to_album), R.id.action_go_to_album),
-            Triple(R.drawable.avd_artist, getString(R.string.action_go_to_artist), R.id.action_go_to_artist),
-            Triple(R.drawable.avd_guitar, getString(R.string.action_go_to_genre), R.id.action_go_to_genre),
-            Triple(R.drawable.ic_lyrics, getString(R.string.action_go_to_lyrics), R.id.action_go_to_lyrics),
-        )
 
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
@@ -312,6 +301,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
 
+        /*
         leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
         binding.leftDrawer.addView(leftDrawerInflaterRoot)
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
@@ -334,6 +324,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
 
         binding.rightDrawer.addView(rightMenuRecyclerView)
+         */
 
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
@@ -591,7 +582,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
         setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
         setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
-        setNavigationMenuMargin()
     }
 
     fun setAllowDragging(allowDragging: Boolean) {
