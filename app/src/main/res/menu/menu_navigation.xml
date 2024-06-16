@@ -56,9 +56,9 @@
             android:title="@string/playlists" />
 
         <item
-            android:id="@+id/nav_folder"
-            android:icon="@drawable/avd_folder"
-            android:title="@string/folders" />
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_search"
+            android:title="@string/action_search" />
 
         <item
             android:id="@+id/nav_song"
@@ -76,14 +76,14 @@
             android:title="@string/artist" />
 
         <item
+            android:id="@+id/nav_folder"
+            android:icon="@drawable/avd_folder"
+            android:title="@string/folders" />
+
+        <item
             android:id="@+id/nav_genre"
             android:icon="@drawable/avd_guitar"
             android:title="@string/genre" />
-
-        <item
-            android:id="@+id/nav_search"
-            android:icon="@drawable/ic_search"
-            android:title="@string/action_search" />
 
     </group>
 
