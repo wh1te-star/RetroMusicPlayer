@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
     <item
-        android:enabled="false"
-        android:title=""/>
+        android:id="@+id/drawerCloseButton1"
+        app:actionLayout="@layout/navigation_close_button" />
 
     <item
         android:title="@string/current_song"
@@ -26,6 +27,10 @@
             android:icon="@drawable/ic_lyrics"
             android:title="@string/action_go_to_lyrics" />
     </group>
+
+    <item
+        android:id="@+id/drawerCloseButton2"
+        app:actionLayout="@layout/navigation_close_button" />
 
     <item
         android:title="@string/device"
@@ -79,4 +84,8 @@
             android:title="@string/action_search" />
 
     </group>
+
+    <item
+        android:id="@+id/drawerCloseButton3"
+        app:actionLayout="@layout/navigation_close_button" />
 </menu>

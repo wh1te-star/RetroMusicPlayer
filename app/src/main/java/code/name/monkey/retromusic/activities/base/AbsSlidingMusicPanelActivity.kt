@@ -676,7 +676,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         updateDrawerHeaderInfo(rightDrawer)
     }
 
-    fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
+    private fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
         val headerView = drawerLayout.getHeaderView(0)
         headerView.setBackgroundColor(accentColor())
 
