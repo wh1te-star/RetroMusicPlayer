@@ -5,7 +5,6 @@
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingLeft="15dp"
-    android:paddingTop="25dp"
     android:paddingBottom="15dp">
 
     <ImageView

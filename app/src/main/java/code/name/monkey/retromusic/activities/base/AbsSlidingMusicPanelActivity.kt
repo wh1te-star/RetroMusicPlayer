@@ -37,7 +37,6 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
@@ -48,7 +47,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -78,6 +76,7 @@ import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
+import code.name.monkey.retromusic.extensions.getTopInsets
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
@@ -287,12 +286,25 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
+            setupDrawerMenuInset(leftDrawer)
         }
         binding.menuButtonRight.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
+            setupDrawerMenuInset(rightDrawer)
         }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
+    }
+
+    fun setupDrawerMenuInset(drawerLayout: NavigationView){
+        val headerView: View = drawerLayout.getHeaderView(0)
+        val topInset: Int = windowInsets.getTopInsets()
+        headerView.setPadding(
+            headerView.getPaddingLeft(),
+            topInset,
+            headerView.getPaddingRight(),
+            headerView.getPaddingBottom()
+        )
     }
 
     protected fun setupNavigationController() {
@@ -413,7 +425,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.action_settings -> {
                 navController.navigate(R.id.settings_fragment)
             }
-            R.id.drawerCloseButton1,R.id.drawerCloseButton2,  R.id.drawerCloseButton3, -> {}
+            R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
         }
         (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()

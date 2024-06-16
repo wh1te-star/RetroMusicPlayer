@@ -14,8 +14,10 @@ fun WindowInsetsCompat?.getBottomInsets(): Int {
 
 fun WindowInsetsCompat?.getTopInsets(): Int {
     return if (PreferenceUtil.isFullScreenMode) {
-        return 0
+        0
     } else {
-        this?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
+        val systemBarsInsets = this?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
+        val displayCutoutInsets = this?.getInsets(WindowInsetsCompat.Type.displayCutout())?.top ?: 0
+        maxOf(systemBarsInsets, displayCutoutInsets)
     }
 }
