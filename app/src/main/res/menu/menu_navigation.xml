@@ -6,7 +6,8 @@
 
     <item
         android:id="@+id/drawerCloseButton1"
-        app:actionLayout="@layout/navigation_close_button" />
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
 
     <item
         android:title="@string/current_song"
@@ -30,8 +31,8 @@
 
     <item
         android:id="@+id/drawerCloseButton2"
-        android:title=""
-        app:actionLayout="@layout/navigation_close_button" />
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
 
     <item
         android:title="@string/device"
@@ -88,6 +89,6 @@
 
     <item
         android:id="@+id/drawerCloseButton3"
-        android:title=""
-        app:actionLayout="@layout/navigation_close_button" />
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
 </menu>
