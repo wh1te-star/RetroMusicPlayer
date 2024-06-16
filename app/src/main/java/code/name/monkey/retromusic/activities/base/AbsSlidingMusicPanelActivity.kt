@@ -23,6 +23,8 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -30,18 +32,22 @@ import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
+import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +57,8 @@ import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
 import code.name.monkey.retromusic.CAROUSEL_EFFECT
 import code.name.monkey.retromusic.CIRCLE_PLAY_BUTTON
+import code.name.monkey.retromusic.EXTRA_ALBUM_ID
+import code.name.monkey.retromusic.EXTRA_ARTIST_ID
 import code.name.monkey.retromusic.EXTRA_SONG_INFO
 import code.name.monkey.retromusic.KEEP_SCREEN_ON
 import code.name.monkey.retromusic.NOW_PLAYING_SCREEN_ID
@@ -90,6 +98,7 @@ import code.name.monkey.retromusic.fragments.other.MiniPlayerFragment
 import code.name.monkey.retromusic.fragments.player.normal.PlayerFragment
 import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
+import code.name.monkey.retromusic.helper.MusicPlayerRemote.currentSong
 import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
@@ -104,6 +113,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -275,6 +285,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setupMenu(){
+
+        /*
         val gotoNavigationitems = listOf(
             Triple(R.drawable.avd_album, getString(R.string.action_go_to_album), R.id.action_go_to_album),
             Triple(R.drawable.avd_artist, getString(R.string.action_go_to_artist), R.id.action_go_to_artist),
@@ -293,15 +305,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             Triple(R.drawable.ic_search, getString(R.string.action_search), R.id.action_search),
         )
 
-        getButtonMargin()
-        binding.menuButtonLeft.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
-        }
-        binding.menuButtonRight.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
-        }
-
-        /*
         leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
         binding.leftDrawer.addView(leftDrawerInflaterRoot)
         leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
@@ -326,6 +329,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.rightDrawer.addView(rightMenuRecyclerView)
          */
 
+        getButtonMargin()
+        binding.menuButtonLeft.setOnClickListener {
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
+        }
+        binding.menuButtonRight.setOnClickListener {
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
+        }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
     }
@@ -366,6 +376,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 }
             }
         }
+        navigationView.setNavigationItemSelectedListener { item ->
+            handleNavigationItemSelected(item)
+        }
     }
 
     private fun setupBottomSheet() {
@@ -388,6 +401,60 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         super.onDestroy()
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallbackList)
         PreferenceUtil.unregisterOnSharedPreferenceChangedListener(this)
+    }
+
+    private fun handleNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_go_to_album -> {
+                navController.navigate(
+                    R.id.albumDetailsFragment,
+                    bundleOf(EXTRA_ALBUM_ID to currentSong.albumId)
+                )
+            }
+            R.id.nav_go_to_artist -> {
+                navController.navigate(
+                    R.id.artistDetailsFragment,
+                    bundleOf(EXTRA_ARTIST_ID to currentSong.artistId)
+                )
+            }
+            R.id.nav_go_to_lyrics -> {
+                navController.navigate(
+                    R.id.lyrics_fragment,
+                    null,
+                    navOptions { launchSingleTop = true }
+                )
+            }
+            R.id.nav_home -> {
+                navController.navigate(R.id.action_home)
+            }
+            R.id.nav_playing -> {
+                navController.navigate(R.id.action_playing)
+            }
+            R.id.nav_playlist -> {
+                navController.navigate(R.id.action_playlist)
+            }
+            R.id.nav_folder -> {
+                navController.navigate(R.id.action_folder)
+            }
+            R.id.nav_song -> {
+                navController.navigate(R.id.action_song)
+            }
+            R.id.nav_album -> {
+                navController.navigate(R.id.action_album)
+            }
+            R.id.nav_artist -> {
+                navController.navigate(R.id.action_artist)
+            }
+            R.id.nav_genre -> {
+                navController.navigate(R.id.action_genre)
+            }
+            R.id.nav_search -> {
+                navController.navigate(R.id.action_search)
+            }
+            else -> return false
+        }
+        (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
+        return true
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
