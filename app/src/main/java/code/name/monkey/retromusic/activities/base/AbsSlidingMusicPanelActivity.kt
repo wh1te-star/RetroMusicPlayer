@@ -37,6 +37,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
@@ -69,6 +70,7 @@ import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
+import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.extensions.albumArtUri
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
@@ -675,6 +677,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
+        val headerView = drawerLayout.getHeaderView(0)
+        headerView.setBackgroundColor(accentColor())
+
         val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
         val drawerArtistName = drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
         val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
