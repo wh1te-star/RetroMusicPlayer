@@ -222,11 +222,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun getButtonMargin(){
         val density = resources.displayMetrics.density
-        val leftLayoutParams = binding.menuButtonLeft?.layoutParams as ViewGroup.MarginLayoutParams
+        val leftLayoutParams = binding.menuButtonLeft.layoutParams as ViewGroup.MarginLayoutParams
         leftButtonBottomMargin = (leftLayoutParams.bottomMargin / density).toInt()
-        val optionLayoutParams = binding.optionButton?.layoutParams as ViewGroup.MarginLayoutParams
+        val optionLayoutParams = binding.optionButton.layoutParams as ViewGroup.MarginLayoutParams
         optionButtonBottomMargin = (optionLayoutParams.bottomMargin / density).toInt()
-        val rightLayoutParams = binding.menuButtonRight?.layoutParams as ViewGroup.MarginLayoutParams
+        val rightLayoutParams = binding.menuButtonRight.layoutParams as ViewGroup.MarginLayoutParams
         rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
 
@@ -283,50 +283,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setupMenu(){
-
-        /*
-        val gotoNavigationitems = listOf(
-            Triple(R.drawable.avd_album, getString(R.string.action_go_to_album), R.id.action_go_to_album),
-            Triple(R.drawable.avd_artist, getString(R.string.action_go_to_artist), R.id.action_go_to_artist),
-            Triple(R.drawable.avd_guitar, getString(R.string.action_go_to_genre), R.id.action_go_to_genre),
-            Triple(R.drawable.ic_lyrics, getString(R.string.action_go_to_lyrics), R.id.action_go_to_lyrics),
-        )
-        val homeNavigationitems = listOf(
-            Triple(R.drawable.avd_face, getString(R.string.home), R.id.action_home),
-            Triple(R.drawable.avd_queue, getString(R.string.now_playing), R.id.action_playing),
-            Triple(R.drawable.avd_playlist, getString(R.string.playlists), R.id.action_playlist),
-            Triple(R.drawable.avd_folder, getString(R.string.folders), R.id.action_folder),
-            Triple(R.drawable.avd_music_note, getString(R.string.songs), R.id.action_song),
-            Triple(R.drawable.avd_album, getString(R.string.albums), R.id.action_album),
-            Triple(R.drawable.avd_artist, getString(R.string.artist), R.id.action_artist),
-            Triple(R.drawable.avd_guitar, getString(R.string.genre), R.id.action_genre),
-            Triple(R.drawable.ic_search, getString(R.string.action_search), R.id.action_search),
-        )
-
-        leftDrawerInflaterRoot = layoutInflater.inflate(R.layout.fragment_left_drawer_menu, binding.leftDrawer, false)
-        binding.leftDrawer.addView(leftDrawerInflaterRoot)
-        leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.songInfoLeft).apply {
-            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = GotoNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, gotoNavigationitems)
-        }
-        leftDrawerInflaterRoot.findViewById<RecyclerView>(R.id.navigationMenuLeft).apply {
-            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            adapter = HomeNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, homeNavigationitems)
-        }
-
-        val rightMenuRecyclerView = RecyclerView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            setPadding(0, 500, 0, 0)
-            adapter = HomeNavigationMenuAdapter(navController, binding.drawerLayout as UnswipableDrawerLayout, homeNavigationitems)
-        }
-
-        binding.rightDrawer.addView(rightMenuRecyclerView)
-         */
-
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
