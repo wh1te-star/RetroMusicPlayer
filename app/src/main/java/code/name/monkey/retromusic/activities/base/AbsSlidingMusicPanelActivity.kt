@@ -60,6 +60,7 @@ import code.name.monkey.retromusic.SWIPE_DOWN_DISMISS
 import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
+import code.name.monkey.retromusic.activities.DriveModeFragment
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.adapter.NavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
@@ -113,7 +114,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     protected lateinit var navInflater: NavInflater
     protected lateinit var navGraph: NavGraph
     protected lateinit var appBarConfiguration: AppBarConfiguration
-
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
     protected val libraryViewModel by viewModel<LibraryViewModel>()
@@ -578,7 +578,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        val fragment: AbsPlayerFragment = PlayerFragment()
+        //val fragment: AbsPlayerFragment = PlayerFragment()
+        val fragment: AbsPlayerFragment = DriveModeFragment()
         supportFragmentManager.commit {
             replace(R.id.playerFragmentContainer, fragment)
         }

@@ -20,7 +20,6 @@ import android.media.audiofx.AudioEffect
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.activities.DriveModeActivity
 import code.name.monkey.retromusic.activities.LicenseActivity
 import code.name.monkey.retromusic.activities.SupportDevelopmentActivity
 import code.name.monkey.retromusic.activities.WhatsNewFragment
@@ -44,12 +43,6 @@ object NavigationUtil {
     fun goToSupportDevelopment(activity: Activity) {
         activity.startActivity(
             Intent(activity, SupportDevelopmentActivity::class.java), null
-        )
-    }
-
-    fun gotoDriveMode(activity: Activity) {
-        activity.startActivity(
-            Intent(activity, DriveModeActivity::class.java), null
         )
     }
 
