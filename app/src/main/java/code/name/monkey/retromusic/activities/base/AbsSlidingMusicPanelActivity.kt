@@ -54,6 +54,7 @@ import androidx.navigation.contains
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
@@ -62,6 +63,7 @@ import code.name.monkey.retromusic.CIRCLE_PLAY_BUTTON
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.EXTRA_ARTIST_ID
 import code.name.monkey.retromusic.EXTRA_SONG_INFO
+import code.name.monkey.retromusic.IS_DRIVING_MODE
 import code.name.monkey.retromusic.KEEP_SCREEN_ON
 import code.name.monkey.retromusic.NOW_PLAYING_SCREEN_ID
 import code.name.monkey.retromusic.R
@@ -93,6 +95,7 @@ import code.name.monkey.retromusic.extensions.setNavigationBarColorPreOreo
 import code.name.monkey.retromusic.extensions.setTaskDescriptionColor
 import code.name.monkey.retromusic.extensions.surfaceColor
 import code.name.monkey.retromusic.extensions.whichFragment
+import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
@@ -127,11 +130,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
 
+    val DRIVEMODE_PREF = "DRIVEMODE_PREF"
+
     protected lateinit var navController: NavController
     protected lateinit var navInflater: NavInflater
     protected lateinit var navGraph: NavGraph
     protected lateinit var appBarConfiguration: AppBarConfiguration
 
+    var isDriveMode = false
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
     protected val libraryViewModel by viewModel<LibraryViewModel>()
@@ -280,6 +286,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
+
+        val sharedPreferences = getDefaultSharedPreferences(this)
+        isDriveMode = sharedPreferences.getBoolean(IS_DRIVING_MODE, false)
+
         chooseFragmentForTheme()
         setupSlidingUpPanel()
         setupBottomSheet()
@@ -462,6 +472,21 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
             R.id.action_settings -> {
                 navController.navigate(R.id.settings_fragment)
+            }
+            R.id.action_driving_mode ->{
+                if (isDriveMode) isDriveMode = false
+                else isDriveMode = true
+
+                chooseFragmentForTheme()
+                binding.slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
+                    height = ViewGroup.LayoutParams.MATCH_PARENT
+                    onServiceConnected()
+                }
+
+                getDefaultSharedPreferences(this)
+                    .edit()
+                    .putBoolean(IS_DRIVING_MODE, isDriveMode)
+                    .apply()
             }
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
@@ -671,7 +696,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        val fragment: AbsPlayerFragment = PlayerFragment()
+        val fragment: AbsPlayerFragment = if(!isDriveMode){
+            PlayerFragment()
+        }else{
+            DriveModeFragment()
+        }
         supportFragmentManager.commit {
             replace(R.id.playerFragmentContainer, fragment)
         }
