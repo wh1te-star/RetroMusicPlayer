@@ -666,26 +666,45 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
         val headerView = drawerLayout.getHeaderView(0)
-        headerView.setBackgroundColor(accentColor())
+        headerView?.setBackgroundColor(accentColor())
 
-        val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
-        val drawerArtistName = drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
-        val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
+        val drawerImageView = headerView?.findViewById<ImageView>(R.id.drawerImageView)
+        val drawerArtistName = headerView?.findViewById<TextView>(R.id.drawerArtistName)
+        val drawerAlbumName = headerView?.findViewById<TextView>(R.id.drawerAlbumName)
 
-        drawerArtistName.text = currentSong.artistName
-        drawerAlbumName.text = currentSong.albumName
+        val updateViews = {
+            drawerArtistName?.text = currentSong.artistName
+            drawerAlbumName?.text = currentSong.albumName
 
-        val uri = currentSong.albumArtUri
-        try {
-            val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
-            if (inputStream != null) {
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                drawerImageView.setImageBitmap(bitmap)
-                inputStream.close()
+            val uri = currentSong.albumArtUri
+            try {
+                val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
+                if (inputStream != null) {
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    drawerImageView?.setImageBitmap(bitmap)
+                    inputStream.close()
+                } else {
+                    drawerImageView?.setImageResource(R.drawable.default_album_art)
+                }
+            } catch (e: Exception) {
+                drawerImageView?.setImageResource(R.drawable.default_album_art)
+                Log.e("DrawerHeader", "Error loading album art", e)
             }
-        } catch (e: Exception) {
-            drawerImageView.setImageResource(R.drawable.default_album_art)
-            Log.e("DrawerHeader", "Error loading album art", e)
         }
+
+        headerView?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                headerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                updateViews()
+            }
+        })
+
+        headerView?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                updateViews()
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {}
+        })
     }
 }

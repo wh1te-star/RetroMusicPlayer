@@ -279,7 +279,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
         binding.playPauseButton.setOnClickListener(PlayPauseButtonOnClickHandler())
     }
 
-    /*
     override fun onRepeatModeChanged() {
         super.onRepeatModeChanged()
         updateRepeatState()
@@ -304,7 +303,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
         updateGPSRecordState()
         updateFavorite()
     }
-    */
 
     private fun updatePlayPauseDrawableState() {
         if (MusicPlayerRemote.isPlaying) {
@@ -368,7 +366,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
         }
     }
 
-    /*
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         updateSong()
@@ -379,7 +376,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
         super.onFavoriteStateChanged()
         updateFavorite()
     }
-    */
 
     private fun updateSong() {
         val song = MusicPlayerRemote.currentSong
