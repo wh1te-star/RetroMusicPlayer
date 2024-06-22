@@ -23,13 +23,18 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.view.GravityCompat
@@ -102,7 +107,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
@@ -139,11 +143,19 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var rightButtonBottomMargin = 0
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        private var backPressCount = 0
+        private val backPressThreshold = 2
+        private val backPressDelay = 3000L
+        private val handler = Handler(Looper.getMainLooper())
         override fun handleOnBackPressed() {
-            println("Handle back press ${bottomSheetBehavior.state}")
-            if (!handleBackPress()) {
-                remove()
-                onBackPressedDispatcher.onBackPressed()
+            backPressCount++
+            if (backPressCount == backPressThreshold) {
+                finish()
+            } else {
+                Toast.makeText(this@AbsSlidingMusicPanelActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
+                handler.postDelayed({
+                    backPressCount = 0
+                }, backPressDelay)
             }
         }
     }
@@ -263,7 +275,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         navigationBarColor = surfaceColor()
         setupNavigationController()
 
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
         optionButton = binding.optionButton
 
@@ -352,6 +363,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         //saveTab(destination.id)
                     }
                 }
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (bottomSheetBehavior.state == STATE_EXPANDED) {
+                collapsePanel()
+                return@addCallback
+            }
+            if (navController.currentDestination?.id == navGraph.startDestinationId) {
+                onBackPressedCallback.handleOnBackPressed()
+            } else {
+                navController.navigateUp()
             }
         }
     }

@@ -48,23 +48,6 @@ class MainActivity : AbsCastActivity() {
         const val EXPAND_PANEL = "expand_panel"
     }
 
-    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
-        private var backPressCount = 0
-        private val backPressThreshold = 2
-        private val backPressDelay = 3000L
-        private val handler = Handler(Looper.getMainLooper())
-        override fun handleOnBackPressed() {
-            backPressCount++
-            if (backPressCount == backPressThreshold) {
-                finish()
-            } else {
-                Toast.makeText(this@MainActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
-                handler.postDelayed({
-                    backPressCount = 0
-                }, backPressDelay)
-            }
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTaskDescriptionColorAuto()
@@ -72,8 +55,6 @@ class MainActivity : AbsCastActivity() {
         AppRater.appLaunched(this)
 
         WhatsNewFragment.showChangeLog(this)
-
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     private fun saveTab(id: Int) {
