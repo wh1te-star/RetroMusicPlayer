@@ -96,4 +96,9 @@
         android:id="@+id/drawerCloseButton3"
         app:actionLayout="@layout/navigation_close_button"
         tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/action_driving_mode"
+        android:icon="@drawable/ic_car"
+        android:title="switch driving mode" />
 </menu>

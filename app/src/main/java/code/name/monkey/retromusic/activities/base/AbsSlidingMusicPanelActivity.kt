@@ -126,6 +126,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     protected lateinit var navInflater: NavInflater
     protected lateinit var navGraph: NavGraph
     protected lateinit var appBarConfiguration: AppBarConfiguration
+
+    var driveTheme = false
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
     protected val libraryViewModel by viewModel<LibraryViewModel>()
@@ -425,6 +427,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.action_settings -> {
                 navController.navigate(R.id.settings_fragment)
             }
+            R.id.action_driving_mode ->{
+                chooseFragmentForTheme()
+                binding.slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
+                    height = ViewGroup.LayoutParams.MATCH_PARENT
+                    onServiceConnected()
+                }
+            }
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
         }
@@ -633,8 +642,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        //val fragment: AbsPlayerFragment = PlayerFragment()
-        val fragment: AbsPlayerFragment = DriveModeFragment()
+        val fragment: AbsPlayerFragment = if(!driveTheme){
+            driveTheme = true
+            PlayerFragment()
+        }else{
+            driveTheme = false
+            DriveModeFragment()
+        }
         supportFragmentManager.commit {
             replace(R.id.playerFragmentContainer, fragment)
         }
