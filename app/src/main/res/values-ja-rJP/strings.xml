@@ -166,6 +166,7 @@
     <string name="donate_summary">私が自分の仕事に払う価値があると思うなら、あなたはここにお金を残すことができます</string>
     <string name="donation_header">俺を購入：</string>
     <string name="done">完了</string>
+    <string name="normal_mode">ノーマルモード</string>
     <string name="drive_mode">運転モード</string>
     <string name="edit_fab">ボタンを編集</string>
     <string name="edit_normal_lyrics">歌詞を編集</string>

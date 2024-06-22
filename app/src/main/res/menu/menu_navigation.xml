@@ -100,5 +100,5 @@
     <item
         android:id="@+id/action_driving_mode"
         android:icon="@drawable/ic_car"
-        android:title="switch driving mode" />
+        android:title="@string/drive_mode" />
 </menu>

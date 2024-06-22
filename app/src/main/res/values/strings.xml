@@ -170,6 +170,7 @@
     <string name="donate_summary">If you think I deserve to get paid for my work, you can leave some money here</string>
     <string name="donation_header">Buy me a:</string>
     <string name="done">Done</string>
+    <string name="normal_mode">Normal mode</string>
     <string name="drive_mode">Drive mode</string>
     <string name="edit_fab">Edit Button</string>
     <string name="edit_normal_lyrics">Edit Lyrics</string>
