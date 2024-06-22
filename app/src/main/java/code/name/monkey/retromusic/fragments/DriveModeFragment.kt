@@ -35,6 +35,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -59,7 +60,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
 import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
-import code.name.monkey.retromusic.service.TextViewUpdateListener
+import code.name.monkey.retromusic.service.GPSRecordingListener
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import com.bumptech.glide.Glide
@@ -75,7 +76,7 @@ import java.io.File
  * Created by hemanths on 2020-02-02.
  */
 
-class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextViewUpdateListener, Callback {
+class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRecordingListener, Callback {
 
     private lateinit var binding: ActivityDriveModeBinding
     private lateinit var gpsRecordService: GPSRecordService
@@ -242,9 +243,11 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
                         LOCATION_PERMISSION_REQUEST
                     )
                 } else {
+                    isRecordingGPS=true
                     gpsRecordService.startRecording()
                 }
             } else {
+                isRecordingGPS=false
                 gpsRecordService.stopRecording()
                 val mostRecentFile = requireContext().getExternalFilesDir(null)?.listFiles()
                     ?.filter { it.name.matches(Regex("\\d{14}")) }
@@ -467,15 +470,17 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), TextV
     }
 
     override fun onRecordingStarted() {
-        //TODO("Not yet implemented")
+        updateGPSRecordState()
     }
 
     override fun onRecordingStopped() {
-        //TODO("Not yet implemented")
+        updateGPSRecordState()
     }
 
     override fun onFileSizeExceeded() {
-        //TODO("Not yet implemented")
+        isRecordingGPS = false
+        Toast.makeText(context, getString(R.string.recording_file_size_exceeds_limit), Toast.LENGTH_LONG).show()
+        updateGPSRecordState()
     }
 
     override fun updateTextView(latitude: Double, longitude: Double, speed: Float) {

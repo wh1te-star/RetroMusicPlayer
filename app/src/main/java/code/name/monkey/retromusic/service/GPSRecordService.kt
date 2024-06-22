@@ -13,19 +13,15 @@ import code.name.monkey.retromusic.util.logD
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.lang.Math.toRadians
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 class GPSRecordService : Service() {
     private val binder = LocalBinder()
-    private var listener: TextViewUpdateListener? = null
+    private var listener: GPSRecordingListener? = null
 
     private var previousTimestamp: Long = 0
     private var previousLatitude: Double = 0.0
@@ -180,7 +176,7 @@ class GPSRecordService : Service() {
         }
     }
 
-    fun registerListener(listener: TextViewUpdateListener) {
+    fun registerListener(listener: GPSRecordingListener) {
         this.listener = listener
     }
 
@@ -193,7 +189,7 @@ class GPSRecordService : Service() {
     }
 }
 
-interface TextViewUpdateListener {
+interface GPSRecordingListener {
     fun onRecordingStarted()
     fun onRecordingStopped()
     fun onFileSizeExceeded()
