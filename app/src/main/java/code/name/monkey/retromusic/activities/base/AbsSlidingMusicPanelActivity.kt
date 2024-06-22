@@ -20,18 +20,24 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
@@ -41,15 +47,16 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
+import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
 import code.name.monkey.retromusic.CAROUSEL_EFFECT
 import code.name.monkey.retromusic.CIRCLE_PLAY_BUTTON
+import code.name.monkey.retromusic.EXTRA_ALBUM_ID
+import code.name.monkey.retromusic.EXTRA_ARTIST_ID
 import code.name.monkey.retromusic.EXTRA_SONG_INFO
 import code.name.monkey.retromusic.KEEP_SCREEN_ON
 import code.name.monkey.retromusic.NOW_PLAYING_SCREEN_ID
@@ -62,13 +69,15 @@ import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
 import code.name.monkey.retromusic.activities.DriveModeFragment
 import code.name.monkey.retromusic.activities.PermissionActivity
-import code.name.monkey.retromusic.adapter.NavigationMenuAdapter
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
+import code.name.monkey.retromusic.extensions.accentColor
+import code.name.monkey.retromusic.extensions.albumArtUri
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
+import code.name.monkey.retromusic.extensions.getTopInsets
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.keepScreenOn
 import code.name.monkey.retromusic.extensions.maybeSetScreenOn
@@ -88,10 +97,12 @@ import code.name.monkey.retromusic.fragments.other.MiniPlayerFragment
 import code.name.monkey.retromusic.fragments.player.normal.PlayerFragment
 import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
+import code.name.monkey.retromusic.helper.MusicPlayerRemote.currentSong
 import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
+import code.name.monkey.retromusic.views.UnswipableDrawerLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
@@ -101,6 +112,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -210,11 +222,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun getButtonMargin(){
         val density = resources.displayMetrics.density
-        val leftLayoutParams = binding.menuButtonLeft?.layoutParams as ViewGroup.MarginLayoutParams
+        val leftLayoutParams = binding.menuButtonLeft.layoutParams as ViewGroup.MarginLayoutParams
         leftButtonBottomMargin = (leftLayoutParams.bottomMargin / density).toInt()
-        val optionLayoutParams = binding.optionButton?.layoutParams as ViewGroup.MarginLayoutParams
+        val optionLayoutParams = binding.optionButton.layoutParams as ViewGroup.MarginLayoutParams
         optionButtonBottomMargin = (optionLayoutParams.bottomMargin / density).toInt()
-        val rightLayoutParams = binding.menuButtonRight?.layoutParams as ViewGroup.MarginLayoutParams
+        val rightLayoutParams = binding.menuButtonRight.layoutParams as ViewGroup.MarginLayoutParams
         rightButtonBottomMargin = (rightLayoutParams.bottomMargin / density).toInt()
     }
 
@@ -250,6 +262,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setContentView(binding.root)
         binding.root.setOnApplyWindowInsetsListener { _, insets ->
             windowInsets = WindowInsetsCompat.toWindowInsetsCompat(insets)
+            setupDrawerMenuInset(binding.leftDrawer)
+            setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
         chooseFragmentForTheme()
@@ -271,51 +285,26 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun setupMenu(){
-        val items = listOf(
-            Triple(R.drawable.avd_face, "Home", R.id.action_home),
-            Triple(R.drawable.avd_queue, "Playing", R.id.action_playing),
-            Triple(R.drawable.avd_playlist, "Playlists", R.id.action_playlist),
-            Triple(R.drawable.avd_folder, "Folder", R.id.action_folder),
-            Triple(R.drawable.avd_music_note, "Song", R.id.action_song),
-            Triple(R.drawable.avd_album, "Album", R.id.action_album),
-            Triple(R.drawable.avd_artist, "Artist", R.id.action_artist),
-            Triple(R.drawable.avd_guitar, "Genre", R.id.action_genre),
-            Triple(R.drawable.ic_search, "Search", R.id.action_search),
-        )
-
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
         }
         binding.menuButtonRight.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.END)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
-
-        val leftMenuRecyclerView = RecyclerView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            setPadding(0, 500, 0, 500)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
-        }
-
-        val rightMenuRecyclerView = RecyclerView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            layoutManager = LinearLayoutManager(this@AbsSlidingMusicPanelActivity)
-            setPadding(0, 500, 0, 500)
-            adapter = NavigationMenuAdapter(navController, binding.drawerLayout, items)
-        }
-
-        binding.leftDrawer.addView(leftMenuRecyclerView)
-        binding.rightDrawer.addView(rightMenuRecyclerView)
-
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
+    }
+
+    fun setupDrawerMenuInset(drawerLayout: NavigationView){
+        val headerView: View = drawerLayout.getHeaderView(0)
+        val topInset: Int = windowInsets.getTopInsets()
+        headerView.setPadding(
+            headerView.getPaddingLeft(),
+            topInset,
+            headerView.getPaddingRight(),
+            headerView.getPaddingBottom()
+        )
     }
 
     protected fun setupNavigationController() {
@@ -340,7 +329,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             )
         }
         navController.graph = navGraph
-        navigationView.setupWithNavController(navController)
+        leftDrawer.setupWithNavController(navController)
+        rightDrawer.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == navGraph.startDestinationId) {
                 currentFragment(R.id.fragment_container)?.enterTransition = null
@@ -353,6 +343,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     }
                 }
             }
+        }
+        leftDrawer.setNavigationItemSelectedListener { item ->
+            handleNavigationItemSelected(item)
+        }
+        rightDrawer.setNavigationItemSelectedListener { item ->
+            handleNavigationItemSelected(item)
         }
     }
 
@@ -376,6 +372,64 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         super.onDestroy()
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallbackList)
         PreferenceUtil.unregisterOnSharedPreferenceChangedListener(this)
+    }
+
+    private fun handleNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_go_to_album -> {
+                navController.navigate(
+                    R.id.albumDetailsFragment,
+                    bundleOf(EXTRA_ALBUM_ID to currentSong.albumId)
+                )
+            }
+            R.id.nav_go_to_artist -> {
+                navController.navigate(
+                    R.id.artistDetailsFragment,
+                    bundleOf(EXTRA_ARTIST_ID to currentSong.artistId)
+                )
+            }
+            R.id.nav_go_to_lyrics -> {
+                navController.navigate(
+                    R.id.lyrics_fragment,
+                    null,
+                    navOptions { launchSingleTop = true }
+                )
+            }
+            R.id.nav_home -> {
+                navController.navigate(R.id.action_home)
+            }
+            R.id.nav_playing -> {
+                navController.navigate(R.id.action_playing)
+            }
+            R.id.nav_playlist -> {
+                navController.navigate(R.id.action_playlist)
+            }
+            R.id.nav_folder -> {
+                navController.navigate(R.id.action_folder)
+            }
+            R.id.nav_song -> {
+                navController.navigate(R.id.action_song)
+            }
+            R.id.nav_album -> {
+                navController.navigate(R.id.action_album)
+            }
+            R.id.nav_artist -> {
+                navController.navigate(R.id.action_artist)
+            }
+            R.id.nav_genre -> {
+                navController.navigate(R.id.action_genre)
+            }
+            R.id.nav_search -> {
+                navController.navigate(R.id.action_search)
+            }
+            R.id.action_settings -> {
+                navController.navigate(R.id.settings_fragment)
+            }
+            R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
+            else -> return false
+        }
+        (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
+        return true
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -488,7 +542,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         })
     }
 
-    val navigationView get() = binding.leftDrawer
+    val leftDrawer get() = binding.leftDrawer
+    val rightDrawer get() = binding.rightDrawer
 
     val slidingPanel get() = binding.slidingPanel
 
@@ -587,5 +642,36 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         playerFragment = whichFragment(R.id.playerFragmentContainer)
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
+    }
+
+    override fun onPlayingMetaChanged() {
+        super.onPlayingMetaChanged()
+        updateDrawerHeaderInfo(leftDrawer)
+        updateDrawerHeaderInfo(rightDrawer)
+    }
+
+    private fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
+        val headerView = drawerLayout.getHeaderView(0)
+        headerView.setBackgroundColor(accentColor())
+
+        val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
+        val drawerArtistName = drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
+        val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
+
+        drawerArtistName.text = currentSong.artistName
+        drawerAlbumName.text = currentSong.albumName
+
+        val uri = currentSong.albumArtUri
+        try {
+            val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                drawerImageView.setImageBitmap(bitmap)
+                inputStream.close()
+            }
+        } catch (e: Exception) {
+            drawerImageView.setImageResource(R.drawable.default_album_art)
+            Log.e("DrawerHeader", "Error loading album art", e)
+        }
     }
 }

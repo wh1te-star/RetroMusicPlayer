@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/drawerCloseButton1"
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:title="@string/current_song"
+        android:enabled="false"/>
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_go_to_album"
+            android:icon="@drawable/avd_album"
+            android:title="@string/action_go_to_album" />
+        <item
+            android:id="@+id/nav_go_to_artist"
+            android:icon="@drawable/avd_artist"
+            android:title="@string/action_go_to_artist" />
+        <item
+            android:id="@+id/nav_go_to_lyrics"
+            android:icon="@drawable/ic_lyrics"
+            android:title="@string/action_go_to_lyrics" />
+    </group>
+
+    <item
+        android:id="@+id/drawerCloseButton2"
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:title="@string/device"
+        android:enabled="false"/>
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/avd_face"
+            android:title="@string/home" />
+
+        <item
+            android:id="@+id/nav_playing"
+            android:icon="@drawable/avd_queue"
+            android:title="@string/now_playing" />
+
+        <item
+            android:id="@+id/nav_playlist"
+            android:icon="@drawable/avd_playlist"
+            android:title="@string/playlists" />
+
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_search"
+            android:title="@string/action_search" />
+
+        <item
+            android:id="@+id/nav_song"
+            android:icon="@drawable/avd_music_note"
+            android:title="@string/songs" />
+
+        <item
+            android:id="@+id/nav_album"
+            android:icon="@drawable/avd_album"
+            android:title="@string/albums" />
+
+        <item
+            android:id="@+id/nav_artist"
+            android:icon="@drawable/avd_artist"
+            android:title="@string/artist" />
+
+        <item
+            android:id="@+id/nav_folder"
+            android:icon="@drawable/avd_folder"
+            android:title="@string/folders" />
+
+        <item
+            android:id="@+id/nav_genre"
+            android:icon="@drawable/avd_guitar"
+            android:title="@string/genre" />
+
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/action_settings" />
+
+    </group>
+
+    <item
+        android:id="@+id/drawerCloseButton3"
+        app:actionLayout="@layout/navigation_close_button"
+        tools:ignore="MenuTitle" />
+</menu>

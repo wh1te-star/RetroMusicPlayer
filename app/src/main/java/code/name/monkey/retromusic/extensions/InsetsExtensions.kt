@@ -11,3 +11,13 @@ fun WindowInsetsCompat?.getBottomInsets(): Int {
         this?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: RetroUtil.navigationBarHeight
     }
 }
+
+fun WindowInsetsCompat?.getTopInsets(): Int {
+    return if (PreferenceUtil.isFullScreenMode) {
+        0
+    } else {
+        val systemBarsInsets = this?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
+        val displayCutoutInsets = this?.getInsets(WindowInsetsCompat.Type.displayCutout())?.top ?: 0
+        maxOf(systemBarsInsets, displayCutoutInsets)
+    }
+}

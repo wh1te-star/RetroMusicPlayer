@@ -51,8 +51,7 @@
     <item
         android:id="@+id/action_go_to_genre"
         android:orderInCategory="4"
-        android:title="@string/action_go_to_genre"
-        android:visible="false" />
+        android:title="@string/action_go_to_genre" />
     <item
         android:id="@+id/action_add_to_playlist"
         android:orderInCategory="5"
