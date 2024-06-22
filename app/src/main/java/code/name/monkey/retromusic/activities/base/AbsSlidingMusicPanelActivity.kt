@@ -67,7 +67,7 @@ import code.name.monkey.retromusic.SWIPE_DOWN_DISMISS
 import code.name.monkey.retromusic.TOGGLE_ADD_CONTROLS
 import code.name.monkey.retromusic.TOGGLE_FULL_SCREEN
 import code.name.monkey.retromusic.TOGGLE_VOLUME
-import code.name.monkey.retromusic.activities.DriveModeFragment
+import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.activities.PermissionActivity
 import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.extensions.accentColor

@@ -12,7 +12,7 @@
  * See the GNU General Public License for more details.
  *
  */
-package code.name.monkey.retromusic.activities
+package code.name.monkey.retromusic.fragments
 
 import android.Manifest
 import android.app.AlertDialog
