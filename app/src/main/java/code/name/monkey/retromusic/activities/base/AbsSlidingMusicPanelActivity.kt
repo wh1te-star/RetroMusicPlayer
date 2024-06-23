@@ -26,15 +26,20 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
+import android.widget.Toast
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.os.bundleOf
@@ -157,11 +162,19 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var rightButtonBottomMargin = 0
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        private var backPressCount = 0
+        private val backPressThreshold = 2
+        private val backPressDelay = 3000L
+        private val handler = Handler(Looper.getMainLooper())
         override fun handleOnBackPressed() {
-            println("Handle back press ${bottomSheetBehavior.state}")
-            if (!handleBackPress()) {
-                remove()
-                onBackPressedDispatcher.onBackPressed()
+            backPressCount++
+            if (backPressCount == backPressThreshold) {
+                finish()
+            } else {
+                Toast.makeText(this@AbsSlidingMusicPanelActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
+                handler.postDelayed({
+                    backPressCount = 0
+                }, backPressDelay)
             }
         }
     }
@@ -287,8 +300,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         navigationBarColor = surfaceColor()
         setupNavigationController()
 
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
-
         optionButton = binding.optionButton
 
         setupMenu()
@@ -359,6 +370,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
         rightDrawer.setNavigationItemSelectedListener { item ->
             handleNavigationItemSelected(item)
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (bottomSheetBehavior.state == STATE_EXPANDED) {
+                collapsePanel()
+                return@addCallback
+            }
+            if (navController.currentDestination?.id == navGraph.startDestinationId) {
+                onBackPressedCallback.handleOnBackPressed()
+            } else {
+                navController.navigateUp()
+            }
         }
     }
 
