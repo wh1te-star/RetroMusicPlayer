@@ -102,6 +102,8 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.views.UnswipableDrawerLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
@@ -651,26 +653,36 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
         val headerView = drawerLayout.getHeaderView(0)
-        headerView.setBackgroundColor(accentColor())
+        headerView?.setBackgroundColor(accentColor())
 
-        val drawerImageView = drawerLayout.findViewById<ImageView>(R.id.drawerImageView)
-        val drawerArtistName = drawerLayout.findViewById<TextView>(R.id.drawerArtistName)
-        val drawerAlbumName = drawerLayout.findViewById<TextView>(R.id.drawerAlbumName)
+        val drawerImageView = headerView?.findViewById<ImageView>(R.id.drawerImageView)
+        val drawerArtistName = headerView?.findViewById<TextView>(R.id.drawerArtistName)
+        val drawerAlbumName = headerView?.findViewById<TextView>(R.id.drawerAlbumName)
 
-        drawerArtistName.text = currentSong.artistName
-        drawerAlbumName.text = currentSong.albumName
+        val updateViews = {
+            drawerArtistName?.text = currentSong.artistName
+            drawerAlbumName?.text = currentSong.albumName
 
-        val uri = currentSong.albumArtUri
-        try {
-            val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
-            if (inputStream != null) {
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                drawerImageView.setImageBitmap(bitmap)
-                inputStream.close()
-            }
-        } catch (e: Exception) {
-            drawerImageView.setImageResource(R.drawable.default_album_art)
-            Log.e("DrawerHeader", "Error loading album art", e)
+            val uri = currentSong.albumArtUri
+            Glide.with(drawerLayout.context)
+                .load(uri)
+                .apply(RequestOptions().placeholder(R.drawable.default_album_art).error(R.drawable.default_album_art))
+                .into(drawerImageView!!)
         }
+
+        headerView?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                headerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                updateViews()
+            }
+        })
+
+        headerView?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                updateViews()
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {}
+        })
     }
 }
