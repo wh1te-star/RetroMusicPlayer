@@ -26,20 +26,15 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
-import android.widget.Toast
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.os.bundleOf
@@ -55,7 +50,6 @@ import androidx.navigation.contains
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.ALBUM_COVER_STYLE
 import code.name.monkey.retromusic.ALBUM_COVER_TRANSFORM
@@ -64,7 +58,6 @@ import code.name.monkey.retromusic.CIRCLE_PLAY_BUTTON
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.EXTRA_ARTIST_ID
 import code.name.monkey.retromusic.EXTRA_SONG_INFO
-import code.name.monkey.retromusic.IS_DRIVING_MODE
 import code.name.monkey.retromusic.KEEP_SCREEN_ON
 import code.name.monkey.retromusic.NOW_PLAYING_SCREEN_ID
 import code.name.monkey.retromusic.R
@@ -96,7 +89,6 @@ import code.name.monkey.retromusic.extensions.setNavigationBarColorPreOreo
 import code.name.monkey.retromusic.extensions.setTaskDescriptionColor
 import code.name.monkey.retromusic.extensions.surfaceColor
 import code.name.monkey.retromusic.extensions.whichFragment
-import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
@@ -110,6 +102,8 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.views.UnswipableDrawerLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
@@ -129,14 +123,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
 
-    val DRIVEMODE_PREF = "DRIVEMODE_PREF"
-
     protected lateinit var navController: NavController
     protected lateinit var navInflater: NavInflater
     protected lateinit var navGraph: NavGraph
     protected lateinit var appBarConfiguration: AppBarConfiguration
 
-    var isDriveMode = false
     var fromNotification = false
     private var windowInsets: WindowInsetsCompat? = null
     protected val libraryViewModel by viewModel<LibraryViewModel>()
@@ -162,19 +153,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var rightButtonBottomMargin = 0
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
-        private var backPressCount = 0
-        private val backPressThreshold = 2
-        private val backPressDelay = 3000L
-        private val handler = Handler(Looper.getMainLooper())
         override fun handleOnBackPressed() {
-            backPressCount++
-            if (backPressCount == backPressThreshold) {
-                finish()
-            } else {
-                Toast.makeText(this@AbsSlidingMusicPanelActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
-                handler.postDelayed({
-                    backPressCount = 0
-                }, backPressDelay)
+            println("Handle back press ${bottomSheetBehavior.state}")
+            if (!handleBackPress()) {
+                remove()
+                onBackPressedDispatcher.onBackPressed()
             }
         }
     }
@@ -285,10 +268,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
-
-        val sharedPreferences = getDefaultSharedPreferences(this)
-        isDriveMode = sharedPreferences.getBoolean(IS_DRIVING_MODE, false)
-
         chooseFragmentForTheme()
         setupSlidingUpPanel()
         setupBottomSheet()
@@ -299,6 +278,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         navigationBarColor = surfaceColor()
         setupNavigationController()
+
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
         optionButton = binding.optionButton
 
@@ -371,18 +352,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         rightDrawer.setNavigationItemSelectedListener { item ->
             handleNavigationItemSelected(item)
         }
-
-        onBackPressedDispatcher.addCallback(this) {
-            if (bottomSheetBehavior.state == STATE_EXPANDED) {
-                collapsePanel()
-                return@addCallback
-            }
-            if (navController.currentDestination?.id == navGraph.startDestinationId) {
-                onBackPressedCallback.handleOnBackPressed()
-            } else {
-                navController.navigateUp()
-            }
-        }
     }
 
     private fun setupBottomSheet() {
@@ -396,7 +365,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     override fun onResume() {
         super.onResume()
         PreferenceUtil.registerOnSharedPreferenceChangedListener(this)
-
         if (bottomSheetBehavior.state == STATE_EXPANDED) {
             setMiniPlayerAlphaProgress(1f)
         }
@@ -458,21 +426,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
             R.id.action_settings -> {
                 navController.navigate(R.id.settings_fragment)
-            }
-            R.id.action_driving_mode ->{
-                if (isDriveMode) isDriveMode = false
-                else isDriveMode = true
-
-                chooseFragmentForTheme()
-                binding.slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = ViewGroup.LayoutParams.MATCH_PARENT
-                    onServiceConnected()
-                }
-
-                getDefaultSharedPreferences(this)
-                    .edit()
-                .putBoolean(IS_DRIVING_MODE, isDriveMode)
-                .apply()
             }
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
@@ -682,11 +635,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        val fragment: AbsPlayerFragment = if(!isDriveMode){
-            PlayerFragment()
-        }else{
-            DriveModeFragment()
-        }
+        val fragment: AbsPlayerFragment = PlayerFragment()
         supportFragmentManager.commit {
             replace(R.id.playerFragmentContainer, fragment)
         }
@@ -714,20 +663,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             drawerArtistName?.text = currentSong.artistName
             drawerAlbumName?.text = currentSong.albumName
 
-            val uri = currentSong.albumArtUri
-            try {
-                val inputStream = drawerLayout.context.contentResolver.openInputStream(uri)
-                if (inputStream != null) {
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    drawerImageView?.setImageBitmap(bitmap)
-                    inputStream.close()
-                } else {
-                    drawerImageView?.setImageResource(R.drawable.default_album_art)
-                }
-            } catch (e: Exception) {
-                drawerImageView?.setImageResource(R.drawable.default_album_art)
-                Log.e("DrawerHeader", "Error loading album art", e)
-            }
+            Glide.with(drawerLayout.context)
+                .load(currentSong.albumArtUri)
+                .apply(RequestOptions().placeholder(R.drawable.default_album_art).error(R.drawable.default_album_art))
+                .into(drawerImageView!!)
         }
 
         headerView?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
