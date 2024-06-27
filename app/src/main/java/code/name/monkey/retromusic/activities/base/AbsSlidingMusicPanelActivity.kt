@@ -101,6 +101,7 @@ import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
+import code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
 import code.name.monkey.retromusic.views.UnswipableDrawerLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -182,7 +183,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
                 val adjustedMergin = peekHeight + height * slideOffset
 
-                setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
+                setButtonMargin((binding.menuButtonLeft as TapOnlyFloatingActionButton),  adjustedMergin.toInt() + leftButtonBottomMargin)
                 setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
                 setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
             }
@@ -290,11 +291,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
+            (binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView(binding.fragmentContainer.findViewById(R.id.recyclerView))
         }
         binding.menuButtonRight.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
-        binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
+        (binding.menuButtonLeft as TapOnlyFloatingActionButton).setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
     }
 
@@ -624,7 +626,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         }
 
-        setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
+        setButtonMargin((binding.menuButtonLeft as TapOnlyFloatingActionButton),  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
         setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
         setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
     }
