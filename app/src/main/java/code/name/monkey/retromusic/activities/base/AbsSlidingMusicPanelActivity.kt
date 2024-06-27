@@ -663,9 +663,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             drawerArtistName?.text = currentSong.artistName
             drawerAlbumName?.text = currentSong.albumName
 
-            val uri = currentSong.albumArtUri
             Glide.with(drawerLayout.context)
-                .load(uri)
+                .load(currentSong.albumArtUri)
                 .apply(RequestOptions().placeholder(R.drawable.default_album_art).error(R.drawable.default_album_art))
                 .into(drawerImageView!!)
         }
