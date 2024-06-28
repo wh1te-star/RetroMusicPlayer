@@ -20,11 +20,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -102,7 +100,6 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
-import code.name.monkey.retromusic.views.UnswipableDrawerLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -282,25 +279,33 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        optionButton = binding.optionButton
-
-        setupMenu()
+        setupNavigationButtons()
     }
 
-    private fun setupMenu(){
+    private fun setupNavigationButtons(){
+        optionButton = binding.optionButton
+
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
-            //(binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView(binding.fragmentContainer.findViewById(R.id.recyclerView))
-            binding.menuButtonLeft.setUnderlyingView()
-            binding.menuButtonRight.setUnderlyingView()
-            binding.optionButton.setUnderlyingView()
+            binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         binding.menuButtonRight.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
+            binding.drawerLayout.openDrawer(GravityCompat.END)
         }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
+
+        binding.fragmentContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View?,
+                left: Int, top: Int, right: Int, bottom: Int,
+                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
+            ) {
+                binding.menuButtonLeft.setUnderlyingView()
+                binding.optionButton.setUnderlyingView()
+                binding.menuButtonRight.setUnderlyingView()
+            }
+        })
     }
 
     fun setupDrawerMenuInset(drawerLayout: NavigationView){
@@ -435,7 +440,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
         }
-        (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
+        binding.drawerLayout.closeDrawers()
         return true
     }
 
