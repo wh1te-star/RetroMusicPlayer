@@ -6,12 +6,13 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import code.name.monkey.retromusic.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TapOnlyFloatingActionButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = R.attr.floatingActionButtonStyle
 ) : FloatingActionButton(context, attrs, defStyleAttr) {
 
     private val gestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
