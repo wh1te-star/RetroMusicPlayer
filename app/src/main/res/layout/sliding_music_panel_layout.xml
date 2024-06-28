@@ -39,7 +39,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
                 android:id="@+id/optionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
                 app:layout_constraintStart_toEndOf="@+id/menuButtonLeft" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
                 android:id="@+id/menuButtonRight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

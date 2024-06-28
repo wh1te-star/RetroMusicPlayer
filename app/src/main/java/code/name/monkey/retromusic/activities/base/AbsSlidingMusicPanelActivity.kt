@@ -148,7 +148,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var navigationBarColorAnimator: ValueAnimator? = null
     private val argbEvaluator: ArgbEvaluator = ArgbEvaluator()
 
-    lateinit var optionButton: FloatingActionButton
+    lateinit var optionButton: TapOnlyFloatingActionButton
     private var leftButtonBottomMargin = 0
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
@@ -183,7 +183,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
                 val adjustedMergin = peekHeight + height * slideOffset
 
-                setButtonMargin((binding.menuButtonLeft as TapOnlyFloatingActionButton),  adjustedMergin.toInt() + leftButtonBottomMargin)
+                setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
                 setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
                 setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
             }
@@ -292,12 +292,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
             //(binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView(binding.fragmentContainer.findViewById(R.id.recyclerView))
-            (binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView()
+            binding.menuButtonLeft.setUnderlyingView()
+            binding.menuButtonRight.setUnderlyingView()
+            binding.optionButton.setUnderlyingView()
         }
         binding.menuButtonRight.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
-        (binding.menuButtonLeft as TapOnlyFloatingActionButton).setImageResource(R.drawable.ic_arrow_forward)
+        binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
     }
 
@@ -627,7 +629,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
         }
 
-        setButtonMargin((binding.menuButtonLeft as TapOnlyFloatingActionButton),  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
+        setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
         setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
         setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
     }

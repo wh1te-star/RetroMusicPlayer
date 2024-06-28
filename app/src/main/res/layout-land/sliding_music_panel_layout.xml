@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<code.name.monkey.retromusic.views.UnswipableDrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -25,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
                 android:id="@+id/menuButtonLeft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -38,7 +39,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
                 android:id="@+id/optionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -52,7 +53,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
                 app:layout_constraintStart_toEndOf="@+id/menuButtonLeft" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
                 android:id="@+id/menuButtonRight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -99,6 +100,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        app:headerLayout="@layout/navigation_header_main"
+        app:menu="@menu/menu_navigation"
         style="@style/SharpCorners" />
 
     <com.google.android.material.navigation.NavigationView
@@ -106,6 +109,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        app:headerLayout="@layout/navigation_header_main"
+        app:menu="@menu/menu_navigation"
         style="@style/SharpCorners" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+</code.name.monkey.retromusic.views.UnswipableDrawerLayout>
