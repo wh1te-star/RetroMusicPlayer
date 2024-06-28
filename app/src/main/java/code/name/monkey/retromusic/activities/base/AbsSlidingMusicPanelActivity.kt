@@ -291,7 +291,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
-            (binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView(binding.fragmentContainer.findViewById(R.id.recyclerView))
+            //(binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView(binding.fragmentContainer.findViewById(R.id.recyclerView))
+            (binding.menuButtonLeft as TapOnlyFloatingActionButton).setUnderlyingView()
         }
         binding.menuButtonRight.setOnClickListener {
             (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
