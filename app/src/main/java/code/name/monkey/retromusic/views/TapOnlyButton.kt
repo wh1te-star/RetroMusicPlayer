@@ -6,7 +6,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TapOnlyFloatingActionButton @JvmOverloads constructor(
@@ -15,17 +14,13 @@ class TapOnlyFloatingActionButton @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FloatingActionButton(context, attrs, defStyleAttr) {
 
-    private val gestureDetector: GestureDetector
+    private val gestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            performClick()
+            return false
+        }
+    })
     private var underlyingView: View? = null
-
-    init {
-        gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                performClick()
-                return false
-            }
-        })
-    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -59,8 +54,8 @@ class TapOnlyFloatingActionButton @JvmOverloads constructor(
 
             if (x >= childX && x < childX + child.width &&
                 y >= childY && y < childY + child.height) {
-                if (ViewCompat.canScrollVertically(child, 1) || ViewCompat.canScrollVertically(child, -1) ||
-                    ViewCompat.canScrollHorizontally(child, 1) || ViewCompat.canScrollHorizontally(child, -1)) {
+                if (child.canScrollVertically(1) || child.canScrollVertically(-1) ||
+                    child.canScrollHorizontally(1) || child.canScrollHorizontally(-1)) {
                     return child
                 } else if (child is ViewGroup) {
                     val result = findScrollableViewAtPosition(child, x, y)
@@ -75,9 +70,7 @@ class TapOnlyFloatingActionButton @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
-
         underlyingView?.onTouchEvent(event)
-
         return true
     }
 }
