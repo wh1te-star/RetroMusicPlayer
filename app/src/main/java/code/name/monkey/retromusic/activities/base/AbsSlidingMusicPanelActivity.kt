@@ -20,9 +20,13 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +36,9 @@ import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.os.bundleOf
@@ -99,7 +105,7 @@ import code.name.monkey.retromusic.model.CategoryInfo
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
-import code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
+import code.name.monkey.retromusic.views.UnswipableDrawerLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -145,17 +151,25 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var navigationBarColorAnimator: ValueAnimator? = null
     private val argbEvaluator: ArgbEvaluator = ArgbEvaluator()
 
-    lateinit var optionButton: TapOnlyFloatingActionButton
+    lateinit var optionButton: FloatingActionButton
     private var leftButtonBottomMargin = 0
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        private var backPressCount = 0
+        private val backPressThreshold = 2
+        private val backPressDelay = 3000L
+        private val handler = Handler(Looper.getMainLooper())
         override fun handleOnBackPressed() {
-            println("Handle back press ${bottomSheetBehavior.state}")
-            if (!handleBackPress()) {
-                remove()
-                onBackPressedDispatcher.onBackPressed()
+            backPressCount++
+            if (backPressCount == backPressThreshold) {
+                finish()
+            } else {
+                Toast.makeText(this@AbsSlidingMusicPanelActivity, R.string.exit_back_twice, Toast.LENGTH_SHORT).show()
+                handler.postDelayed({
+                    backPressCount = 0
+                }, backPressDelay)
             }
         }
     }
@@ -279,33 +293,21 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        setupNavigationButtons()
-    }
-
-    private fun setupNavigationButtons(){
         optionButton = binding.optionButton
 
+        setupMenu()
+    }
+
+    private fun setupMenu(){
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
         }
         binding.menuButtonRight.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.END)
+            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
         }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
-
-        binding.fragmentContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-            override fun onLayoutChange(
-                v: View?,
-                left: Int, top: Int, right: Int, bottom: Int,
-                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
-            ) {
-                binding.menuButtonLeft.setUnderlyingView()
-                binding.optionButton.setUnderlyingView()
-                binding.menuButtonRight.setUnderlyingView()
-            }
-        })
     }
 
     fun setupDrawerMenuInset(drawerLayout: NavigationView){
@@ -361,6 +363,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
         rightDrawer.setNavigationItemSelectedListener { item ->
             handleNavigationItemSelected(item)
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (bottomSheetBehavior.state == STATE_EXPANDED) {
+                collapsePanel()
+                return@addCallback
+            }
+            if (navController.currentDestination?.id == navGraph.startDestinationId) {
+                onBackPressedCallback.handleOnBackPressed()
+            } else {
+                navController.navigateUp()
+            }
         }
     }
 
@@ -440,7 +454,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
         }
-        binding.drawerLayout.closeDrawers()
+        (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
         return true
     }
 
