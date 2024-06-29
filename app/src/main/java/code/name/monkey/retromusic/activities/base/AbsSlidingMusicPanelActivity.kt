@@ -114,6 +114,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
