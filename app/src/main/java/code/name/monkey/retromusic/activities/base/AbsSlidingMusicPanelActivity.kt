@@ -293,21 +293,33 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        optionButton = binding.optionButton
-
-        setupMenu()
+        setupNavigationButtons()
     }
 
-    private fun setupMenu(){
+    private fun setupNavigationButtons(){
+        optionButton = binding.optionButton
+
         getButtonMargin()
         binding.menuButtonLeft.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.START)
+            binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         binding.menuButtonRight.setOnClickListener {
-            (binding.drawerLayout as UnswipableDrawerLayout).openDrawer(GravityCompat.END)
+            binding.drawerLayout.openDrawer(GravityCompat.END)
         }
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
+
+        binding.fragmentContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View?,
+                left: Int, top: Int, right: Int, bottom: Int,
+                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
+            ) {
+                binding.menuButtonLeft.setUnderlyingView()
+                binding.optionButton.setUnderlyingView()
+                binding.menuButtonRight.setUnderlyingView()
+            }
+        })
     }
 
     fun setupDrawerMenuInset(drawerLayout: NavigationView){
