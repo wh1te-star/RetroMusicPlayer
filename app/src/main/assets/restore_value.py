@@ -45,13 +45,21 @@ html_content = f"""
         L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }}).addTo(map);
-        var customIcon = L.icon({{
-            iconUrl: 'location_pin.png',
+        var customIconRed = L.icon({{
+            iconUrl: 'ic_location_pin_red.svg',
+            iconSize: [45, 55],
+        }});
+        var customIconBlue = L.icon({{
+            iconUrl: 'ic_location_pin_blue.svg',
             iconSize: [45, 55],
         }});
         var coordinates = {coordinates_js_array};
-        coordinates.forEach(function(coord) {{
-            L.marker([coord[0], coord[1]], {{icon: customIcon}}).addTo(map);
+        coordinates.forEach(function(coord, index) {{
+            if (index % 2 == 0) {{
+                L.marker([coord[0], coord[1]], {{icon: customIconRed}}).addTo(map);
+            }} else {{
+                L.marker([coord[0], coord[1]], {{icon: customIconBlue}}).addTo(map);
+            }}
         }});
     </script>
 </body>
