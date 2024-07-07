@@ -45,9 +45,15 @@ html_content = f"""
         L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }}).addTo(map);
+        var customIcon = L.icon({{
+            iconUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 50 50"><path d="M25 9l7.5 7.5 -7.5 7.5z"/></svg>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+            popupAnchor: [0, -30]
+        }});
         var coordinates = {coordinates_js_array};
         coordinates.forEach(function(coord) {{
-            L.marker(coord).addTo(map);
+            L.marker([coord[0], coord[1]], {{icon: customIcon}}).addTo(map);
         }});
     </script>
 </body>
