@@ -1,7 +1,12 @@
 package code.name.monkey.retromusic.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -26,13 +31,21 @@ class GPSRecordService : Service() {
     private var previousTimestamp: Long = 0
     private var previousLatitude: Double = 0.0
     private var previousLongitude: Double = 0.0
+    private var previousSpeed: Float = 0.0f
     private var timestamp: Long = 0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var speed: Float = 0.0f
+
+    private var acceleroX: Float = 0.0f
+    private var acceleroY: Float = 0.0f
 
     private lateinit var locationManager: LocationManager
+    private lateinit var sensorManager: SensorManager
+    private lateinit var accelerometer: Sensor
     private lateinit var textViewLocationListener: LocationListener
     private lateinit var recordingLocationListener: LocationListener
+    private lateinit var accelerometerListener: SensorEventListener
     private lateinit var recordingFile: File
 
     public var textviewMinTimeMs = 100L
@@ -57,19 +70,22 @@ class GPSRecordService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-
         textViewLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 1: $location")
                 previousTimestamp = timestamp
                 previousLatitude = latitude
                 previousLongitude = longitude
+                previousSpeed = speed
 
                 timestamp = location.time
                 latitude = location.latitude
                 longitude = location.longitude
-
-                updateTextView(location.speed*3.6f)
+                speed = location.speed
+                //location.altitude
+                //location.provider
+                //location.bearing
+                updateGPSTextView()
             }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
             override fun onProviderEnabled(provider: String) { }
@@ -78,11 +94,12 @@ class GPSRecordService : Service() {
         recordingLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 2: $location")
-                val recordedValue = ByteArray(24)
+                val recordedValue = ByteArray(28)
                 val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
                 buffer.putLong(timestamp)
                 buffer.putDouble(latitude)
                 buffer.putDouble(longitude)
+                buffer.putFloat(speed)
 
                 try {
                     writeToFile(recordingFile, recordedValue)
@@ -111,6 +128,20 @@ class GPSRecordService : Service() {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        accelerometerListener = object : SensorEventListener {
+            override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+
+            override fun onSensorChanged(event: SensorEvent) {
+                acceleroX = event.values[0]
+                acceleroY = event.values[1]
+                updateAcceleroTextView()
+            }
+        }
+        sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+
 
         return START_NOT_STICKY
     }
@@ -160,6 +191,7 @@ class GPSRecordService : Service() {
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
+        sensorManager.unregisterListener(accelerometerListener)
     }
 
     fun changeTextviewAccuracy(minTimeMS: Long, minDistanceM: Float) {
@@ -184,8 +216,12 @@ class GPSRecordService : Service() {
         this.listener = null
     }
 
-    fun updateTextView(speed: Float) {
-        listener?.updateTextView(latitude, longitude, speed)
+    fun updateGPSTextView() {
+        listener?.updateGPSTextView(latitude, longitude, speed)
+    }
+
+    fun updateAcceleroTextView() {
+        listener?.updateAcceleroTextView(acceleroX, acceleroY)
     }
 }
 
@@ -193,5 +229,6 @@ interface GPSRecordingListener {
     fun onRecordingStarted()
     fun onRecordingStopped()
     fun onFileSizeExceeded()
-    fun updateTextView(latitude: Double, longitude: Double, speed: Float)
+    fun updateGPSTextView(latitude: Double, longitude: Double, speed: Float)
+    fun updateAcceleroTextView(x: Float, y: Float)
 }

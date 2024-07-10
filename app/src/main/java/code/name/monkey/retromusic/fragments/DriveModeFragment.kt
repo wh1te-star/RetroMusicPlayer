@@ -44,7 +44,7 @@ import androidx.lifecycle.lifecycleScope
 import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsBaseActivity.Companion.LOCATION_PERMISSION_REQUEST
-import code.name.monkey.retromusic.databinding.ActivityDriveModeBinding
+import code.name.monkey.retromusic.databinding.FragmentDriveModeBinding
 import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.extensions.drawAboveSystemBars
@@ -64,6 +64,7 @@ import code.name.monkey.retromusic.service.GPSRecordingListener
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import com.bumptech.glide.Glide
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,9 +77,9 @@ import java.io.File
  * Created by hemanths on 2020-02-02.
  */
 
-class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRecordingListener, Callback {
+class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRecordingListener, Callback {
 
-    private lateinit var binding: ActivityDriveModeBinding
+    private lateinit var binding: FragmentDriveModeBinding
     private lateinit var gpsRecordService: GPSRecordService
     private var lastPlaybackControlsColor: Int = Color.GRAY
     private var lastDisabledPlaybackControlsColor: Int = Color.GRAY
@@ -103,7 +104,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = ActivityDriveModeBinding.inflate(inflater, container, false)
+        binding = FragmentDriveModeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -114,17 +115,17 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
         gpsRecordServiceIntent = Intent(requireContext(), GPSRecordService::class.java)
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
         lastPlaybackControlsColor = accentColor()
-        binding.close.setOnClickListener {
+        binding.close?.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
-        binding.repeatButton.drawAboveSystemBars()
+        binding.repeatButton?.drawAboveSystemBars()
 
         requireActivity().bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         requireActivity().startService(gpsRecordServiceIntent)
 
-        binding.gpsValue.isSingleLine = false
-        binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
-        binding.gpsValue.setOnClickListener {
+        binding.gpsValue?.isSingleLine = false
+        binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+        binding.gpsValue?.setOnClickListener {
             showDialogWithSingleSelectAndEditText()
         }
 
@@ -148,13 +149,13 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
     }
 
     private fun setupFavouriteToggle() {
-        binding.songFavourite.setOnClickListener {
+        binding.songFavourite?.setOnClickListener {
             toggleFavorite(MusicPlayerRemote.currentSong)
         }
     }
 
     override fun playerToolbar(): Toolbar {
-        return com.google.android.material.appbar.MaterialToolbar(requireContext())
+        return MaterialToolbar(requireContext())
     }
 
     override fun onShow() { }
@@ -184,7 +185,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
             val isFavorite: Boolean =
                 repository.isSongFavorite(MusicPlayerRemote.currentSong.id)
             withContext(Dispatchers.Main) {
-                binding.songFavourite.setImageResource(if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
+                binding.songFavourite?.setImageResource(if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
             }
         }
     }
@@ -219,8 +220,8 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
     }
 
     private fun setUpPrevNext() {
-        binding.nextButton.setOnClickListener { MusicPlayerRemote.playNextSong() }
-        binding.previousButton.setOnClickListener { MusicPlayerRemote.back() }
+        binding.nextButton?.setOnClickListener { MusicPlayerRemote.playNextSong() }
+        binding.previousButton?.setOnClickListener { MusicPlayerRemote.back() }
     }
 
     private fun setUpShuffleButton() {
@@ -275,11 +276,11 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
     }
 
     private fun setUpRepeatButton() {
-        binding.repeatButton.setOnClickListener { MusicPlayerRemote.cycleRepeatMode() }
+        binding.repeatButton?.setOnClickListener { MusicPlayerRemote.cycleRepeatMode() }
     }
 
     private fun setUpPlayPauseFab() {
-        binding.playPauseButton.setOnClickListener(PlayPauseButtonOnClickHandler())
+        binding.playPauseButton?.setOnClickListener(PlayPauseButtonOnClickHandler())
     }
 
     override fun onRepeatModeChanged() {
@@ -309,9 +310,9 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
 
     private fun updatePlayPauseDrawableState() {
         if (MusicPlayerRemote.isPlaying) {
-            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+            binding.playPauseButton?.setImageResource(R.drawable.ic_pause)
         } else {
-            binding.playPauseButton.setImageResource(R.drawable.ic_play_arrow)
+            binding.playPauseButton?.setImageResource(R.drawable.ic_play_arrow)
         }
     }
 
@@ -332,16 +333,16 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
     private fun updateRepeatState() {
         when (MusicPlayerRemote.repeatMode) {
             MusicService.REPEAT_MODE_ALL -> {
-                binding.repeatButton.setImageResource(R.drawable.ic_repeat)
-                binding.repeatButton.setColorFilter(
+                binding.repeatButton?.setImageResource(R.drawable.ic_repeat)
+                binding.repeatButton?.setColorFilter(
                     lastPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
 
             MusicService.REPEAT_MODE_THIS -> {
-                binding.repeatButton.setImageResource(R.drawable.ic_repeat_one)
-                binding.repeatButton.setColorFilter(
+                binding.repeatButton?.setImageResource(R.drawable.ic_repeat_one)
+                binding.repeatButton?.setColorFilter(
                     lastPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
@@ -364,7 +365,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
                     lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
-                binding.gpsValue.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
+                binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
             }
         }
     }
@@ -483,16 +484,25 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.activity_drive_mode), GPSRe
         updateGPSRecordState()
     }
 
-    override fun updateTextView(latitude: Double, longitude: Double, speed: Float) {
-        val formattedLatitude = String.format("%+013.8f", latitude)
-        val formattedLongitude = String.format("%+013.8f", longitude)
-        binding.gpsValue.text = "GPS Value\n$formattedLatitude\n$formattedLongitude"
+    override fun updateGPSTextView(latitude: Double, longitude: Double, speed: Float) {
+        /*
+            val formattedLatitude = String.format("%+013.8f", latitude)
+            val formattedLongitude = String.format("%+013.8f", longitude)
+            binding.gpsValue.text = "GPS Value\n$formattedLatitude\n$formattedLongitude"
 
-        val speedText = SpannableString("speed (km/h)")
-        speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-        val speedValue = SpannableString(speed.toInt().toString())
-        speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-        val finalText = TextUtils.concat(speedText, "\n", speedValue)
-        binding.speedValue.text = finalText
+            val speedText = SpannableString("speed (km/h)")
+            speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+            val speedKmh=speed * 3.6
+            val speedValue = SpannableString(speedKmh.toInt().toString())
+            speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
+            val finalText = TextUtils.concat(speedText, "\n", speedValue)
+            binding.speedValue.text = finalText
+         */
+    }
+
+    override fun updateAcceleroTextView(x: Float, y: Float) {
+        val formattedLatitude = String.format("%+013.8f", x)
+        val formattedLongitude = String.format("%+013.8f", y)
+        binding.gpsValue?.text = "GPS Value\n$formattedLatitude\n$formattedLongitude"
     }
 }
