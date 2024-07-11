@@ -31,11 +31,15 @@ class GPSRecordService : Service() {
     private var previousTimestamp: Long = 0
     private var previousLatitude: Double = 0.0
     private var previousLongitude: Double = 0.0
+    private var previousAltitude: Double = 0.0
     private var previousSpeed: Float = 0.0f
     private var timestamp: Long = 0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var altitude: Double = 0.0
+    private var bearing: Float = 0.0f
     private var speed: Float = 0.0f
+    private var provider: String? = ""
 
     private var acceleroX: Float = 0.0f
     private var acceleroY: Float = 0.0f
@@ -76,15 +80,16 @@ class GPSRecordService : Service() {
                 previousTimestamp = timestamp
                 previousLatitude = latitude
                 previousLongitude = longitude
+                previousAltitude = altitude
                 previousSpeed = speed
 
                 timestamp = location.time
                 latitude = location.latitude
                 longitude = location.longitude
+                altitude = location.altitude
+                bearing = location.bearing
                 speed = location.speed
-                //location.altitude
-                //location.provider
-                //location.bearing
+                provider = location.provider
                 updateGPSTextView()
             }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
@@ -217,7 +222,7 @@ class GPSRecordService : Service() {
     }
 
     fun updateGPSTextView() {
-        listener?.updateGPSTextView(latitude, longitude, speed)
+        listener?.updateGPSTextView(latitude, longitude, altitude, bearing, speed, provider)
     }
 
     fun updateAcceleroTextView() {
@@ -229,6 +234,6 @@ interface GPSRecordingListener {
     fun onRecordingStarted()
     fun onRecordingStopped()
     fun onFileSizeExceeded()
-    fun updateGPSTextView(latitude: Double, longitude: Double, speed: Float)
+    fun updateGPSTextView(latitude: Double, longitude: Double, altitude: Double, bearing: Float, speed: Float, provider: String?)
     fun updateAcceleroTextView(x: Float, y: Float)
 }

@@ -486,25 +486,24 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         updateGPSRecordState()
     }
 
-    override fun updateGPSTextView(latitude: Double, longitude: Double, speed: Float) {
-        /*
-            val formattedLatitude = String.format("%+013.8f", latitude)
-            val formattedLongitude = String.format("%+013.8f", longitude)
-            binding.gpsValue.text = "GPS Value\n$formattedLatitude\n$formattedLongitude"
-
-            val speedText = SpannableString("speed (km/h)")
-            speedText.setSpan(AbsoluteSizeSpan(40), 0, speedText.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-            val speedKmh=speed * 3.6
-            val speedValue = SpannableString(speedKmh.toInt().toString())
-            speedValue.setSpan(AbsoluteSizeSpan(70), 0, speedValue.length, SpannableString.SPAN_INCLUSIVE_INCLUSIVE)
-            val finalText = TextUtils.concat(speedText, "\n", speedValue)
-            binding.speedValue.text = finalText
-         */
+    override fun updateGPSTextView(latitude: Double, longitude: Double, altitude: Double, bearing: Float, speed: Float, provider: String?) {
+        val formattedLatitude = String.format("%+013.8f", latitude)
+        val formattedLongitude = String.format("%+013.8f", longitude)
+        val formattedAltitude = String.format("%+013.8f", altitude)
+        binding.latitudeValue?.text = "latitude\n${formattedLatitude}"
+        binding.longitudeValue?.text = "longitude\n${formattedLongitude}"
+        binding.altitudeValue?.text = "longitude\n${formattedAltitude}"
+        binding.bearingValue?.text = "bearing\n${bearing}"
+        binding.speedValue.text = "speed (km/h)\n${speed * 3.6}"
+        binding.providerValue?.text = "provider\n${provider}"
     }
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
+        /*
         val formattedLatitude = String.format("%+013.8f", x)
         val formattedLongitude = String.format("%+013.8f", y)
-        binding.gpsValue?.text = "GPS Value\n$formattedLatitude\n$formattedLongitude"
+        binding.latitudeValue?.text = "$formattedLatitude"
+        binding.longitudeValue?.text = "$formattedLongitude"
+         */
     }
 }
