@@ -1,9 +1,11 @@
 package code.name.monkey.retromusic.fragments
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,45 +24,64 @@ class GForceMeterFragment : Fragment() {
 
         val circleContainer = view.findViewById<ConstraintLayout>(R.id.circleContainer)
 
-        // Create a custom view to draw circles
-        val circleView = object : View(requireContext()) {
-            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.WHITE // Outline color
-                style = Paint.Style.STROKE
-                strokeWidth = 5f // Set stroke width as needed
-            }
-
-            override fun onDraw(canvas: Canvas?) {
-                super.onDraw(canvas)
-                val roundMargin = 2
-                val halfWidth = width.toFloat()/2 - roundMargin
-                val radii = listOf(halfWidth * 1/4f, halfWidth * 2/4f, halfWidth * 3/4f, halfWidth)
-
-                canvas?.let {
-                    radii.forEach { radius ->
-                        it.drawCircle(roundMargin + halfWidth, roundMargin + halfWidth, radius, paint)
-                    }
-                }
-            }
-
-            override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-                setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
+        val circleDrawingView = CircleDrawingView(requireContext()).apply {
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
+                ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+            ).apply {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
             }
         }
 
-        circleView.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
-            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-        ).apply {
-            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-            bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        }
+        circleContainer.addView(circleDrawingView)
 
-        circleContainer.addView(circleView)
+        fun updateGValues(newX: Float, newY: Float) {
+            circleDrawingView.updateGValues(newX, newY)
+        }
 
         return view
+    }
+}
+class CircleDrawingView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
+
+    private val scaleMarkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = 5f
+    }
+    private val indicatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.RED
+        style = Paint.Style.FILL
+        strokeWidth = 5f
+    }
+
+    var gValueX = 50.0f
+    var gValueY = 0f
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        val roundMargin = 2
+        val halfWidth = width.toFloat() / 2 - roundMargin
+        val radii = listOf(halfWidth * 1/4f, halfWidth * 2/4f, halfWidth * 3/4f, halfWidth)
+
+        canvas?.let {
+            val centerX = roundMargin + halfWidth
+            val centerY = roundMargin + halfWidth
+            radii.forEach { radius ->
+                it.drawCircle(centerX, centerY, radius, scaleMarkPaint)
+            }
+            it.drawCircle(centerX + gValueX * 10, centerY + gValueY * 10, 10.0f, indicatorPaint)
+        }
+    }
+
+    fun updateGValues(newX: Float, newY: Float) {
+        gValueX = newX
+        gValueY = newY
+        invalidate()
     }
 }

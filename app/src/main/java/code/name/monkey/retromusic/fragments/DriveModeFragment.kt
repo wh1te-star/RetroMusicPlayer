@@ -123,6 +123,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         requireActivity().bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         requireActivity().startService(gpsRecordServiceIntent)
 
+        /*
         binding.gpsValue?.isSingleLine = false
         binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
         binding.gpsValue?.setOnClickListener {
@@ -136,6 +137,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         val finalText = TextUtils.concat(speedText, "\n", speedValue)
         binding.speedValue.isSingleLine = false
         binding.speedValue.text = finalText
+         */
     }
 
     private fun setUpMusicControllers() {
