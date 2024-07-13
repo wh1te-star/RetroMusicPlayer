@@ -58,6 +58,7 @@ import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper.Callback
 import code.name.monkey.retromusic.helper.PlayPauseButtonOnClickHandler
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
+import code.name.monkey.retromusic.service.AcceleroValueListener
 import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.service.GPSRecordingListener
@@ -77,7 +78,7 @@ import java.io.File
  * Created by hemanths on 2020-02-02.
  */
 
-class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRecordingListener, Callback {
+class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRecordingListener, AcceleroValueListener, Callback {
 
     private lateinit var binding: FragmentDriveModeBinding
     private lateinit var gpsRecordService: GPSRecordService
@@ -93,10 +94,12 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             binder = service as GPSRecordService.LocalBinder
             gpsRecordService = binder.getService()
-            gpsRecordService.registerListener(this@DriveModeFragment)
+            gpsRecordService.registerGPSListener(this@DriveModeFragment)
+            binding.GForceMeterFragment?.getFragment<GForceMeterFragment>()?.registerAcceleroListener(gpsRecordService)
         }
         override fun onServiceDisconnected(name: ComponentName) {
-            gpsRecordService.unregisterListener()
+            gpsRecordService.unregisterGPSListener()
+            binding.GForceMeterFragment?.getFragment<GForceMeterFragment>()?.unregisterAcceleroListener(gpsRecordService)
         }
     }
 
@@ -499,11 +502,9 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     }
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
-        /*
         val formattedLatitude = String.format("%+013.8f", x)
         val formattedLongitude = String.format("%+013.8f", y)
         binding.latitudeValue?.text = "$formattedLatitude"
         binding.longitudeValue?.text = "$formattedLongitude"
-         */
     }
 }

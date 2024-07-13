@@ -26,7 +26,8 @@ import java.util.Locale
 
 class GPSRecordService : Service() {
     private val binder = LocalBinder()
-    private var listener: GPSRecordingListener? = null
+    private var gpsRecordingListener: GPSRecordingListener? = null
+    private var acceleroValueListener: AcceleroValueListener? = null
 
     private var previousTimestamp: Long = 0
     private var previousLatitude: Double = 0.0
@@ -113,7 +114,7 @@ class GPSRecordService : Service() {
                 }
                 if (recordingFile.length() > storageSizeLimit) {
                     if (!doesFileSizeExceed) {
-                        listener?.onFileSizeExceeded()
+                        gpsRecordingListener?.onFileSizeExceeded()
                         stopRecording()
                         doesFileSizeExceed = true
                     }
@@ -142,7 +143,7 @@ class GPSRecordService : Service() {
             override fun onSensorChanged(event: SensorEvent) {
                 acceleroX = event.values[0]
                 acceleroY = event.values[1]
-                updateAcceleroTextView()
+                acceleroValueListener?.updateAcceleroTextView(acceleroX, acceleroY)
             }
         }
         sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
@@ -178,7 +179,7 @@ class GPSRecordService : Service() {
         } catch (e: SecurityException) {
             Log.e("GPSRecordService", "Location permission not granted", e)
         }
-        listener?.onRecordingStarted()
+        gpsRecordingListener?.onRecordingStarted()
     }
     public fun stopRecording() {
         try {
@@ -186,7 +187,7 @@ class GPSRecordService : Service() {
         } catch (e: UninitializedPropertyAccessException) {
             Log.e("GPSRecordService", "Failed to remove location updates", e)
         }
-        listener?.onRecordingStopped()
+        gpsRecordingListener?.onRecordingStopped()
     }
 
     override fun onDestroy() {
@@ -213,20 +214,28 @@ class GPSRecordService : Service() {
         }
     }
 
-    fun registerListener(listener: GPSRecordingListener) {
-        this.listener = listener
+    fun registerGPSListener(gpsRecordingListener: GPSRecordingListener) {
+        this.gpsRecordingListener = gpsRecordingListener
     }
 
-    fun unregisterListener() {
-        this.listener = null
+    fun unregisterGPSListener() {
+        this.gpsRecordingListener = null
+    }
+
+    fun registerAcceleroListener(acceleroValueListener: AcceleroValueListener) {
+        this.acceleroValueListener = acceleroValueListener
+    }
+
+    fun unregisterAcceleroListener() {
+        this.acceleroValueListener = null
     }
 
     fun updateGPSTextView() {
-        listener?.updateGPSTextView(latitude, longitude, altitude, bearing, speed, provider)
+        gpsRecordingListener?.updateGPSTextView(latitude, longitude, altitude, bearing, speed, provider)
     }
 
     fun updateAcceleroTextView() {
-        listener?.updateAcceleroTextView(acceleroX, acceleroY)
+        acceleroValueListener?.updateAcceleroTextView(acceleroX, acceleroY)
     }
 }
 
@@ -235,5 +244,8 @@ interface GPSRecordingListener {
     fun onRecordingStopped()
     fun onFileSizeExceeded()
     fun updateGPSTextView(latitude: Double, longitude: Double, altitude: Double, bearing: Float, speed: Float, provider: String?)
+}
+
+interface AcceleroValueListener{
     fun updateAcceleroTextView(x: Float, y: Float)
 }
