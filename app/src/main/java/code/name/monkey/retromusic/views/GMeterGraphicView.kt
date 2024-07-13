@@ -13,20 +13,36 @@ class GMeterGraphicView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paint = Paint().apply {
-        color = Color.BLUE
+    private val meterThumbPaint = Paint().apply {
+        color = Color.RED
         style = Paint.Style.FILL
+        strokeWidth = 2.0f
     }
+    private val scaleMarkPaint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = 4.0f
+    }
+    private val roundingMargin = 2
+    private var viewWidth = 0f
+    private var viewHeight = 0f
     private var baseCenterX = 0f
     private var baseCenterY = 0f
     private var centerX = baseCenterX
     private var centerY = baseCenterY
-    private var radius = 100f
+    private var radius = 30f
     private val updateHandler = Handler(Looper.getMainLooper())
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawCircle(centerX, centerY, radius, paint)
+        val width = viewWidth - roundingMargin
+        canvas.drawCircle(centerX, centerY, width*1/10, scaleMarkPaint)
+        canvas.drawCircle(centerX, centerY, width*2/10, scaleMarkPaint)
+        canvas.drawCircle(centerX, centerY, width*3/10, scaleMarkPaint)
+        canvas.drawCircle(centerX, centerY, width*4/10, scaleMarkPaint)
+        canvas.drawCircle(centerX, centerY, width*5/10, scaleMarkPaint)
+
+        canvas.drawCircle(centerX, centerY, radius, meterThumbPaint)
     }
 
     fun updateMeterPosition(x: Float, y: Float) {
@@ -39,7 +55,9 @@ class GMeterGraphicView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        baseCenterX = w / 2f
-        baseCenterY = h / 2f
+        viewWidth = w.toFloat()
+        viewHeight = h.toFloat()
+        baseCenterX = viewWidth / 2
+        baseCenterY = viewHeight / 2
     }
 }

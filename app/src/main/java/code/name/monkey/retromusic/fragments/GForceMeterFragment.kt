@@ -44,8 +44,7 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener{
     }
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
-        logD("accelero value update: ${x}, ${y}")
-        binding.GMeterGraphic.updateMeterPosition(x, y)
+        binding.GMeterGraphic.updateMeterPosition(100*x,100*y)
     }
 
     override fun onDestroyView() {
