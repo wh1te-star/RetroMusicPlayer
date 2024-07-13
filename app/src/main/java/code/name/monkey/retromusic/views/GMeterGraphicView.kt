@@ -23,6 +23,7 @@ class GMeterGraphicView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 4.0f
     }
+    private val delayMilliSecond = 1000L
     private val roundingMargin = 2
     private var viewWidth = 0f
     private var viewHeight = 0f
@@ -36,11 +37,11 @@ class GMeterGraphicView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val width = viewWidth - roundingMargin
-        canvas.drawCircle(centerX, centerY, width*1/10, scaleMarkPaint)
-        canvas.drawCircle(centerX, centerY, width*2/10, scaleMarkPaint)
-        canvas.drawCircle(centerX, centerY, width*3/10, scaleMarkPaint)
-        canvas.drawCircle(centerX, centerY, width*4/10, scaleMarkPaint)
-        canvas.drawCircle(centerX, centerY, width*5/10, scaleMarkPaint)
+        canvas.drawCircle(baseCenterX, baseCenterY, width*1/10, scaleMarkPaint)
+        canvas.drawCircle(baseCenterX, baseCenterY, width*2/10, scaleMarkPaint)
+        canvas.drawCircle(baseCenterX, baseCenterY, width*3/10, scaleMarkPaint)
+        canvas.drawCircle(baseCenterX, baseCenterY, width*4/10, scaleMarkPaint)
+        canvas.drawCircle(baseCenterX, baseCenterY, width*5/10, scaleMarkPaint)
 
         canvas.drawCircle(centerX, centerY, radius, meterThumbPaint)
     }
@@ -50,7 +51,7 @@ class GMeterGraphicView @JvmOverloads constructor(
             centerX = baseCenterX + x
             centerY = baseCenterY + y
             invalidate()
-        }, 100)
+        }, delayMilliSecond)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

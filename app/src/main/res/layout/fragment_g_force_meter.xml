@@ -14,37 +14,41 @@
         app:layout_constraintTop_toBottomOf="@id/topScaleMark"
         app:layout_constraintBottom_toTopOf="@id/bottomScaleMark" />
 
-    <View
+    <code.name.monkey.retromusic.views.GMeterScaleMarkGraphicView
         android:id="@+id/leftScaleMark"
         android:layout_width="30dp"
         android:layout_height="0dp"
+        app:direction="left"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/GMeterGraphic"
         app:layout_constraintTop_toBottomOf="@id/topScaleMark"
         app:layout_constraintBottom_toTopOf="@id/bottomScaleMark" />
 
-    <View
+    <code.name.monkey.retromusic.views.GMeterScaleMarkGraphicView
         android:id="@+id/topScaleMark"
         android:layout_width="0dp"
         android:layout_height="30dp"
+        app:direction="top"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/GMeterGraphic"
         app:layout_constraintLeft_toRightOf="@id/leftScaleMark"
         app:layout_constraintRight_toLeftOf="@id/rightScaleMark" />
 
-    <View
+    <code.name.monkey.retromusic.views.GMeterScaleMarkGraphicView
         android:id="@+id/rightScaleMark"
         android:layout_width="30dp"
         android:layout_height="0dp"
+        app:direction="right"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@id/GMeterGraphic"
         app:layout_constraintTop_toBottomOf="@id/topScaleMark"
         app:layout_constraintBottom_toTopOf="@id/bottomScaleMark" />
 
-    <View
+    <code.name.monkey.retromusic.views.GMeterScaleMarkGraphicView
         android:id="@+id/bottomScaleMark"
         android:layout_width="0dp"
         android:layout_height="30dp"
+        app:direction="bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/GMeterGraphic"
         app:layout_constraintLeft_toRightOf="@id/leftScaleMark"
