@@ -1,6 +1,7 @@
 package code.name.monkey.retromusic.views
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -23,6 +24,8 @@ class GMeterGraphicView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 4.0f
     }
+    private lateinit var backgroundBitmap: Bitmap
+
     private val roundingMargin = 2
     private var viewWidth = 0f
     private var viewHeight = 0f
@@ -35,11 +38,8 @@ class GMeterGraphicView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val width = viewWidth - roundingMargin
-        canvas.drawCircle(baseCenterX, baseCenterY, width*1/10, scaleMarkPaint)
-        canvas.drawCircle(baseCenterX, baseCenterY, width*2/10, scaleMarkPaint)
-        canvas.drawCircle(baseCenterX, baseCenterY, width*3/10, scaleMarkPaint)
-        canvas.drawCircle(baseCenterX, baseCenterY, width*4/10, scaleMarkPaint)
-        canvas.drawCircle(baseCenterX, baseCenterY, width*5/10, scaleMarkPaint)
+
+        backgroundBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
 
         canvas.drawCircle(centerX, centerY, radius, meterThumbPaint)
     }
@@ -56,5 +56,17 @@ class GMeterGraphicView @JvmOverloads constructor(
         viewHeight = h.toFloat()
         baseCenterX = viewWidth / 2
         baseCenterY = viewHeight / 2
+
+        backgroundBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply {
+            val canvas = Canvas(this)
+            val width = w - roundingMargin
+
+            canvas.drawCircle(baseCenterX, baseCenterY, width*1/10f, scaleMarkPaint)
+            canvas.drawCircle(baseCenterX, baseCenterY, width*2/10f, scaleMarkPaint)
+            canvas.drawCircle(baseCenterX, baseCenterY, width*3/10f, scaleMarkPaint)
+            canvas.drawCircle(baseCenterX, baseCenterY, width*4/10f, scaleMarkPaint)
+            canvas.drawCircle(baseCenterX, baseCenterY, width*5/10f, scaleMarkPaint)
+
+        }
     }
 }
