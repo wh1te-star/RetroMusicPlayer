@@ -222,7 +222,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         }
                     }
 
-                    STATE_SETTLING, STATE_DRAGGING -> {
+                    STATE_SETTLING -> {
+                        if (fromNotification) {
+                            fromNotification = false
+                        }
+                    }
+
+                    STATE_DRAGGING -> {
+                        if(isDriveMode){
+                            bottomSheetBehavior.state = STATE_EXPANDED
+                        }
                         if (fromNotification) {
                             fromNotification = false
                         }
