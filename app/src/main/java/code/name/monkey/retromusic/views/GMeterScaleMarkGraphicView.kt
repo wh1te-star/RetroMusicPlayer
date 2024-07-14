@@ -19,7 +19,6 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
     private var direction = Direction.LEFT
-    private val delayMilliSecond = 1000L
     private val roundingMargin = 2.0f
     private val arrowWidth = 10.0f
     private var viewWidth = 0f
@@ -28,8 +27,6 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
     private var baseCenterY = 0f
     private var centerX = baseCenterX
     private var centerY = baseCenterY
-    private var radius = 30f
-    private val updateHandler = Handler(Looper.getMainLooper())
 
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.GMeterScaleMarkGraphicView, 0, 0).apply {
@@ -80,11 +77,9 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
     }
 
     fun updateMeterPosition(x: Float, y: Float) {
-        updateHandler.postDelayed({
-            centerX = baseCenterX + x
-            centerY = baseCenterY + y
-            invalidate()
-        }, delayMilliSecond)
+        centerX = baseCenterX + x
+        centerY = baseCenterY + y
+        invalidate()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

@@ -15,11 +15,12 @@ import code.name.monkey.retromusic.service.GPSRecordService
 import code.name.monkey.retromusic.views.GMeterGraphicView
 import code.name.monkey.retromusic.databinding.FragmentGForceMeterBinding
 
-class GForceMeterFragment : Fragment(), AcceleroValueListener{
+class GForceMeterFragment : Fragment(), AcceleroValueListener {
 
     private var _binding: FragmentGForceMeterBinding? = null
     private val binding get() = _binding!!
 
+    private var delayMilliSecond = 1000L
     private var maxScaleValue = 5.0f
     private var viewWidth = 0
     private var viewHeight = 0
@@ -58,7 +59,9 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener{
     }
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
-        updateMeterGraphic(x, y)
+        Handler(Looper.getMainLooper()).postDelayed({
+            updateMeterGraphic(x, y)
+        }, delayMilliSecond)
     }
 
     fun updateMeterGraphic(x: Float, y: Float){

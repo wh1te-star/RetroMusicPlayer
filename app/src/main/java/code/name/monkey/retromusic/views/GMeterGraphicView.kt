@@ -23,7 +23,6 @@ class GMeterGraphicView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 4.0f
     }
-    private val delayMilliSecond = 1000L
     private val roundingMargin = 2
     private var viewWidth = 0f
     private var viewHeight = 0f
@@ -32,7 +31,6 @@ class GMeterGraphicView @JvmOverloads constructor(
     private var centerX = baseCenterX
     private var centerY = baseCenterY
     private var radius = 30f
-    private val updateHandler = Handler(Looper.getMainLooper())
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -47,11 +45,9 @@ class GMeterGraphicView @JvmOverloads constructor(
     }
 
     fun updateMeterPosition(x: Float, y: Float) {
-        updateHandler.postDelayed({
-            centerX = baseCenterX + x
-            centerY = baseCenterY + y
-            invalidate()
-        }, delayMilliSecond)
+        centerX = baseCenterX + x
+        centerY = baseCenterY + y
+        invalidate()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
