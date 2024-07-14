@@ -2,9 +2,12 @@ package code.name.monkey.retromusic.views
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -14,15 +17,29 @@ class GMeterGraphicView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val meterThumbPaint = Paint().apply {
+    private val meterFillPaint = Paint().apply {
         color = Color.RED
         style = Paint.Style.FILL
-        strokeWidth = 2.0f
+        setShadowLayer(10f, 5f, 5f, Color.BLACK)
+    }
+    private val meterStrokePaint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.STROKE
+        strokeWidth = 3.0f
+    }
+    private val valueLinePaint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+    }
+    private val transparentBlackPaint = Paint().apply {
+        color = Color.argb(71, 0, 0, 0)
+        style = Paint.Style.FILL
     }
     private val scaleMarkPaint = Paint().apply {
         color = Color.WHITE
         style = Paint.Style.STROKE
         strokeWidth = 4.0f
+        maskFilter = BlurMaskFilter(7f, BlurMaskFilter.Blur.SOLID)
     }
     private lateinit var backgroundBitmap: Bitmap
 
@@ -37,11 +54,14 @@ class GMeterGraphicView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val width = viewWidth - roundingMargin
 
         backgroundBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
 
-        canvas.drawCircle(centerX, centerY, radius, meterThumbPaint)
+        canvas.drawLine(0.0f, centerY, viewWidth, centerY, valueLinePaint)
+        canvas.drawLine(centerX, 0.0f, centerX, viewHeight, valueLinePaint)
+
+        canvas.drawCircle(centerX, centerY, radius, meterFillPaint)
+        canvas.drawCircle(centerX, centerY, radius, meterStrokePaint)
     }
 
     fun updateMeterPosition(x: Float, y: Float) {
@@ -60,6 +80,8 @@ class GMeterGraphicView @JvmOverloads constructor(
         backgroundBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply {
             val canvas = Canvas(this)
             val width = w - roundingMargin
+
+            canvas.drawCircle(baseCenterX, baseCenterY, width/2f, transparentBlackPaint)
 
             canvas.drawCircle(baseCenterX, baseCenterY, width*1/10f, scaleMarkPaint)
             canvas.drawCircle(baseCenterX, baseCenterY, width*2/10f, scaleMarkPaint)
