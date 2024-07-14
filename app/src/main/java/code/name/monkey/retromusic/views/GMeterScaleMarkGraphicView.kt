@@ -4,8 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import code.name.monkey.retromusic.R
@@ -14,13 +12,19 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val scaleMarkPaint = Paint().apply {
+    private val markFillPaint = Paint().apply {
         color = Color.YELLOW
         style = Paint.Style.FILL
+        setShadowLayer(10f, 5f, 5f, Color.BLACK)
+    }
+    private val markStrokePaint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.STROKE
+        strokeWidth = 3.0f
     }
     private var direction = Direction.LEFT
     private val roundingMargin = 2.0f
-    private val arrowWidth = 10.0f
+    private val arrowWidth = 30.0f
     private var viewWidth = 0f
     private var viewHeight = 0f
     private var baseCenterX = 0f
@@ -28,51 +32,26 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
     private var centerX = baseCenterX
     private var centerY = baseCenterY
 
+    private val trianglePath = Path()
+
     init {
-        context.theme.obtainStyledAttributes(attrs, R.styleable.GMeterScaleMarkGraphicView, 0, 0).apply {
-            direction = Direction.fromInt(getInt(R.styleable.GMeterScaleMarkGraphicView_direction, Direction.LEFT.value))
-        }.recycle()
+        context.theme.obtainStyledAttributes(attrs, R.styleable.GMeterScaleMarkGraphicView, 0, 0)
+            .apply {
+                direction = Direction.fromInt(
+                    getInt(
+                        R.styleable.GMeterScaleMarkGraphicView_direction,
+                        Direction.LEFT.value
+                    )
+                )
+            }.recycle()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.apply {
-            if (direction == Direction.LEFT) {
-                val path = Path().apply {
-                    moveTo(roundingMargin, centerY - arrowWidth)
-                    lineTo(roundingMargin, centerY + arrowWidth)
-                    lineTo(viewWidth - roundingMargin, centerY)
-                    close()
-                }
-                canvas.drawPath(path, scaleMarkPaint)
-            }
-            if (direction == Direction.RIGHT) {
-                val path = Path().apply {
-                    moveTo(viewWidth - roundingMargin, centerY - arrowWidth)
-                    lineTo(viewWidth - roundingMargin, centerY + arrowWidth)
-                    lineTo(roundingMargin, centerY)
-                    close()
-                }
-                canvas.drawPath(path, scaleMarkPaint)
-            }
-            if (direction == Direction.TOP) {
-                val path = Path().apply {
-                    moveTo(centerX - arrowWidth, roundingMargin)
-                    lineTo(centerX + arrowWidth, roundingMargin)
-                    lineTo(centerX, viewHeight - roundingMargin)
-                    close()
-                }
-                canvas.drawPath(path, scaleMarkPaint)
-            }
-            if (direction == Direction.BOTTOM) {
-                val path = Path().apply {
-                    moveTo(centerX - arrowWidth, viewHeight - roundingMargin)
-                    lineTo(centerX + arrowWidth, viewHeight - roundingMargin)
-                    lineTo(centerX, roundingMargin)
-                    close()
-                }
-                canvas.drawPath(path, scaleMarkPaint)
-            }
+            updatePaths(direction)
+            canvas.drawPath(trianglePath, markFillPaint)
+            canvas.drawPath(trianglePath, markStrokePaint)
         }
     }
 
@@ -88,6 +67,42 @@ class GMeterScaleMarkGraphicView @JvmOverloads constructor(
         viewHeight = h.toFloat()
         baseCenterX = viewWidth / 2
         baseCenterY = viewHeight / 2
+    }
+
+    fun updatePaths(direction: Direction) {
+        when (direction) {
+            Direction.LEFT -> {
+                trianglePath.reset()
+                trianglePath.moveTo(roundingMargin, centerY - arrowWidth)
+                trianglePath.lineTo(roundingMargin, centerY + arrowWidth)
+                trianglePath.lineTo(viewWidth - roundingMargin, centerY)
+                trianglePath.close()
+            }
+
+            Direction.RIGHT -> {
+                trianglePath.reset()
+                trianglePath.moveTo(viewWidth - roundingMargin, centerY - arrowWidth)
+                trianglePath.lineTo(viewWidth - roundingMargin, centerY + arrowWidth)
+                trianglePath.lineTo(roundingMargin, centerY)
+                trianglePath.close()
+            }
+
+            Direction.TOP -> {
+                trianglePath.reset()
+                trianglePath.moveTo(centerX - arrowWidth, roundingMargin)
+                trianglePath.lineTo(centerX + arrowWidth, roundingMargin)
+                trianglePath.lineTo(centerX, viewHeight - roundingMargin)
+                trianglePath.close()
+            }
+
+            else -> {
+                trianglePath.reset()
+                trianglePath.moveTo(centerX - arrowWidth, viewHeight - roundingMargin)
+                trianglePath.lineTo(centerX + arrowWidth, viewHeight - roundingMargin)
+                trianglePath.lineTo(centerX, roundingMargin)
+                trianglePath.close()
+            }
+        }
     }
 }
 
