@@ -1,6 +1,8 @@
 package code.name.monkey.retromusic.fragments
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +20,10 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener{
     private var _binding: FragmentGForceMeterBinding? = null
     private val binding get() = _binding!!
 
+    private var maxScaleValue = 5.0f
+    private var viewWidth = 0
+    private var viewHeight = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,6 +31,14 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener{
         _binding = FragmentGForceMeterBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.post {
+            viewWidth = view.width
+            viewHeight = view.height
+        }
     }
 
     fun registerAcceleroListener(gpsRecordService: GPSRecordService){
@@ -44,13 +58,19 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener{
     }
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
-        val scaledX = 100*x
-        val scaledY = 100*y
+        updateMeterGraphic(x, y)
+    }
+
+    fun updateMeterGraphic(x: Float, y: Float){
+        val scaledX = x * viewWidth / maxScaleValue /2
+        val scaledY = y * viewHeight / maxScaleValue /2
         binding.GMeterGraphic.updateMeterPosition(scaledX,scaledY)
         binding.leftScaleMark.updateMeterPosition(scaledX, scaledY)
         binding.topScaleMark.updateMeterPosition(scaledX, scaledY)
         binding.rightScaleMark.updateMeterPosition(scaledX, scaledY)
         binding.bottomScaleMark.updateMeterPosition(scaledX, scaledY)
+
+        logD("${(System.currentTimeMillis()/1000).toInt()}")
     }
 
     override fun onDestroyView() {

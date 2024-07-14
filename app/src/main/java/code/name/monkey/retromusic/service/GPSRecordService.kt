@@ -146,7 +146,7 @@ class GPSRecordService : Service() {
                 acceleroValueListener?.updateAcceleroTextView(acceleroX, acceleroY)
             }
         }
-        sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
 
 
         return START_NOT_STICKY
