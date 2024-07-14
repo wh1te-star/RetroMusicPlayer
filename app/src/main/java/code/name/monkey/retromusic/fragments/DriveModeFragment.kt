@@ -31,7 +31,9 @@ import android.os.IBinder
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -90,6 +92,8 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     private var isRecordingGPS = false
     private lateinit var binder: GPSRecordService.LocalBinder
 
+    private lateinit var gestureDetector: GestureDetector
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             binder = service as GPSRecordService.LocalBinder
@@ -115,6 +119,8 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         super.onViewCreated(view, savedInstanceState)
         setUpMusicControllers()
 
+        gestureDetector = GestureDetector(requireContext(), SwipeGestureListener(this))
+
         gpsRecordServiceIntent = Intent(requireContext(), GPSRecordService::class.java)
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
         lastPlaybackControlsColor = accentColor()
@@ -123,17 +129,15 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         }
         binding.repeatButton?.drawAboveSystemBars()
 
+        setUpGPSRecordButton()
         requireActivity().bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         requireActivity().startService(gpsRecordServiceIntent)
     }
 
     private fun setUpMusicControllers() {
-        setUpPlayPauseFab()
-        setUpPrevNext()
-        setUpRepeatButton()
-        setUpShuffleButton()
-        setUpGPSRecordButton()
+        setUpPlaybackControl()
         setUpProgressSlider()
+        setUpShuffleRepeatButton()
         setupFavouriteToggle()
     }
 
@@ -208,13 +212,16 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         progressViewUpdateHelper.start()
     }
 
-    private fun setUpPrevNext() {
-        binding.nextButton?.setOnClickListener { MusicPlayerRemote.playNextSong() }
-        binding.previousButton?.setOnClickListener { MusicPlayerRemote.back() }
-    }
-
-    private fun setUpShuffleButton() {
-        binding.shuffleButton.setOnClickListener { MusicPlayerRemote.toggleShuffleMode() }
+    private fun setUpShuffleRepeatButton() {
+        binding.shuffleButton.setOnClickListener {
+            if(MusicPlayerRemote.repeatMode == MusicService.REPEAT_MODE_THIS){
+                MusicPlayerRemote.cycleRepeatMode()
+            }
+            else{
+                MusicPlayerRemote.toggleShuffleMode()
+            }
+        }
+        binding.shuffleButton.setOnLongClickListener{ MusicPlayerRemote.cycleRepeatMode() }
     }
 
     private fun setUpGPSRecordButton() {
@@ -264,22 +271,22 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         }
     }
 
-    private fun setUpRepeatButton() {
-        binding.repeatButton?.setOnClickListener { MusicPlayerRemote.cycleRepeatMode() }
-    }
+    private fun setUpPlaybackControl() {
+        binding.GForceMeterFragment?.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
 
-    private fun setUpPlayPauseFab() {
-        binding.playPauseButton?.setOnClickListener(PlayPauseButtonOnClickHandler())
     }
 
     override fun onRepeatModeChanged() {
         super.onRepeatModeChanged()
-        updateRepeatState()
+        updateShuffleRepeatState()
     }
 
     override fun onShuffleModeChanged() {
         super.onShuffleModeChanged()
-        updateShuffleState()
+        updateShuffleRepeatState()
     }
 
     override fun onPlayStateChanged() {
@@ -291,8 +298,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         super.onServiceConnected()
         updatePlayPauseDrawableState()
         updateSong()
-        updateRepeatState()
-        updateShuffleState()
+        updateShuffleRepeatState()
         updateGPSRecordState()
         updateFavorite()
     }
@@ -305,34 +311,28 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         }
     }
 
-    fun updateShuffleState() {
-        when (MusicPlayerRemote.shuffleMode) {
-            MusicService.SHUFFLE_MODE_SHUFFLE -> binding.shuffleButton.setColorFilter(
+    fun updateShuffleRepeatState() {
+        if (MusicPlayerRemote.repeatMode == MusicService.REPEAT_MODE_THIS) {
+            binding.shuffleButton.setImageResource(R.drawable.ic_repeat_one)
+            binding.shuffleButton.setColorFilter(
                 lastPlaybackControlsColor,
                 PorterDuff.Mode.SRC_IN
             )
-
-            else -> binding.shuffleButton.setColorFilter(
-                lastDisabledPlaybackControlsColor,
-                PorterDuff.Mode.SRC_IN
-            )
+            return
         }
-    }
-
-    private fun updateRepeatState() {
-        when (MusicPlayerRemote.repeatMode) {
-            MusicService.REPEAT_MODE_ALL -> {
-                binding.repeatButton?.setImageResource(R.drawable.ic_repeat)
-                binding.repeatButton?.setColorFilter(
+        when (MusicPlayerRemote.shuffleMode) {
+            MusicService.SHUFFLE_MODE_SHUFFLE -> {
+                binding.shuffleButton.setImageResource(R.drawable.ic_shuffle)
+                binding.shuffleButton.setColorFilter(
                     lastPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
 
-            MusicService.REPEAT_MODE_THIS -> {
-                binding.repeatButton?.setImageResource(R.drawable.ic_repeat_one)
-                binding.repeatButton?.setColorFilter(
-                    lastPlaybackControlsColor,
+            else -> {
+                binding.shuffleButton.setImageResource(R.drawable.ic_shuffle)
+                binding.shuffleButton.setColorFilter(
+                    lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
             }
@@ -490,5 +490,50 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         val formattedLongitude = String.format("%+013.8f", y)
         binding.latitudeValue?.text = "$formattedLatitude"
         binding.longitudeValue?.text = "$formattedLongitude"
+    }
+}
+
+class SwipeGestureListener(private val context: DriveModeFragment) : GestureDetector.SimpleOnGestureListener() {
+
+    companion object {
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        if(MusicPlayerRemote.isPlaying)
+            MusicPlayerRemote.pauseSong()
+        else
+            MusicPlayerRemote.resumePlaying()
+        return super.onSingleTapUp(e)
+    }
+
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        if (e1 == null || e2 == null) return false
+
+        val diffX = e2.x - e1.x
+        val diffY = e2.y - e1.y
+
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (diffX > 0) {
+                    onSwipeRight()
+                } else {
+                    onSwipeLeft()
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun onSwipeRight() {
+        Toast.makeText(context.requireContext(), "Next Song", Toast.LENGTH_SHORT).show()
+        MusicPlayerRemote.playNextSong()
+    }
+
+    private fun onSwipeLeft() {
+        Toast.makeText(context.requireContext(), "Previous Song", Toast.LENGTH_SHORT).show()
+        MusicPlayerRemote.playPreviousSong()
     }
 }
