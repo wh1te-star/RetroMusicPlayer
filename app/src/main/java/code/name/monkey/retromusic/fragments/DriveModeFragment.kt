@@ -124,10 +124,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         gpsRecordServiceIntent = Intent(requireContext(), GPSRecordService::class.java)
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
         lastPlaybackControlsColor = accentColor()
-        binding.close?.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-        binding.repeatButton?.drawAboveSystemBars()
 
         setUpGPSRecordButton()
         requireActivity().bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -138,13 +134,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         setUpPlaybackControl()
         setUpProgressSlider()
         setUpShuffleRepeatButton()
-        setupFavouriteToggle()
-    }
-
-    private fun setupFavouriteToggle() {
-        binding.songFavourite?.setOnClickListener {
-            toggleFavorite(MusicPlayerRemote.currentSong)
-        }
     }
 
     override fun playerToolbar(): Toolbar {
@@ -170,16 +159,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
                 repository.insertSongs(listOf(song.toSongEntity(playlist.playListId)))
             }
             requireContext().sendBroadcast(Intent(MusicService.FAVORITE_STATE_CHANGED))
-        }
-    }
-
-    private fun updateFavorite() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val isFavorite: Boolean =
-                repository.isSongFavorite(MusicPlayerRemote.currentSong.id)
-            withContext(Dispatchers.Main) {
-                binding.songFavourite?.setImageResource(if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-            }
         }
     }
 
@@ -291,24 +270,13 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
 
     override fun onPlayStateChanged() {
         super.onPlayStateChanged()
-        updatePlayPauseDrawableState()
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        updatePlayPauseDrawableState()
         updateSong()
         updateShuffleRepeatState()
         updateGPSRecordState()
-        updateFavorite()
-    }
-
-    private fun updatePlayPauseDrawableState() {
-        if (MusicPlayerRemote.isPlaying) {
-            binding.playPauseButton?.setImageResource(R.drawable.ic_pause)
-        } else {
-            binding.playPauseButton?.setImageResource(R.drawable.ic_play_arrow)
-        }
     }
 
     fun updateShuffleRepeatState() {
@@ -354,7 +322,6 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
                     lastDisabledPlaybackControlsColor,
                     PorterDuff.Mode.SRC_IN
                 )
-                binding.gpsValue?.text = "GPS Value\n+XXX.XXXXXXXX\n+XXX.XXXXXXXX"
             }
         }
     }
@@ -362,12 +329,10 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         updateSong()
-        updateFavorite()
     }
 
     override fun onFavoriteStateChanged() {
         super.onFavoriteStateChanged()
-        updateFavorite()
     }
 
     private fun updateSong() {

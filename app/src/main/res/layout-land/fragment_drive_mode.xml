@@ -11,7 +11,6 @@
   ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~ See the GNU General Public License for more details.
   -->
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19,12 +18,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
     <code.name.monkey.retromusic.views.StatusBarView
         android:id="@+id/status_bar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,192 +49,55 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/close"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_margin="16dp"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/color_circle_gradient"
-        android:backgroundTint="@color/semi_transparent"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/speedValue"
-        app:layout_constraintHorizontal_chainStyle="packed"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/GForceMeterFragment"
+        android:name="code.name.monkey.retromusic.fragments.GForceMeterFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/speedValue"
-        app:srcCompat="@drawable/ic_close" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/speedValue"
-        android:layout_width="wrap_content"
-        android:layout_height="72dp"
-        android:gravity="center"
-        android:textColor="@color/md_white_1000"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
-        app:layout_constraintEnd_toStartOf="@+id/recordGPSButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/close"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/recordGPSButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        android:src="@drawable/ic_gps_recording"
-        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
-        app:layout_constraintEnd_toStartOf="@+id/gpsValue"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/speedValue"
-        app:layout_constraintTop_toBottomOf="@+id/titleContainer" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/gpsValue"
-        android:layout_width="wrap_content"
-        android:layout_height="72dp"
-        android:gravity="center"
-        android:textColor="@color/md_white_1000"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
-        app:layout_constraintEnd_toStartOf="@+id/songFavourite"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/songFavourite"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_margin="16dp"
-        android:background="@drawable/color_circle_gradient"
-        android:backgroundTint="@color/semi_transparent"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/gpsValue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/gpsValue"
-        app:srcCompat="@drawable/ic_favorite_border" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/playPauseButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        android:src="@drawable/ic_pause"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/nextButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/previousButton"
-        app:layout_constraintTop_toBottomOf="@+id/progressSlider" />
+        app:layout_constraintTop_toBottomOf="@id/status_bar" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/nextButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
-        app:layout_constraintEnd_toStartOf="@+id/shuffleButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/playPauseButton"
-        app:layout_constraintTop_toTopOf="@+id/playPauseButton"
-        app:srcCompat="@drawable/ic_skip_next" />
-
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/previousButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
-        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/repeatButton"
-        app:layout_constraintTop_toTopOf="@+id/playPauseButton"
-        app:srcCompat="@drawable/ic_skip_previous" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/repeatButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        app:layout_constraintBottom_toBottomOf="@+id/previousButton"
-        app:layout_constraintEnd_toStartOf="@+id/previousButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/image"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/previousButton"
-        app:srcCompat="@drawable/ic_repeat" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/shuffleButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="?roundSelector"
-        app:layout_constraintBottom_toBottomOf="@+id/nextButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/nextButton"
-        app:layout_constraintTop_toTopOf="@+id/nextButton"
-        app:srcCompat="@drawable/ic_shuffle" />
-
-    <LinearLayout
-        android:id="@+id/titleContainer"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/songTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/recordGPSButton"
+        android:maxLines="1"
+        android:textAppearance="@style/TextViewHeadline4"
+        android:textColor="@color/md_white_1000"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/GForceMeterFragment"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status_bar">
+        app:layout_constraintTop_toBottomOf="@id/status_bar"
+        app:layout_constraintBottom_toTopOf="@+id/songText"
+        tools:text="@tools:sample/lorem/random" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/songTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:textAppearance="@style/TextViewHeadline5"
-            android:textColor="@color/md_white_1000"
-            android:textStyle="bold"
-            tools:text="@tools:sample/lorem/random" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/songText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:textAppearance="@style/TextViewHeadline6"
-            android:textColor="@color/md_grey_200"
-            tools:text="@tools:sample/lorem/random" />
-    </LinearLayout>
-
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/songText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textAppearance="@style/TextViewHeadline5"
+        android:textColor="@color/md_grey_200"
+        app:layout_constraintStart_toEndOf="@+id/GForceMeterFragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/songTitle"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
+        tools:text="@tools:sample/lorem/random" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/progressSlider"
         style="@style/Widget.Retro.Slider"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:maxHeight="3dp"
-        android:progressDrawable="@drawable/color_progress_seek"
-        android:progressTint="@color/md_white_1000"
-        android:splitTrack="false"
-        android:thumb="@drawable/switch_thumb_material"
-        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recordGPSButton"
-        tools:ignore="RtlHardcoded,UnusedAttribute"
+        app:layout_constraintStart_toEndOf="@+id/GForceMeterFragment"
+        app:layout_constraintTop_toBottomOf="@+id/songText"
+        app:layout_constraintBottom_toTopOf="@+id/recordGPSButton"
         tools:progress="20" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -243,18 +106,140 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:textColor="@color/md_white_1000"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
         app:layout_constraintStart_toStartOf="@+id/progressSlider"
-        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
         tools:text="@tools:sample/date/hhmmss" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/songTotalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:singleLine="true"
         android:textColor="@color/md_white_1000"
-        app:layout_constraintEnd_toEndOf="@+id/progressSlider"
-        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        app:layout_constraintBottom_toTopOf="@+id/progressSlider"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:text="@tools:sample/date/hhmmss" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/shuffleButton"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="?roundSelector"
+        android:src="@drawable/ic_shuffle"
+        app:layout_constraintStart_toEndOf="@+id/GForceMeterFragment"
+        app:layout_constraintEnd_toStartOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recordGPSButton"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="?roundSelector"
+        android:src="@drawable/ic_gps_recording"
+        app:layout_constraintStart_toEndOf="@+id/shuffleButton"
+        app:layout_constraintEnd_toStartOf="@+id/speedSyncButton"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintHorizontal_bias="0.5" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/speedSyncButton"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="?roundSelector"
+        android:src="@drawable/ic_speed_adaptive_play"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
+        app:layout_constraintEnd_toStartOf="@+id/taggingButton"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton"
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/taggingButton"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="?roundSelector"
+        android:src="@drawable/ic_tag"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/speedSyncButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/speedSyncButton"
+        app:layout_constraintBottom_toBottomOf="@+id/speedSyncButton" />
+
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="fill_horizontal"
+        app:columnCount="3"
+        app:layout_constraintStart_toEndOf="@id/GForceMeterFragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:rowCount="2">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/latitudeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/longitudeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/altitudeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/bearingValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/speedValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/providerValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/md_white_1000"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1" />
+
+    </androidx.gridlayout.widget.GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

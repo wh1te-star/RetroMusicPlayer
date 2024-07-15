@@ -60,7 +60,9 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener {
 
     override fun updateAcceleroTextView(x: Float, y: Float) {
         Handler(Looper.getMainLooper()).postDelayed({
-            updateMeterGraphic(x, y)
+            if(_binding != null) {
+                updateMeterGraphic(x, y)
+            }
         }, delayMilliSecond)
     }
 
