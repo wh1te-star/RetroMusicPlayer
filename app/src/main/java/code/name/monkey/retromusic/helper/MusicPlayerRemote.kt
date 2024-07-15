@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.helper
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.*
 import android.database.Cursor
 import android.net.Uri
@@ -33,6 +34,7 @@ import code.name.monkey.retromusic.service.MultiPlayer
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.getExternalStorageDirectory
+import code.name.monkey.retromusic.util.logD
 import code.name.monkey.retromusic.util.logE
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -129,6 +131,16 @@ object MusicPlayerRemote : KoinComponent {
         return false
     }
 
+    fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
     fun bindToService(context: Context, callback: ServiceConnection): ServiceToken? {
 
         val realActivity = (context as Activity).parent ?: context
@@ -137,10 +149,15 @@ object MusicPlayerRemote : KoinComponent {
 
         // https://issuetracker.google.com/issues/76112072#comment184
         // Workaround for ForegroundServiceDidNotStartInTimeException
-        try {
-            context.startService(intent)
-        } catch (e: Exception) {
-            ContextCompat.startForegroundService(context, intent)
+        if (!isServiceRunning(contextWrapper, MusicService::class.java)) {
+            try {
+                context.startService(intent)
+            } catch (e: Exception) {
+                ContextCompat.startForegroundService(context, intent)
+            }
+        } else {
+            // This is called only when the screen orientation is changed from vertical to horizontal (if the app is started with the vertical orientation.)
+            logD("Service is already running")
         }
 
         val binder = ServiceBinder(callback)
