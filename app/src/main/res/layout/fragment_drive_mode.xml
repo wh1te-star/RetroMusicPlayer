@@ -153,6 +153,7 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/speedSyncButton"
+        android:visibility="gone"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="?roundSelector"
@@ -165,6 +166,7 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/taggingButton"
+        android:visibility="gone"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="?roundSelector"
