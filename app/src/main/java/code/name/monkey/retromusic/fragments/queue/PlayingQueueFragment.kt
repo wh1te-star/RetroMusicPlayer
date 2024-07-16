@@ -88,6 +88,11 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
             }
             accentColor()
         }
+
+        view.post {
+            updateQueue()
+            updateCurrentSong()
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
