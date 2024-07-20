@@ -37,7 +37,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.SeekBar
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -163,17 +165,26 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     }
 
     private fun setUpProgressSlider() {
-        /*
-        binding.progressSlider.addOnChangeListener { _: Slider, progress: Float, fromUser: Boolean ->
-            if (fromUser) {
-                MusicPlayerRemote.seekTo(progress.toInt())
-                onUpdateProgressViews(
-                    MusicPlayerRemote.songProgressMillis,
-                    MusicPlayerRemote.songDurationMillis
-                )
+        (binding.progressSlider as SeekBar).setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    MusicPlayerRemote.seekTo(progress)
+                    onUpdateProgressViews(
+                        MusicPlayerRemote.songProgressMillis,
+                        MusicPlayerRemote.songDurationMillis
+                    )
+                }
             }
-        }
-         */
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Handle start tracking
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Handle stop tracking
+            }
+        })
     }
 
     override fun onPause() {
@@ -350,13 +361,12 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
             .into(binding.image)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onUpdateProgressViews(progress: Int, total: Int) {
-        /*
-        binding.progressSlider.run {
-            valueTo = total.toFloat()
-            value = progress.toFloat().coerceIn(valueFrom, valueTo)
+        (binding.progressSlider as SeekBar).run {
+            max = total
+            this.progress = progress.toFloat().coerceIn(min.toFloat(), max.toFloat()).toInt()
         }
-         */
 
         binding.songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
         binding.songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())
