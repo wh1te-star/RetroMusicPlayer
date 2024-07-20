@@ -163,6 +163,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     }
 
     private fun setUpProgressSlider() {
+        /*
         binding.progressSlider.addOnChangeListener { _: Slider, progress: Float, fromUser: Boolean ->
             if (fromUser) {
                 MusicPlayerRemote.seekTo(progress.toInt())
@@ -172,6 +173,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
                 )
             }
         }
+         */
     }
 
     override fun onPause() {
@@ -349,10 +351,12 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     }
 
     override fun onUpdateProgressViews(progress: Int, total: Int) {
+        /*
         binding.progressSlider.run {
             valueTo = total.toFloat()
             value = progress.toFloat().coerceIn(valueFrom, valueTo)
         }
+         */
 
         binding.songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
         binding.songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())

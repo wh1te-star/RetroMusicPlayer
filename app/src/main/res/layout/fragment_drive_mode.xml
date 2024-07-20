@@ -92,13 +92,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songText" />
 
-    <com.google.android.material.slider.Slider
+    <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/progressSlider"
-        style="@style/Widget.Retro.Slider"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:maxHeight="3dp"
-        app:trackHeight="20dp"
+        style="@style/MusicProgressSlider"
+        android:layout_weight="1"
         app:layout_constraintBottom_toTopOf="@+id/recordGPSButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
