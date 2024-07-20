@@ -67,6 +67,8 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener {
     }
 
     fun updateMeterGraphic(x: Float, y: Float){
+        binding.GMeterGraphic.updateMeterText(x, y)
+
         val scaledX = x * viewWidth / maxScaleValue /2
         val scaledY = y * viewHeight / maxScaleValue /2
         binding.GMeterGraphic.updateMeterPosition(scaledX,scaledY)
