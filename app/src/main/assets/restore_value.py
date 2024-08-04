@@ -9,19 +9,27 @@ file_path = sys.argv[1]
 with open(file_path, 'rb') as file:
     data = file.read()
 
-format = 'Qdd'
+format = 'Qddf'
 record_size = struct.calcsize(format)
 num_records = len(data) // record_size
 
 coordinates = []
+speeds = []
 
+ind=0
+mul=1000
 for i in range(num_records):
-    timestamp, latitude, longitude = struct.unpack_from(format, data, i * record_size)
+    timestamp, latitude, longitude, speed = struct.unpack_from(format, data, i * record_size)
     timestamp_dt = datetime.datetime.fromtimestamp(timestamp / 1000.0)
-    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude}  {longitude}"
-    coordinates.append((latitude, longitude))
+    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude:.2f} {longitude:.2f} {int(speed)}"
+    # print(f"time: {timestamp_dt}, latitude: {latitude:.2f}, longitude: {longitude:.2f}, speed: {speed}")
+    if(ind % mul == 0):
+        coordinates.append((latitude, longitude))
+        speeds.append(speed)
+    ind=ind+1
 
 coordinates_js_array = str(coordinates).replace('(', '[').replace(')', ']')
+speeds_js_array = str(speeds).replace('(', '').replace(')', '')
 
 html_content = f"""
 <!DOCTYPE html>
@@ -54,12 +62,15 @@ html_content = f"""
             iconSize: [45, 55],
         }});
         var coordinates = {coordinates_js_array};
+        var speeds = {speeds_js_array};
+        var index = 0
         coordinates.forEach(function(coord, index) {{
-            if (index % 2 == 0) {{
+            if (speeds[index] > 27.7) {{
                 L.marker([coord[0], coord[1]], {{icon: customIconRed}}).addTo(map);
             }} else {{
                 L.marker([coord[0], coord[1]], {{icon: customIconBlue}}).addTo(map);
             }}
+            index++;
         }});
     </script>
 </body>
