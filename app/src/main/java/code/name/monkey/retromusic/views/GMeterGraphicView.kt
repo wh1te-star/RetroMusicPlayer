@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -45,10 +46,10 @@ class GMeterGraphicView @JvmOverloads constructor(
     }
     private val valueTextPaint = Paint().apply {
         color = Color.WHITE
-        style = Paint.Style.STROKE
-        strokeWidth = 4.0f
-        maskFilter = BlurMaskFilter(7f, BlurMaskFilter.Blur.SOLID)
+        style = Paint.Style.FILL
+        strokeWidth = 1.0f
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 30f, resources.displayMetrics)
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
     }
     private lateinit var backgroundBitmap: Bitmap
 
@@ -87,8 +88,13 @@ class GMeterGraphicView @JvmOverloads constructor(
             canvas.drawText("00.00", 0.0f, YCoord, valueTextPaint)
             canvas.drawText(sideFormattedString, viewWidth-textWidthX, YCoord, valueTextPaint)
         }
-        val longitudinalFormattedString = DecimalFormat("+00.00;-00.00").format(-meterYValue)
-        canvas.drawText(longitudinalFormattedString , (viewWidth-textWidthY)/2, YCoord, valueTextPaint)
+        if(meterYValue > 0) {
+            val longitudinalFormattedString = DecimalFormat("00.00").format(meterYValue)
+            canvas.drawText("↓"+longitudinalFormattedString , (viewWidth-textWidthY)/2, YCoord, valueTextPaint)
+        } else {
+            val longitudinalFormattedString = DecimalFormat("00.00").format(-meterYValue)
+            canvas.drawText("↑"+longitudinalFormattedString , (viewWidth-textWidthY)/2, YCoord, valueTextPaint)
+        }
     }
 
     fun updateMeterPosition(x: Float, y: Float) {

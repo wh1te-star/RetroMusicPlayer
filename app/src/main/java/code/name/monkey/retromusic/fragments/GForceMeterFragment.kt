@@ -21,7 +21,7 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener {
     private val binding get() = _binding!!
 
     private var delayMilliSecond = 1000L
-    private var maxScaleValue = 5.0f
+    private var maxScaleValue = 7.0f
     private var viewWidth = 0
     private var viewHeight = 0
 
@@ -40,6 +40,10 @@ class GForceMeterFragment : Fragment(), AcceleroValueListener {
             viewWidth = view.width
             viewHeight = view.height
         }
+    }
+
+    fun setScale(scale: Float){
+        maxScaleValue = scale
     }
 
     fun registerAcceleroListener(gpsRecordService: GPSRecordService){
