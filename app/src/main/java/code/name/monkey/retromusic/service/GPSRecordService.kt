@@ -44,6 +44,7 @@ class GPSRecordService : Service() {
 
     private var acceleroX: Float = 0.0f
     private var acceleroY: Float = 0.0f
+    private var acceleroZ: Float = 0.0f
 
     private lateinit var locationManager: LocationManager
     private lateinit var sensorManager: SensorManager
@@ -100,12 +101,17 @@ class GPSRecordService : Service() {
         recordingLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 2: $location")
-                val recordedValue = ByteArray(28)
+                val recordedValue = ByteArray(52)
                 val buffer = ByteBuffer.wrap(recordedValue).order(ByteOrder.LITTLE_ENDIAN)
                 buffer.putLong(timestamp)
                 buffer.putDouble(latitude)
                 buffer.putDouble(longitude)
+                buffer.putDouble(altitude)
+                buffer.putFloat(bearing)
                 buffer.putFloat(speed)
+                buffer.putFloat(acceleroX)
+                buffer.putFloat(acceleroY)
+                buffer.putFloat(acceleroZ)
 
                 try {
                     writeToFile(recordingFile, recordedValue)
@@ -143,6 +149,7 @@ class GPSRecordService : Service() {
             override fun onSensorChanged(event: SensorEvent) {
                 acceleroX = event.values[0]
                 acceleroY = event.values[1]
+                acceleroZ = event.values[2]
                 acceleroValueListener?.updateAcceleroTextView(acceleroX, acceleroY)
             }
         }
