@@ -9,7 +9,7 @@ file_path = sys.argv[1]
 with open(file_path, 'rb') as file:
     data = file.read()
 
-format = 'Qddf'
+format = 'Qdddfffff'
 record_size = struct.calcsize(format)
 num_records = len(data) // record_size
 
@@ -19,9 +19,9 @@ speeds = []
 ind = 0
 mul = 100
 for i in range(num_records):
-    timestamp, latitude, longitude, speed = struct.unpack_from(format, data, i * record_size)
+    timestamp, latitude, longitude, altitude, bearing, speed, acceleroX, acceleroY, acceleroZ = struct.unpack_from(format, data, i * record_size)
     timestamp_dt = datetime.datetime.fromtimestamp(timestamp / 1000.0)
-    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude:.2f} {longitude:.2f} {int(speed)}"
+    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude:.2f} {longitude:.2f} {altitude:.2f} {bearing:.2f} {int(speed)} {acceleroX {acceleroY}} {acceleroZ}"
     if ind % mul == 0:
         coordinates.append((latitude, longitude))
         speeds.append(speed)
