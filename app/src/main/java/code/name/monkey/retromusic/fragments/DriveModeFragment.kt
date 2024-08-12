@@ -23,6 +23,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -37,7 +38,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -126,6 +131,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         lastPlaybackControlsColor = accentColor()
 
         setUpGPSRecordButton()
+        setUpSpeedAdaptiveButton()
         requireActivity().bindService(gpsRecordServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         requireActivity().startService(gpsRecordServiceIntent)
     }
@@ -163,15 +169,26 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
     }
 
     private fun setUpProgressSlider() {
-        binding.progressSlider.addOnChangeListener { _: Slider, progress: Float, fromUser: Boolean ->
-            if (fromUser) {
-                MusicPlayerRemote.seekTo(progress.toInt())
-                onUpdateProgressViews(
-                    MusicPlayerRemote.songProgressMillis,
-                    MusicPlayerRemote.songDurationMillis
-                )
+        (binding.progressSlider as SeekBar).setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    MusicPlayerRemote.seekTo(progress)
+                    onUpdateProgressViews(
+                        MusicPlayerRemote.songProgressMillis,
+                        MusicPlayerRemote.songDurationMillis
+                    )
+                }
             }
-        }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Handle start tracking
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Handle stop tracking
+            }
+        })
     }
 
     override fun onPause() {
@@ -249,10 +266,60 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
             true
         }
     }
+    private fun setUpSpeedAdaptiveButton() {
+        binding.speedSyncButton.setOnClickListener{
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Adjust Value")
+            val layout = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(50, 40, 50, 10)
+            }
+            val progressTextView = TextView(context).apply {
+                text = "50"
+                textSize = 18f
+            }
+            val seekBar = SeekBar(context).apply {
+                max = 100
+                progress = 7
+            }
+            layout.addView(progressTextView)
+            layout.addView(seekBar)
+            builder.setView(layout)
+            builder.setPositiveButton("OK") { dialog, which ->
+                val progress = seekBar.progress
+                Toast.makeText(context, "Selected value: $progress", Toast.LENGTH_SHORT).show()
+                val fragment = childFragmentManager.findFragmentById(R.id.GForceMeterFragment) as? GForceMeterFragment
+                fragment?.setScale(progress.toFloat())
+            }
+            builder.setNegativeButton("Cancel") { dialog, which ->
+                dialog.cancel()
+            }
+            val dialog = builder.create()
+            dialog.show()
+            seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    progressTextView.text = progress.toString()
+                    val thumbRect: Rect = seekBar.thumb.bounds
+                    progressTextView.x = (seekBar.left + thumbRect.left + seekBar.thumbOffset).toFloat()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                    // No action needed
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    // No action needed
+                }
+            })
+        }
+    }
 
     private fun setUpPlaybackControl() {
         binding.GForceMeterFragment?.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
+            true
+        }
+        binding.GForceMeterFragment?.setOnLongClickListener{
             true
         }
 
@@ -348,10 +415,11 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
             .into(binding.image)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onUpdateProgressViews(progress: Int, total: Int) {
-        binding.progressSlider.run {
-            valueTo = total.toFloat()
-            value = progress.toFloat().coerceIn(valueFrom, valueTo)
+        (binding.progressSlider as SeekBar).run {
+            max = total
+            this.progress = progress.toFloat().coerceIn(min.toFloat(), max.toFloat()).toInt()
         }
 
         binding.songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
@@ -466,14 +534,19 @@ class SwipeGestureListener(private val context: DriveModeFragment) : GestureDete
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
-        if(MusicPlayerRemote.isPlaying)
+        if (MusicPlayerRemote.isPlaying)
             MusicPlayerRemote.pauseSong()
         else
             MusicPlayerRemote.resumePlaying()
         return super.onSingleTapUp(e)
     }
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
         if (e1 == null || e2 == null) return false
 
         val diffX = e2.x - e1.x

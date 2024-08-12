@@ -35,6 +35,11 @@
         <item name="android:padding">0dp</item>
     </style>
 
+    <style name="DriveModeProgressSlider" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressDrawable">@drawable/custom_progress_drawable</item>
+        <item name="android:thumb">@drawable/seekbar_thumb</item>
+    </style>
+
     <style name="Toolbar" parent="Widget.Material3.Toolbar">
         <item name="popupTheme">?toolbarPopupTheme</item>
         <item name="android:transitionName" tools:ignore="NewApi">toolbar</item>

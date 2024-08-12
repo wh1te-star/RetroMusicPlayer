@@ -92,18 +92,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songText" />
 
-    <com.google.android.material.slider.Slider
+    <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/progressSlider"
-        style="@style/Widget.Retro.Slider"
+        style="@style/DriveModeProgressSlider"
+        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:maxHeight="3dp"
+        android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@+id/recordGPSButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/GForceMeterFragment"
-        tools:progress="20" />
+        app:layout_constraintTop_toBottomOf="@+id/GForceMeterFragment" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/songCurrentProgress"
@@ -153,7 +152,6 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/speedSyncButton"
-        android:visibility="gone"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="?roundSelector"
@@ -166,7 +164,6 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/taggingButton"
-        android:visibility="gone"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="?roundSelector"

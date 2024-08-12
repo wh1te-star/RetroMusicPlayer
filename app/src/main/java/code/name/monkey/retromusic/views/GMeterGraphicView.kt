@@ -8,10 +8,13 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
+import java.text.DecimalFormat
 
 class GMeterGraphicView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -41,6 +44,13 @@ class GMeterGraphicView @JvmOverloads constructor(
         strokeWidth = 4.0f
         maskFilter = BlurMaskFilter(7f, BlurMaskFilter.Blur.SOLID)
     }
+    private val valueTextPaint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+        strokeWidth = 1.0f
+        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 30f, resources.displayMetrics)
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+    }
     private lateinit var backgroundBitmap: Bitmap
 
     private val roundingMargin = 2
@@ -52,6 +62,9 @@ class GMeterGraphicView @JvmOverloads constructor(
     private var centerY = baseCenterY
     private var radius = 30f
 
+    private var meterXValue = 0.0f
+    private var meterYValue = 0.0f
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -62,11 +75,37 @@ class GMeterGraphicView @JvmOverloads constructor(
 
         canvas.drawCircle(centerX, centerY, radius, meterFillPaint)
         canvas.drawCircle(centerX, centerY, radius, meterStrokePaint)
+
+        val textWidthX = valueTextPaint.measureText("00.00")
+        val textWidthY = valueTextPaint.measureText("+00.00")
+        val YCoord = viewHeight - roundingMargin
+        if(meterXValue > 0) {
+            val sideFormattedString = DecimalFormat("00.00").format(meterXValue)
+            canvas.drawText(sideFormattedString, 0.0f, YCoord, valueTextPaint)
+            canvas.drawText("00.00", viewWidth-textWidthX, YCoord, valueTextPaint)
+        } else {
+            val sideFormattedString = DecimalFormat("00.00").format(-meterXValue)
+            canvas.drawText("00.00", 0.0f, YCoord, valueTextPaint)
+            canvas.drawText(sideFormattedString, viewWidth-textWidthX, YCoord, valueTextPaint)
+        }
+        if(meterYValue > 0) {
+            val longitudinalFormattedString = DecimalFormat("00.00").format(meterYValue)
+            canvas.drawText("↓"+longitudinalFormattedString , (viewWidth-textWidthY)/2, YCoord, valueTextPaint)
+        } else {
+            val longitudinalFormattedString = DecimalFormat("00.00").format(-meterYValue)
+            canvas.drawText("↑"+longitudinalFormattedString , (viewWidth-textWidthY)/2, YCoord, valueTextPaint)
+        }
     }
 
     fun updateMeterPosition(x: Float, y: Float) {
         centerX = baseCenterX + x
         centerY = baseCenterY + y
+        invalidate()
+    }
+
+    fun updateMeterText(x: Float, y: Float){
+        meterXValue = x
+        meterYValue = y
         invalidate()
     }
 
