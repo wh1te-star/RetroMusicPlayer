@@ -29,11 +29,6 @@ class GPSRecordService : Service() {
     private var gpsRecordingListener: GPSRecordingListener? = null
     private var acceleroValueListener: AcceleroValueListener? = null
 
-    private var previousTimestamp: Long = 0
-    private var previousLatitude: Double = 0.0
-    private var previousLongitude: Double = 0.0
-    private var previousAltitude: Double = 0.0
-    private var previousSpeed: Float = 0.0f
     private var timestamp: Long = 0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
@@ -79,11 +74,6 @@ class GPSRecordService : Service() {
         textViewLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 logD("Location changed 1: $location")
-                previousTimestamp = timestamp
-                previousLatitude = latitude
-                previousLongitude = longitude
-                previousAltitude = altitude
-                previousSpeed = speed
 
                 timestamp = location.time
                 latitude = location.latitude
