@@ -267,7 +267,7 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
         }
     }
     private fun setUpSpeedAdaptiveButton() {
-        binding.speedSyncButton.setOnClickListener{
+        binding.taggingButton.setOnClickListener{
             val builder = AlertDialog.Builder(context)
             builder.setTitle("Adjust Value")
             val layout = LinearLayout(context).apply {

@@ -141,7 +141,7 @@
         app:layout_constraintStart_toEndOf="@+id/shuffleButton"
         app:layout_constraintEnd_toStartOf="@+id/speedSyncButton"
         app:layout_constraintTop_toBottomOf="@+id/progressSlider"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintBottom_toTopOf="@+id/infoGridLayout"
         app:layout_constraintHorizontal_bias="0.5" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -171,7 +171,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/speedSyncButton" />
 
     <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/gridLayout"
+        android:id="@+id/infoGridLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:foregroundGravity="fill_horizontal"
