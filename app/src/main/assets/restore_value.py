@@ -21,7 +21,7 @@ mul = 100
 for i in range(num_records):
     timestamp, latitude, longitude, altitude, bearing, speed, acceleroX, acceleroY, acceleroZ = struct.unpack_from(format, data, i * record_size)
     timestamp_dt = datetime.datetime.fromtimestamp(timestamp / 1000.0)
-    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude:.2f} {longitude:.2f} {altitude:.2f} {bearing:.2f} {int(speed)} {acceleroX {acceleroY}} {acceleroZ}"
+    record = f"{timestamp_dt.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]} {latitude:.2f} {longitude:.2f} {altitude:.2f} {bearing:.2f} {int(speed)} {acceleroX} {acceleroY} {acceleroZ}"
     if ind % mul == 0:
         coordinates.append((latitude, longitude))
         speeds.append(speed)
