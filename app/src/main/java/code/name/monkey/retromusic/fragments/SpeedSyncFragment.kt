@@ -2,6 +2,10 @@ package code.name.monkey.retromusic.fragments
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +14,15 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.FragmentSpeedSyncBinding
+import code.name.monkey.retromusic.util.logD
 import com.google.android.material.progressindicator.LinearProgressIndicator
 
 
 class SpeedSyncFragment : Fragment() {
 
     private lateinit var binding: FragmentSpeedSyncBinding
+    private lateinit var locationManager: LocationManager
+    private lateinit var locationListener: LocationListener
 
     private var progress = 0.0f
 
@@ -28,30 +35,49 @@ class SpeedSyncFragment : Fragment() {
 
         binding.speedProgressBar.progress = 0
 
-        startVibrationAnimation(binding.speedProgressBar)
+        locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        startLocationUpdates()
 
         return binding.root
     }
-    private fun startVibrationAnimation(progressBar: LinearProgressIndicator) {
-        val animator = ValueAnimator.ofFloat(0f, 100f).apply {
-            duration = 5000
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
 
-            addUpdateListener { animation ->
-                progress = animation.animatedValue as Float
-                progressBar.progress = progress.toInt()
-
-                val color = when {
-                    progress in 0.0..30.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_green_A700)
-                    progress in 30.0..50.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_blue_A400)
-                    progress in 50.0..80.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_yellow_A400)
-                    progress in 80.0..110.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_red_A400)
-                    else -> ContextCompat.getColor(requireContext(), R.color.dark_color)
-                }
-                progressBar.setIndicatorColor(color)
+    private fun startLocationUpdates() {
+        locationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                onSpeedChanged(location.speed)
             }
+
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
         }
-        animator.start()
+
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0,
+            0.0f,
+            locationListener
+        )
+    }
+
+    private fun onSpeedChanged(speed: Float) {
+        progress = (speed * 3.6f -10.0f) * 100.0f / 110f
+
+        binding.speedProgressBar.progress = progress.toInt()
+
+        logD("speed: ${speed}, progress: ${progress}")
+        val color = when {
+            progress in 0.0..30.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_green_A700)
+            progress in 30.0..50.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_blue_A400)
+            progress in 50.0..80.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_yellow_A400)
+            progress in 80.0..110.0 -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_red_A400)
+            else -> ContextCompat.getColor(requireContext(), R.color.dark_color)
+        }
+        binding.speedProgressBar.setIndicatorColor(color)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        locationManager.removeUpdates(locationListener)
     }
 }
