@@ -144,7 +144,7 @@
         android:layout_height="100dp"
         android:background="?roundSelector"
         android:src="@drawable/ic_gps_recording"
-        app:layout_constraintBottom_toTopOf="@+id/infoGridLayout"
+        app:layout_constraintBottom_toTopOf="@+id/speedSyncFragment"
         app:layout_constraintEnd_toStartOf="@+id/taggingButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/shuffleButton"
@@ -166,7 +166,7 @@
         android:id="@+id/speedSyncFragment"
         android:name="code.name.monkey.retromusic.fragments.SpeedSyncFragment"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/infoGridLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -183,7 +183,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/speedSyncGraph"
+        app:layout_constraintTop_toBottomOf="@+id/speedSyncFragment"
         app:rowCount="2">
 
         <com.google.android.material.textview.MaterialTextView

@@ -1,15 +1,21 @@
 package code.name.monkey.retromusic.fragments
 
+import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import code.name.monkey.retromusic.R
@@ -52,6 +58,16 @@ class SpeedSyncFragment : Fragment() {
             override fun onProviderDisabled(provider: String) {}
         }
 
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             0,
@@ -74,6 +90,28 @@ class SpeedSyncFragment : Fragment() {
             else -> ContextCompat.getColor(requireContext(), R.color.dark_color)
         }
         binding.speedProgressBar.setIndicatorColor(color)
+
+        binding.speedTextView.text = getSpeedString((speed*3.6).toInt().toString())
+        binding.durationTextView.text = getSpeedString((speed*3.6).toString())
+    }
+
+    fun getSpeedString(speed: String): SpannableString {
+        val text = "$speed km/h"
+        val spannableString = SpannableString(text)
+
+        spannableString.setSpan(
+            RelativeSizeSpan(1.0f),
+            0, speed.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        spannableString.setSpan(
+            RelativeSizeSpan(0.7f),
+            speed.length, text.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        return spannableString
     }
 
     override fun onDestroyView() {
