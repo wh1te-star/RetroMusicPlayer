@@ -104,11 +104,11 @@ class DriveModeFragment : AbsPlayerFragment(R.layout.fragment_drive_mode), GPSRe
             binder = service as GPSRecordService.LocalBinder
             gpsRecordService = binder.getService()
             gpsRecordService.registerGPSListener(this@DriveModeFragment)
-            binding.GForceMeterFragment?.getFragment<GForceMeterFragment>()?.registerAcceleroListener(gpsRecordService)
+            binding.GForceMeterFragment.getFragment<GForceMeterFragment>().registerAcceleroListener(gpsRecordService)
         }
         override fun onServiceDisconnected(name: ComponentName) {
             gpsRecordService.unregisterGPSListener()
-            binding.GForceMeterFragment?.getFragment<GForceMeterFragment>()?.unregisterAcceleroListener(gpsRecordService)
+            binding.GForceMeterFragment.getFragment<GForceMeterFragment>().unregisterAcceleroListener(gpsRecordService)
         }
     }
 

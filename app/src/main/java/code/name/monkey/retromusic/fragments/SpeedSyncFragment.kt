@@ -141,7 +141,6 @@ class SpeedSyncFragment : Fragment() {
             SpeedStage.slow -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_green_A700)
             SpeedStage.midium -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_blue_A400)
             SpeedStage.fast -> ContextCompat.getColor(requireContext(), code.name.monkey.appthemehelper.R.color.md_red_A400)
-            else -> ContextCompat.getColor(requireContext(), R.color.dark_color)
         }
         binding.durationProgressBar.setIndicatorColor(color)
     }
