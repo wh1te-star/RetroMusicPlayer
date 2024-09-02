@@ -95,9 +95,9 @@
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/progressSlider"
         style="@style/DriveModeProgressSlider"
-        android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="50dp"
+        android:layout_weight="1"
         app:layout_constraintBottom_toTopOf="@+id/recordGPSButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -126,7 +126,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@tools:sample/date/hhmmss" />
 
-    <androidx.appcompat.widget.AppCompatImageView
+<androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/shuffleButton"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -144,23 +144,11 @@
         android:layout_height="100dp"
         android:background="?roundSelector"
         android:src="@drawable/ic_gps_recording"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
-        app:layout_constraintEnd_toStartOf="@+id/speedSyncButton"
+        app:layout_constraintBottom_toTopOf="@+id/speedSyncFragment"
+        app:layout_constraintEnd_toStartOf="@+id/taggingButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/shuffleButton"
         app:layout_constraintTop_toBottomOf="@+id/progressSlider" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/speedSyncButton"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="?roundSelector"
-        android:src="@drawable/ic_speed_adaptive_play"
-        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
-        app:layout_constraintEnd_toStartOf="@+id/taggingButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
-        app:layout_constraintTop_toTopOf="@+id/recordGPSButton" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/taggingButton"
@@ -168,14 +156,25 @@
         android:layout_height="100dp"
         android:background="?roundSelector"
         android:src="@drawable/ic_tag"
-        app:layout_constraintBottom_toBottomOf="@+id/speedSyncButton"
+        app:layout_constraintBottom_toBottomOf="@+id/recordGPSButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/speedSyncButton"
-        app:layout_constraintTop_toTopOf="@+id/speedSyncButton" />
+        app:layout_constraintStart_toEndOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toTopOf="@+id/recordGPSButton" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/speedSyncFragment"
+        android:name="code.name.monkey.retromusic.fragments.SpeedSyncFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/infoGridLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recordGPSButton" />
 
     <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/gridLayout"
+        android:id="@+id/infoGridLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:foregroundGravity="fill_horizontal"
@@ -184,15 +183,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recordGPSButton"
+        app:layout_constraintTop_toBottomOf="@+id/speedSyncFragment"
         app:rowCount="2">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/latitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -201,8 +200,8 @@
             android:id="@+id/longitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -211,8 +210,8 @@
             android:id="@+id/altitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -221,8 +220,8 @@
             android:id="@+id/bearingValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -231,8 +230,8 @@
             android:id="@+id/speedValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -241,8 +240,8 @@
             android:id="@+id/providerValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
             android:gravity="center"
+            android:text=""
             android:textColor="@color/md_white_1000"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
