@@ -37,7 +37,7 @@ class SpeedSyncFragment : Fragment() {
     }
     private var speedStage = SpeedStage.midium
     private var stageStartTime = 0L
-    val waitTimeInMillis = 10000
+    val waitTimeInMillis = 90000
 
     override fun onCreateView(
         inflater: LayoutInflater,
