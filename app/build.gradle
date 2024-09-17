@@ -9,7 +9,7 @@ android {
     namespace "code.name.monkey.retromusic"
 
     defaultConfig {
-        minSdk 21
+        minSdk 24
         targetSdk 33
 
         vectorDrawables.useSupportLibrary = true
@@ -171,4 +171,8 @@ dependencies {
     implementation libs.fastscroll.library
     implementation libs.customactivityoncrash
     implementation libs.tankery.circularSeekBar
+
+    debugImplementation(files("libs/dsp-debug.aar"))
+    releaseImplementation(files("libs/dsp-release.aar"))
+    implementation 'com.arthenica:ffmpeg-kit-full:5.1'
 }
