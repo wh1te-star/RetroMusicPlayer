@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.GestureDetector
@@ -37,6 +38,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import androidx.viewpager.widget.ViewPager
+import be.tarsos.dsp.AudioDispatcher
+import be.tarsos.dsp.io.android.AudioDispatcherFactory
+import be.tarsos.dsp.onsets.ComplexOnsetDetector
+import be.tarsos.dsp.onsets.OnsetHandler
+import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.EXTRA_ARTIST_ID
@@ -60,6 +66,7 @@ import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.NavigationUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RingtoneManager
+import code.name.monkey.retromusic.util.logD
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -231,6 +238,11 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
                 //replaceFragment(DriveModeFragment())
                 return true;
             }
+
+            R.id.action_show_bpm -> {
+                startBPMAnalysis()
+                return true;
+            }
         }
         return false
     }
@@ -310,6 +322,39 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
                 }
             }
         }
+    }
+
+    fun startBPMAnalysis(){
+        val complexOnsetTimes = mutableListOf<Double>()
+        val percussionOnsetTimes = mutableListOf<Double>()
+        val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
+            context,  MusicPlayerRemote.currentSong.uri,0.0, 320.0, 44100, 1024, 512
+        )
+
+        val complexHandler = OnsetHandler { time, salience ->
+            if(complexOnsetTimes.isNotEmpty()){
+                logD("Time: $time ||| bpm: " + 60.0/(time-complexOnsetTimes.last()))
+            }
+            complexOnsetTimes.add(time)
+        }
+        val percussionHandler = OnsetHandler { time, salience ->
+            if(percussionOnsetTimes.isNotEmpty()){
+                logD("Time: $time ||| bpm: " + 60.0/(time-percussionOnsetTimes.last()))
+            }
+            percussionOnsetTimes.add(time)
+        }
+
+        val complexOnsetDetector = ComplexOnsetDetector(1024)
+        dispatcher.addAudioProcessor(complexOnsetDetector)
+        complexOnsetDetector.setHandler(complexHandler)
+
+        dispatcher.addAudioProcessor(
+            PercussionOnsetDetector(44100.0f, 1024, percussionHandler, 95.0, 10.0)
+        )
+
+        logD("Starting dispatcher")
+        dispatcher.run()
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
