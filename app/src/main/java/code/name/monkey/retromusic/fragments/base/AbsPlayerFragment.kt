@@ -39,6 +39,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import androidx.viewpager.widget.ViewPager
 import be.tarsos.dsp.AudioDispatcher
+import be.tarsos.dsp.AudioEvent
+import be.tarsos.dsp.AudioProcessor
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.onsets.ComplexOnsetDetector
 import be.tarsos.dsp.onsets.OnsetHandler
@@ -331,16 +333,22 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             context,  MusicPlayerRemote.currentSong.uri,0.0, 320.0, 44100, 1024, 512
         )
 
-        val complexHandler = OnsetHandler { time, salience ->
-            if(complexOnsetTimes.isNotEmpty()){
-                logD("Time: $time ||| bpm: " + 60.0/(time-complexOnsetTimes.last()))
+        fun fixBPM(bpm: Double): Double {
+            val minBPM = 60.0
+            val maxBPM = 200.0
+            var fixedBPM = bpm
+            if (bpm > 0.0 && bpm < minBPM) {
+                while (fixedBPM < minBPM) fixedBPM *= 2.0
+            } else if (bpm > maxBPM) {
+                while (fixedBPM > maxBPM) fixedBPM /= 2.0
             }
+            return fixedBPM
+        }
+
+        val complexHandler = OnsetHandler { time, salience ->
             complexOnsetTimes.add(time)
         }
         val percussionHandler = OnsetHandler { time, salience ->
-            if(percussionOnsetTimes.isNotEmpty()){
-                logD("Time: $time ||| bpm: " + 60.0/(time-percussionOnsetTimes.last()))
-            }
             percussionOnsetTimes.add(time)
         }
 
@@ -351,6 +359,29 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
         dispatcher.addAudioProcessor(
             PercussionOnsetDetector(44100.0f, 1024, percussionHandler, 95.0, 10.0)
         )
+
+        dispatcher.addAudioProcessor(object : AudioProcessor {
+            override fun process(audioEvent: AudioEvent): Boolean {
+                return true
+            }
+
+            override fun processingFinished() {
+                complexOnsetTimes.sort()
+                percussionOnsetTimes.sort()
+
+                for (i in 0 until complexOnsetTimes.size - 1) {
+                    val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]))
+                    logD("Complex Onset BPM: $bpm")
+                }
+
+                for (i in 0 until percussionOnsetTimes.size - 1) {
+                    val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]))
+                    logD("Percussion Onset BPM: $bpm")
+                }
+
+                logD("Audio processing finished")
+            }
+        })
 
         logD("Starting dispatcher")
         dispatcher.run()
