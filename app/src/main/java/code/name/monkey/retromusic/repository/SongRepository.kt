@@ -142,6 +142,7 @@ class RealSongRepository(private val context: Context) : SongRepository {
         val artistName = cursor.getStringOrNull(AudioColumns.ARTIST)
         val composer = cursor.getStringOrNull(AudioColumns.COMPOSER)
         val albumArtist = cursor.getStringOrNull("album_artist")
+        val bpm = -1.0
         return Song(
             id,
             title,
@@ -155,7 +156,8 @@ class RealSongRepository(private val context: Context) : SongRepository {
             artistId,
             artistName ?: "",
             composer ?: "",
-            albumArtist ?: ""
+            albumArtist ?: "",
+            bpm,
         )
     }
 
