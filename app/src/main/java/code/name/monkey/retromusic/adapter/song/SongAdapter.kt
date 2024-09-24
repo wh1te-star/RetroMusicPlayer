@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -97,6 +98,9 @@ open class SongAdapter(
         holder.title?.text = getSongTitle(song)
         holder.text?.text = getSongText(song)
         holder.text2?.text = getSongText(song)
+
+        holder.bpmTextView.text = String.format("%06.1f", song.bpm)
+
         loadAlbumCover(song, holder)
         val landscape = RetroUtil.isLandscape
         if ((PreferenceUtil.songGridSize > 2 && !landscape) || (PreferenceUtil.songGridSizeLand > 5 && landscape)) {
@@ -183,6 +187,8 @@ open class SongAdapter(
             get() = dataSet[layoutPosition]
 
         val currentSongColorView: View? = itemView.findViewById(R.id.currentSongColorView)
+
+        val bpmTextView: TextView = itemView.findViewById(R.id.bpm)
 
         init {
             menu?.setOnClickListener(object : SongMenuHelper.OnClickSongMenu(activity) {
