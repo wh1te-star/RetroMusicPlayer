@@ -99,7 +99,8 @@ open class SongAdapter(
         holder.text?.text = getSongText(song)
         holder.text2?.text = getSongText(song)
 
-        holder.bpmTextView.text = String.format("%06.1f", song.bpm)
+        //holder.bpmTextView.text = String.format("%06.1f", song.title)
+        holder.bpmTextView.text = song.title.substring(0, 3)
 
         loadAlbumCover(song, holder)
         val landscape = RetroUtil.isLandscape
