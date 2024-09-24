@@ -461,6 +461,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.nav_playlist -> {
                 navController.navigate(R.id.action_playlist)
             }
+            R.id.nav_bpm -> {
+                navController.navigate(R.id.action_bpm)
+            }
             R.id.nav_folder -> {
                 navController.navigate(R.id.action_folder)
             }
