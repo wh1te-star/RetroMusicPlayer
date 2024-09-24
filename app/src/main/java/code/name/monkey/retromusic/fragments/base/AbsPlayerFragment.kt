@@ -326,11 +326,11 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
         }
     }
 
-    fun startBPMAnalysis() {
+    fun startBPMAnalysis(){
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
-            context, MusicPlayerRemote.currentSong.uri, 0.0, 320.0, 44100, 1024, 512
+            context,  MusicPlayerRemote.currentSong.uri,0.0, 320.0, 44100, 1024, 512
         )
 
         fun fixBPM(bpm: Double): Double {
@@ -345,18 +345,11 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             return fixedBPM
         }
 
-        val salienceThreshold = 0.5
-
         val complexHandler = OnsetHandler { time, salience ->
-            if (salience > salienceThreshold) {
-                complexOnsetTimes.add(time)
-            }
+            complexOnsetTimes.add(time)
         }
-
         val percussionHandler = OnsetHandler { time, salience ->
-            if (salience > salienceThreshold) {
-                percussionOnsetTimes.add(time)
-            }
+            percussionOnsetTimes.add(time)
         }
 
         val complexOnsetDetector = ComplexOnsetDetector(1024)
@@ -375,30 +368,24 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             override fun processingFinished() {
                 complexOnsetTimes.sort()
                 percussionOnsetTimes.sort()
-                val bpmValues = mutableListOf<Double>()
 
                 for (i in 0 until complexOnsetTimes.size - 1) {
                     val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]))
-                    bpmValues.add(bpm)
+                    logD("Complex Onset BPM: $bpm")
                 }
 
                 for (i in 0 until percussionOnsetTimes.size - 1) {
                     val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]))
-                    bpmValues.add(bpm)
+                    logD("Percussion Onset BPM: $bpm")
                 }
 
-                val avgBPM = bpmValues.average()
-                val medianBPM = bpmValues.sorted().let {
-                    if (it.size % 2 == 0) (it[it.size / 2 - 1] + it[it.size / 2]) / 2 else it[it.size / 2]
-                }
-
-                logD("Average BPM: $avgBPM")
-                logD("Median BPM: $medianBPM")
+                logD("Audio processing finished")
             }
         })
 
         logD("Starting dispatcher")
         dispatcher.run()
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

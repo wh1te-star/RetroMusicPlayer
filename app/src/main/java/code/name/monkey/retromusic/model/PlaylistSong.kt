@@ -48,8 +48,7 @@ class PlaylistSong(
     artistId = artistId,
     artistName = artistName,
     composer = composer,
-    albumArtist = albumArtist,
-    bpm = -1.0,
+    albumArtist = albumArtist
 ) {
 
     override fun equals(other: Any?): Boolean {

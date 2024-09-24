@@ -62,8 +62,7 @@ fun Song.toSongEntity(playListId: Long): SongEntity {
         artistId = artistId,
         artistName = artistName,
         composer = composer,
-        albumArtist = albumArtist,
-        bpm = bpm,
+        albumArtist = albumArtist
     )
 }
 
@@ -81,8 +80,7 @@ fun SongEntity.toSong(): Song {
         artistId = artistId,
         artistName = artistName,
         composer = composer,
-        albumArtist = albumArtist,
-        bpm = bpm,
+        albumArtist = albumArtist
     )
 }
 
@@ -100,8 +98,7 @@ fun PlayCountEntity.toSong(): Song {
         artistId = artistId,
         artistName = artistName,
         composer = composer,
-        albumArtist = albumArtist,
-        bpm = -1.0,
+        albumArtist = albumArtist
     )
 }
 
@@ -119,8 +116,7 @@ fun HistoryEntity.toSong(): Song {
         artistId = artistId,
         artistName = artistName,
         composer = composer,
-        albumArtist = albumArtist,
-        bpm = -1.0,
+        albumArtist = albumArtist
     )
 }
 
