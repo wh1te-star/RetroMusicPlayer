@@ -25,6 +25,9 @@ interface SongAnalysisDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addOrUpdateBpm(songAnalysis: SongAnalysisEntity)
 
-    @Query("DELETE FROM songsAnalysis WHERE song_id = :songId")
+    @Query("DELETE FROM songsanalysis WHERE song_id = :songId")
     suspend fun deleteBpm(songId: Long)
+
+    @Query("SELECT bpm FROM songsAnalysis WHERE song_id = :songId")
+    suspend fun getBpmBySongId(songId: Long): Double?
 }

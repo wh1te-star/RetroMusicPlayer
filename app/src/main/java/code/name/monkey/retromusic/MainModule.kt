@@ -41,7 +41,7 @@ private val roomModule = module {
 
     single {
         Room.databaseBuilder(androidContext(), RetroDatabase::class.java, "playlist.db")
-            .addMigrations(MIGRATION_25_26)
+            .fallbackToDestructiveMigration()
             .build()
     }
 
@@ -55,6 +55,10 @@ private val roomModule = module {
 
     factory {
         get<RetroDatabase>().historyDao()
+    }
+
+    factory {
+        get<RetroDatabase>().songAnalysisDao()
     }
 
     single {

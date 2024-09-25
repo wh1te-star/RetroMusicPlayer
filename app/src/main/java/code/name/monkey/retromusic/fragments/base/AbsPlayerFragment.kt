@@ -53,6 +53,8 @@ import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.tageditor.AbsTagEditorActivity
 import code.name.monkey.retromusic.activities.tageditor.SongTagEditorActivity
 import code.name.monkey.retromusic.db.PlaylistEntity
+import code.name.monkey.retromusic.db.SongAnalysisDao
+import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.dialogs.*
 import code.name.monkey.retromusic.extensions.*
@@ -70,11 +72,14 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RingtoneManager
 import code.name.monkey.retromusic.util.logD
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
@@ -327,6 +332,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
     }
 
     fun startBPMAnalysis(){
+        val songId = MusicPlayerRemote.currentSong.id
+
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
@@ -369,17 +376,34 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
                 complexOnsetTimes.sort()
                 percussionOnsetTimes.sort()
 
+                val bpmValues = mutableListOf<Double>()
+
                 for (i in 0 until complexOnsetTimes.size - 1) {
                     val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]))
+                    bpmValues.add(bpm)
                     logD("Complex Onset BPM: $bpm")
                 }
 
                 for (i in 0 until percussionOnsetTimes.size - 1) {
                     val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]))
+                    bpmValues.add(bpm)
                     logD("Percussion Onset BPM: $bpm")
                 }
 
-                logD("Audio processing finished")
+                val medianBPM = if (bpmValues.size % 2 == 0) {
+                    val middleIndex = bpmValues.size / 2
+                    (bpmValues[middleIndex - 1] + bpmValues[middleIndex]) / 2.0
+                } else {
+                    bpmValues[bpmValues.size / 2]
+                }
+
+                logD("Audio processing finished. medianBPM: $medianBPM")
+
+                val songAnalysisDao: SongAnalysisDao by inject()
+                CoroutineScope(Dispatchers.IO).launch {
+                    val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
+                    songAnalysisDao.addOrUpdateBpm(songAnalysis)
+                }
             }
         })
 
