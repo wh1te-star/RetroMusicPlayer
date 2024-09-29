@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -30,8 +29,6 @@ import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
-import code.name.monkey.retromusic.db.SongAnalysisDao
-import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.asBitmapPalette
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
@@ -46,14 +43,7 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import com.bumptech.glide.Glide
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.zhanghai.android.fastscroll.PopupTextProvider
-import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.inject
-import java.text.DecimalFormat
 
 /**
  * Created by hemanths on 13/08/17.
@@ -69,9 +59,10 @@ open class SongAdapter(
     R.menu.menu_media_selection
 ), PopupTextProvider {
 
-    private var showSectionName = showSectionName
+    private var showSectionName = true
 
     init {
+        this.showSectionName = showSectionName
         this.setHasStableIds(true)
     }
 
@@ -85,11 +76,12 @@ open class SongAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = try {
-            LayoutInflater.from(activity).inflate(itemLayoutRes, parent, false)
-        } catch (e: Resources.NotFoundException) {
-            LayoutInflater.from(activity).inflate(R.layout.item_list, parent, false)
-        }
+        val view =
+            try {
+                LayoutInflater.from(activity).inflate(itemLayoutRes, parent, false)
+            } catch (e: Resources.NotFoundException) {
+                LayoutInflater.from(activity).inflate(R.layout.item_list, parent, false)
+            }
         return createViewHolder(view)
     }
 
@@ -104,18 +96,7 @@ open class SongAdapter(
         holder.menu?.isGone = isChecked
         holder.title?.text = getSongTitle(song)
         holder.text?.text = getSongText(song)
-        holder.text2?.text = getSongText2(song)
-
-        val songAnalysisDao: SongAnalysisDao by activity.inject()
-        CoroutineScope(Dispatchers.IO).launch {
-            val bpm = songAnalysisDao.getBpmBySongId(song.id)
-            withContext(Dispatchers.Main) {
-                val decimalFormat = DecimalFormat("000.0")
-                val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
-                holder.bpmTextView?.text = formattedBpm
-            }
-        }
-
+        holder.text2?.text = getSongText(song)
         loadAlbumCover(song, holder)
         val landscape = RetroUtil.isLandscape
         if ((PreferenceUtil.songGridSize > 2 && !landscape) || (PreferenceUtil.songGridSizeLand > 5 && landscape)) {
@@ -124,25 +105,28 @@ open class SongAdapter(
     }
 
     private fun setColors(color: MediaNotificationProcessor, holder: ViewHolder) {
-        holder.title?.setTextColor(color.primaryTextColor)
-        holder.text?.setTextColor(color.secondaryTextColor)
-        holder.paletteColorContainer?.setBackgroundColor(color.backgroundColor)
-        holder.menu?.imageTintList = ColorStateList.valueOf(color.primaryTextColor)
+        if (holder.paletteColorContainer != null) {
+            holder.title?.setTextColor(color.primaryTextColor)
+            holder.text?.setTextColor(color.secondaryTextColor)
+            holder.paletteColorContainer?.setBackgroundColor(color.backgroundColor)
+            holder.menu?.imageTintList = ColorStateList.valueOf(color.primaryTextColor)
+        }
         holder.mask?.backgroundTintList = ColorStateList.valueOf(color.primaryTextColor)
     }
 
     protected open fun loadAlbumCover(song: Song, holder: ViewHolder) {
-        holder.image?.let {
-            Glide.with(activity)
-                .asBitmapPalette()
-                .songCoverOptions(song)
-                .load(RetroGlideExtension.getSongModel(song))
-                .into(object : RetroMusicColoredTarget(it) {
-                    override fun onColorReady(colors: MediaNotificationProcessor) {
-                        setColors(colors, holder)
-                    }
-                })
+        if (holder.image == null) {
+            return
         }
+        Glide.with(activity)
+            .asBitmapPalette()
+            .songCoverOptions(song)
+            .load(RetroGlideExtension.getSongModel(song))
+            .into(object : RetroMusicColoredTarget(holder.image!!) {
+                override fun onColorReady(colors: MediaNotificationProcessor) {
+                    setColors(colors, holder)
+                }
+            })
     }
 
     private fun getSongTitle(song: Song): String {
@@ -179,6 +163,7 @@ open class SongAdapter(
                 dataSet[position].title,
                 true
             )
+
             SortOrder.SongSortOrder.SONG_A_Z, SortOrder.SongSortOrder.SONG_Z_A -> dataSet[position].title
             SortOrder.SongSortOrder.SONG_ALBUM -> dataSet[position].albumName
             SortOrder.SongSortOrder.SONG_ARTIST -> dataSet[position].artistName
@@ -198,7 +183,6 @@ open class SongAdapter(
             get() = dataSet[layoutPosition]
 
         val currentSongColorView: View? = itemView.findViewById(R.id.currentSongColorView)
-        val bpmTextView: TextView? = itemView.findViewById(R.id.bpm)
 
         init {
             menu?.setOnClickListener(object : SongMenuHelper.OnClickSongMenu(activity) {
@@ -239,6 +223,7 @@ open class SongAdapter(
         }
 
         override fun onLongClick(v: View?): Boolean {
+            println("Long click")
             return toggleChecked(layoutPosition)
         }
     }
