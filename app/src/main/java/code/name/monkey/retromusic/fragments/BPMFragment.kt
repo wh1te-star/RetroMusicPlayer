@@ -15,23 +15,45 @@
 package code.name.monkey.retromusic.fragments
 
 import android.os.Bundle
-import android.view.*
-import android.widget.TextView
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.SubMenu
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.adapter.song.SongAdapter
-import code.name.monkey.retromusic.db.SongAnalysisDao
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
+import code.name.monkey.retromusic.adapter.song.BPMAdapter
+import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
+import code.name.monkey.retromusic.databinding.FragmentBpmBinding
+import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.extensions.setUpMediaRouteButton
-import code.name.monkey.retromusic.fragments.GridStyle
-import code.name.monkey.retromusic.fragments.ReloadType
+import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewCustomGridSizeFragment
-import code.name.monkey.retromusic.helper.SortOrder.SongSortOrder
+import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
+import code.name.monkey.retromusic.helper.MusicPlayerRemote
+import code.name.monkey.retromusic.helper.SortOrder
+import code.name.monkey.retromusic.interfaces.IScrollHelper
+import code.name.monkey.retromusic.model.Song
+import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
-import org.koin.android.ext.android.inject
+import code.name.monkey.retromusic.util.ThemedFastScroller
+import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
+import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
+import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager
+import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager
+import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 
-class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayoutManager>() {
+class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<BPMAdapter, GridLayoutManager>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getSongs().observe(viewLifecycleOwner) {
@@ -49,23 +71,23 @@ class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayou
         get() = R.string.no_songs
 
     override val isShuffleVisible: Boolean
-        get() = false
+        get() = true
+
+    override fun onShuffleClicked() {
+        libraryViewModel.shuffleSongs()
+    }
 
     override fun createLayoutManager(): GridLayoutManager {
         return GridLayoutManager(requireActivity(), getGridSize())
     }
 
-    override fun createAdapter(): SongAdapter {
+    override fun createAdapter(): BPMAdapter {
         val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
-        return SongAdapter(
+        return BPMAdapter(
             requireActivity(),
             dataSet,
-            itemLayoutRes()
+            R.layout.item_bpm,
         )
-    }
-
-    override fun itemLayoutRes(): Int {
-        return R.layout.item_bpm
     }
 
     override fun loadGridSize(): Int {
@@ -134,70 +156,70 @@ class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayou
             0,
             R.string.sort_order_default
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_DEFAULT
+            currentSortOrder == SortOrder.SongSortOrder.SONG_DEFAULT
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_asc,
             0,
             R.string.sort_order_a_z
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_A_Z
+            currentSortOrder == SortOrder.SongSortOrder.SONG_A_Z
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_desc,
             1,
             R.string.sort_order_z_a
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_Z_A
+            currentSortOrder == SortOrder.SongSortOrder.SONG_Z_A
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_artist,
             2,
             R.string.sort_order_artist
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_ARTIST
+            currentSortOrder == SortOrder.SongSortOrder.SONG_ARTIST
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_album,
             3,
             R.string.sort_order_album
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_ALBUM
+            currentSortOrder == SortOrder.SongSortOrder.SONG_ALBUM
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_year,
             4,
             R.string.sort_order_year
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_YEAR
+            currentSortOrder == SortOrder.SongSortOrder.SONG_YEAR
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_date,
             5,
             R.string.sort_order_date
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_DATE
+            currentSortOrder == SortOrder.SongSortOrder.SONG_DATE
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_date_modified,
             6,
             R.string.sort_order_date_modified
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_DATE_MODIFIED
+            currentSortOrder == SortOrder.SongSortOrder.SONG_DATE_MODIFIED
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_composer,
             7,
             R.string.sort_order_composer
         ).isChecked =
-            currentSortOrder == SongSortOrder.COMPOSER
+            currentSortOrder == SortOrder.SongSortOrder.COMPOSER
         sortOrderMenu.add(
             0,
             R.id.action_song_sort_order_album_artist,
             8,
             R.string.album_artist
         ).isChecked =
-            currentSortOrder == SongSortOrder.SONG_ALBUM_ARTIST
+            currentSortOrder == SortOrder.SongSortOrder.SONG_ALBUM_ARTIST
 
         sortOrderMenu.setGroupCheckable(0, true, true)
     }
@@ -263,16 +285,16 @@ class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayou
 
     private fun handleSortOrderMenuItem(item: MenuItem): Boolean {
         val sortOrder: String = when (item.itemId) {
-            R.id.action_song_default_sort_order -> SongSortOrder.SONG_DEFAULT
-            R.id.action_song_sort_order_asc -> SongSortOrder.SONG_A_Z
-            R.id.action_song_sort_order_desc -> SongSortOrder.SONG_Z_A
-            R.id.action_song_sort_order_artist -> SongSortOrder.SONG_ARTIST
-            R.id.action_song_sort_order_album_artist -> SongSortOrder.SONG_ALBUM_ARTIST
-            R.id.action_song_sort_order_album -> SongSortOrder.SONG_ALBUM
-            R.id.action_song_sort_order_year -> SongSortOrder.SONG_YEAR
-            R.id.action_song_sort_order_date -> SongSortOrder.SONG_DATE
-            R.id.action_song_sort_order_composer -> SongSortOrder.COMPOSER
-            R.id.action_song_sort_order_date_modified -> SongSortOrder.SONG_DATE_MODIFIED
+            R.id.action_song_default_sort_order -> SortOrder.SongSortOrder.SONG_DEFAULT
+            R.id.action_song_sort_order_asc -> SortOrder.SongSortOrder.SONG_A_Z
+            R.id.action_song_sort_order_desc -> SortOrder.SongSortOrder.SONG_Z_A
+            R.id.action_song_sort_order_artist -> SortOrder.SongSortOrder.SONG_ARTIST
+            R.id.action_song_sort_order_album_artist -> SortOrder.SongSortOrder.SONG_ALBUM_ARTIST
+            R.id.action_song_sort_order_album -> SortOrder.SongSortOrder.SONG_ALBUM
+            R.id.action_song_sort_order_year -> SortOrder.SongSortOrder.SONG_YEAR
+            R.id.action_song_sort_order_date -> SortOrder.SongSortOrder.SONG_DATE
+            R.id.action_song_sort_order_composer -> SortOrder.SongSortOrder.COMPOSER
+            R.id.action_song_sort_order_date_modified -> SortOrder.SongSortOrder.SONG_DATE_MODIFIED
             else -> PreferenceUtil.songSortOrder
         }
         if (sortOrder != PreferenceUtil.songSortOrder) {
@@ -337,7 +359,7 @@ class BPMFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayou
 
         @JvmStatic
         fun newInstance(): BPMFragment {
-            return BPMFragment()
+            return BPMFragment ()
         }
     }
 }
