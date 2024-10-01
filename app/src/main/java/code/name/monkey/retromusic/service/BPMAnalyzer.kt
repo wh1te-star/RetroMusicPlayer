@@ -1,6 +1,7 @@
 package code.name.monkey.retromusic.service
 
 import android.content.Context
+import android.widget.Toast
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.AudioEvent
 import be.tarsos.dsp.AudioProcessor
@@ -13,6 +14,7 @@ import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.logD
+import java.text.DecimalFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +36,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
-    fun startBPMAnalysis(songId: Long) {
+    fun startBPMAnalysis(songId: Long){
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
@@ -99,6 +101,9 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 }
 
                 logD("Audio processing finished. medianBPM: $medianBPM")
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(context, "Analysis finished.\nMedianBPM: ${DecimalFormat("#.0").format(medianBPM)}", Toast.LENGTH_LONG).show()
+                }
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
