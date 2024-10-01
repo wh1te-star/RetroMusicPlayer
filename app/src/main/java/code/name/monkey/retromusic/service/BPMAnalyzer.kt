@@ -15,15 +15,21 @@ import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.logD
+import kotlinx.coroutines.CompletableDeferred
 import java.text.DecimalFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.net.URI
 import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 
 class BPMAnalyzer private constructor(private val context: Context) : KoinComponent {
 
@@ -42,7 +48,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
 
     private val analysisDispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 
-    fun analyzeBPM(songId: Long, uri: Uri){
+    fun analyzeBPM(songId: Long, uri: Uri) = runBlocking {
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
@@ -75,6 +81,8 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         dispatcher.addAudioProcessor(
             PercussionOnsetDetector(44100.0f, 1024, percussionHandler, 95.0, 10.0)
         )
+
+        val completion = CompletableDeferred<Unit>()
 
         dispatcher.addAudioProcessor(object : AudioProcessor {
             override fun process(audioEvent: AudioEvent): Boolean {
@@ -115,6 +123,8 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                     val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
                     songAnalysisDao.addOrUpdateBpm(songAnalysis)
                 }
+
+                completion.complete(Unit)
             }
         })
 
@@ -122,6 +132,8 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         CoroutineScope(Dispatchers.IO).launch {
             dispatcher.run()
         }
+
+        completion.await()
     }
 
     fun analyzeAll(songIds: List<Long>, uris: List<Uri>) {
@@ -129,14 +141,17 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
             return
         }
 
-        val scope = CoroutineScope(analysisDispatcher)
-        scope.launch {
-            //for (i in 0 until songIds.size) {
-            for (i in 0 until 6) {
-                launch {
-                    analyzeBPM(songIds[i], uris[i])
+        val dispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        val scope = CoroutineScope(dispatcher)
+
+            //for (i in songIds.indices) {
+            for (i in 0..6) {
+                scope.launch {
+                    withContext(dispatcher){
+                        analyzeBPM(songIds[i], uris[i])
+                    }
                 }
             }
-        }
+        dispatcher.close()
     }
 }
