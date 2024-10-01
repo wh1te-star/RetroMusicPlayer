@@ -66,6 +66,7 @@ import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.interfaces.IPaletteColorHolder
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
+import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.NavigationUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
@@ -247,7 +248,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.action_show_bpm -> {
-                startBPMAnalysis()
+                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+                bpmAnalyzer.startBPMAnalysis(MusicPlayerRemote.currentSong.id)
                 return true;
             }
         }
@@ -329,87 +331,6 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
                 }
             }
         }
-    }
-
-    fun startBPMAnalysis(){
-        val songId = MusicPlayerRemote.currentSong.id
-
-        val complexOnsetTimes = mutableListOf<Double>()
-        val percussionOnsetTimes = mutableListOf<Double>()
-        val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
-            context,  MusicPlayerRemote.currentSong.uri,0.0, 320.0, 44100, 1024, 512
-        )
-
-        fun fixBPM(bpm: Double): Double {
-            val minBPM = 60.0
-            val maxBPM = 200.0
-            var fixedBPM = bpm
-            if (bpm > 0.0 && bpm < minBPM) {
-                while (fixedBPM < minBPM) fixedBPM *= 2.0
-            } else if (bpm > maxBPM) {
-                while (fixedBPM > maxBPM) fixedBPM /= 2.0
-            }
-            return fixedBPM
-        }
-
-        val complexHandler = OnsetHandler { time, salience ->
-            complexOnsetTimes.add(time)
-        }
-        val percussionHandler = OnsetHandler { time, salience ->
-            percussionOnsetTimes.add(time)
-        }
-
-        val complexOnsetDetector = ComplexOnsetDetector(1024)
-        dispatcher.addAudioProcessor(complexOnsetDetector)
-        complexOnsetDetector.setHandler(complexHandler)
-
-        dispatcher.addAudioProcessor(
-            PercussionOnsetDetector(44100.0f, 1024, percussionHandler, 95.0, 10.0)
-        )
-
-        dispatcher.addAudioProcessor(object : AudioProcessor {
-            override fun process(audioEvent: AudioEvent): Boolean {
-                return true
-            }
-
-            override fun processingFinished() {
-                complexOnsetTimes.sort()
-                percussionOnsetTimes.sort()
-
-                val bpmValues = mutableListOf<Double>()
-
-                for (i in 0 until complexOnsetTimes.size - 1) {
-                    val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]))
-                    bpmValues.add(bpm)
-                    logD("Complex Onset BPM: $bpm")
-                }
-
-                for (i in 0 until percussionOnsetTimes.size - 1) {
-                    val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]))
-                    bpmValues.add(bpm)
-                    logD("Percussion Onset BPM: $bpm")
-                }
-
-                val medianBPM = if (bpmValues.size % 2 == 0) {
-                    val middleIndex = bpmValues.size / 2
-                    (bpmValues[middleIndex - 1] + bpmValues[middleIndex]) / 2.0
-                } else {
-                    bpmValues[bpmValues.size / 2]
-                }
-
-                logD("Audio processing finished. medianBPM: $medianBPM")
-
-                val songAnalysisDao: SongAnalysisDao by inject()
-                CoroutineScope(Dispatchers.IO).launch {
-                    val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
-                    songAnalysisDao.addOrUpdateBpm(songAnalysis)
-                }
-            }
-        })
-
-        logD("Starting dispatcher")
-        dispatcher.run()
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
