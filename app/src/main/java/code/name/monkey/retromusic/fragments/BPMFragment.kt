@@ -15,10 +15,19 @@
 package code.name.monkey.retromusic.fragments
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import code.name.monkey.appthemehelper.common.ATHToolbarActivity
+import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.song.BPMAdapter
+import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
+import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
 
 class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
@@ -40,6 +49,29 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
 
     override val isShuffleVisible: Boolean
         get() = true
+
+    override fun onPrepareMenu(menu: Menu) {
+        ToolbarContentTintHelper.handleOnPrepareOptionsMenu(requireActivity(), toolbar)
+    }
+
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_bpm, menu)
+        ToolbarContentTintHelper.handleOnCreateOptionsMenu(
+            requireContext(),
+            toolbar,
+            menu,
+            ATHToolbarActivity.getToolbarBackgroundColor(toolbar)
+        )
+    }
+
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_analysis_bpm_all -> {
+                Toast.makeText(context, "abc", Toast.LENGTH_LONG).show()
+            }
+        }
+        return false
+    }
 
     override fun onShuffleClicked() {
         libraryViewModel.shuffleSongs()

@@ -562,4 +562,5 @@
     <string name="exit_back_twice">終了するにはもう一度戻るを押す</string>
     <string name="current_song">現在の曲</string>
     <string name="device">デバイス</string>
+    <string name="analysis_bpm_all">全ての曲のBPMを解析</string>
 </resources>

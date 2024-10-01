@@ -578,4 +578,5 @@
     <string name="select_file_to_upload">Select the file to upload</string>
     <string name="current_song">Current Song</string>
     <string name="device">Device</string>
+    <string name="analysis_bpm_all">Analysis BPMs for all songs.</string>
 </resources>
