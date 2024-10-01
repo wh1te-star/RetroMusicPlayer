@@ -28,7 +28,9 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.song.BPMAdapter
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
 import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
+import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
+import code.name.monkey.retromusic.service.BPMAnalyzer
 
 class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,7 +69,11 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
-                Toast.makeText(context, "abc", Toast.LENGTH_LONG).show()
+                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+                val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
+                val idList = dataSet.map { song -> song.id }
+                val uriList = dataSet.map { song -> song.uri }
+                bpmAnalyzer.analyzeAll(idList, uriList)
             }
         }
         return false

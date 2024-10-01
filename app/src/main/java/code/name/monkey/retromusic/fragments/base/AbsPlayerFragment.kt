@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.GestureDetector
@@ -33,18 +32,10 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import androidx.viewpager.widget.ViewPager
-import be.tarsos.dsp.AudioDispatcher
-import be.tarsos.dsp.AudioEvent
-import be.tarsos.dsp.AudioProcessor
-import be.tarsos.dsp.io.android.AudioDispatcherFactory
-import be.tarsos.dsp.onsets.ComplexOnsetDetector
-import be.tarsos.dsp.onsets.OnsetHandler
-import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.EXTRA_ARTIST_ID
@@ -53,12 +44,9 @@ import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.tageditor.AbsTagEditorActivity
 import code.name.monkey.retromusic.activities.tageditor.SongTagEditorActivity
 import code.name.monkey.retromusic.db.PlaylistEntity
-import code.name.monkey.retromusic.db.SongAnalysisDao
-import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.dialogs.*
 import code.name.monkey.retromusic.extensions.*
-import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.ReloadType
 import code.name.monkey.retromusic.fragments.player.PlayerAlbumCoverFragment
@@ -71,16 +59,12 @@ import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.NavigationUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RingtoneManager
-import code.name.monkey.retromusic.util.logD
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
@@ -249,7 +233,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
 
             R.id.action_show_bpm -> {
                 val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
-                bpmAnalyzer.startBPMAnalysis(MusicPlayerRemote.currentSong.id)
+                val currentSong = MusicPlayerRemote.currentSong
+                bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri)
                 return true;
             }
         }

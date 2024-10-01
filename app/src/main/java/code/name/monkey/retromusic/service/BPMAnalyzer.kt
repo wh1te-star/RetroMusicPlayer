@@ -1,6 +1,7 @@
 package code.name.monkey.retromusic.service
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.AudioEvent
@@ -17,9 +18,12 @@ import code.name.monkey.retromusic.util.logD
 import java.text.DecimalFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.net.URI
+import java.util.concurrent.Executors
 
 class BPMAnalyzer private constructor(private val context: Context) : KoinComponent {
 
@@ -36,11 +40,13 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
-    fun startBPMAnalysis(songId: Long){
+    private val analysisDispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+
+    fun analyzeBPM(songId: Long, uri: Uri){
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
-            context, MusicPlayerRemote.currentSong.uri, 0.0, 320.0, 44100, 1024, 512
+            context, uri, 0.0, 320.0, 44100, 1024, 512
         )
 
         fun fixBPM(bpm: Double): Double {
@@ -115,6 +121,22 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         logD("Starting dispatcher")
         CoroutineScope(Dispatchers.IO).launch {
             dispatcher.run()
+        }
+    }
+
+    fun analyzeAll(songIds: List<Long>, uris: List<Uri>) {
+        if (songIds.size != uris.size) {
+            return
+        }
+
+        val scope = CoroutineScope(analysisDispatcher)
+        scope.launch {
+            //for (i in 0 until songIds.size) {
+            for (i in 0 until 6) {
+                launch {
+                    analyzeBPM(songIds[i], uris[i])
+                }
+            }
         }
     }
 }
