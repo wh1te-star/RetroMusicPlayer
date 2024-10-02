@@ -31,7 +31,6 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
 import code.name.monkey.retromusic.db.SongAnalysisDao
-import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.asBitmapPalette
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
@@ -41,18 +40,19 @@ import code.name.monkey.retromusic.helper.SortOrder
 import code.name.monkey.retromusic.helper.menu.SongMenuHelper
 import code.name.monkey.retromusic.helper.menu.SongsMenuHelper
 import code.name.monkey.retromusic.model.Song
+import code.name.monkey.retromusic.service.AnalysisProcessCallback
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import com.bumptech.glide.Glide
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.inject
 import java.text.DecimalFormat
 
 /**
@@ -63,16 +63,24 @@ open class BPMAdapter(
     override val activity: FragmentActivity,
     var dataSet: MutableList<Song>,
     protected var itemLayoutRes: Int,
-    showSectionName: Boolean = true
+    showSectionName: Boolean = true,
 ) : AbsMultiSelectAdapter<BPMAdapter.ViewHolder, Song>(
     activity,
-    R.menu.menu_media_selection
+    R.menu.menu_media_selection,
 ), PopupTextProvider {
 
     private var showSectionName = showSectionName
+    val isProcessing: MutableMap<Long, Boolean> = mutableMapOf()
 
     init {
         this.setHasStableIds(true)
+        initializeProcessingMap()
+    }
+
+    private fun initializeProcessingMap() {
+        dataSet.forEach { song ->
+            isProcessing[song.id] = false
+        }
     }
 
     open fun swapDataSet(dataSet: List<Song>) {
@@ -106,13 +114,21 @@ open class BPMAdapter(
         holder.text?.text = getSongText(song)
         holder.text2?.text = getSongText2(song)
 
+        if (isProcessing[song.id] == true) {
+            holder.bpmValue?.isGone = true
+            holder.analysisIndicator?.isGone = false
+        } else {
+            holder.bpmValue?.isGone = false
+            holder.analysisIndicator?.isGone = true
+        }
+
         val songAnalysisDao: SongAnalysisDao by activity.inject()
         CoroutineScope(Dispatchers.IO).launch {
             val bpm = songAnalysisDao.getBpmBySongId(song.id)
             withContext(Dispatchers.Main) {
                 val decimalFormat = DecimalFormat("000.0")
                 val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
-                holder.bpmTextView?.text = formattedBpm
+                holder.bpmValue?.text = formattedBpm
             }
         }
 
@@ -192,13 +208,24 @@ open class BPMAdapter(
         return MusicUtil.getSectionName(sectionName)
     }
 
+    fun startProcess(id: Long) {
+        isProcessing[id] = true
+        notifyDataSetChanged()
+    }
+
+    fun finishProcess(id: Long) {
+        isProcessing[id] = false
+        notifyDataSetChanged()
+    }
+
     open inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
         protected open var songMenuRes = SongMenuHelper.MENU_RES
         protected open val song: Song
             get() = dataSet[layoutPosition]
 
         val currentSongColorView: View? = itemView.findViewById(R.id.currentSongColorView)
-        val bpmTextView: TextView? = itemView.findViewById(R.id.bpm)
+        val bpmValue: TextView? = itemView.findViewById(R.id.bpmValue)
+        val analysisIndicator: LinearProgressIndicator? = itemView.findViewById(R.id.bpmProcessingIndicator)
 
         init {
             menu?.setOnClickListener(object : SongMenuHelper.OnClickSongMenu(activity) {

@@ -48,7 +48,11 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
 
     private val analysisDispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 
-    fun analyzeBPM(songId: Long, uri: Uri) = runBlocking {
+    fun analyzeBPM(songId: Long, uri: Uri, callback: AnalysisProcessCallback) = runBlocking {
+        withContext(Dispatchers.Main) {
+            callback.onProcessStart(songId)
+        }
+
         val complexOnsetTimes = mutableListOf<Double>()
         val percussionOnsetTimes = mutableListOf<Double>()
         val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
@@ -134,9 +138,13 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         }
 
         completion.await()
+
+        withContext(Dispatchers.Main) {
+            callback.onProcessFinish(songId)
+        }
     }
 
-    fun analyzeAll(songIds: List<Long>, uris: List<Uri>) {
+    fun analyzeAll(songIds: List<Long>, uris: List<Uri>, callback: AnalysisProcessCallback) {
         if (songIds.size != uris.size) {
             return
         }
@@ -144,14 +152,18 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         val dispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
         val scope = CoroutineScope(dispatcher)
 
-            //for (i in songIds.indices) {
-            for (i in 0..6) {
+            for (i in songIds.indices) {
                 scope.launch {
                     withContext(dispatcher){
-                        analyzeBPM(songIds[i], uris[i])
+                        analyzeBPM(songIds[i], uris[i], callback)
                     }
                 }
             }
         dispatcher.close()
     }
+}
+
+interface AnalysisProcessCallback {
+    fun onProcessStart(id: Long)
+    fun onProcessFinish(id: Long)
 }

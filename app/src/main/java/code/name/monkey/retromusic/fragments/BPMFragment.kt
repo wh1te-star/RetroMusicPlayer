@@ -15,24 +15,34 @@
 package code.name.monkey.retromusic.fragments
 
 import android.os.Bundle
+import android.renderscript.ScriptGroup.Binding
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isGone
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.song.BPMAdapter
+import code.name.monkey.retromusic.databinding.FragmentBpmBinding
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
 import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
+import code.name.monkey.retromusic.service.AnalysisProcessCallback
 import code.name.monkey.retromusic.service.BPMAnalyzer
+import code.name.monkey.retromusic.util.logD
+import com.google.android.material.progressindicator.LinearProgressIndicator
 
-class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
+class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), AnalysisProcessCallback {
+    private var _binding: FragmentBpmBinding? = null
+    private val binding get() = _binding!!
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getSongs().observe(viewLifecycleOwner) {
@@ -73,7 +83,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                 val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
                 val idList = dataSet.map { song -> song.id }
                 val uriList = dataSet.map { song -> song.uri }
-                bpmAnalyzer.analyzeAll(idList, uriList)
+                bpmAnalyzer.analyzeAll(idList, uriList, this)
             }
         }
         return false
@@ -104,6 +114,14 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     override fun onPause() {
         super.onPause()
         adapter?.actionMode?.finish()
+    }
+
+    override fun onProcessStart(id: Long) {
+        adapter?.startProcess(id)
+    }
+
+    override fun onProcessFinish(id: Long) {
+        adapter?.finishProcess(id)
     }
 
     companion object {

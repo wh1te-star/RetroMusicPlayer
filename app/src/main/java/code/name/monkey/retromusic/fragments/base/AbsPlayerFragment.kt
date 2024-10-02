@@ -31,6 +31,7 @@ import android.widget.RelativeLayout
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -43,6 +44,7 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.tageditor.AbsTagEditorActivity
 import code.name.monkey.retromusic.activities.tageditor.SongTagEditorActivity
+import code.name.monkey.retromusic.adapter.song.BPMAdapter
 import code.name.monkey.retromusic.db.PlaylistEntity
 import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.dialogs.*
@@ -234,7 +236,7 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             R.id.action_show_bpm -> {
                 val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
                 val currentSong = MusicPlayerRemote.currentSong
-                bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri)
+                //bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri)
                 return true;
             }
         }
