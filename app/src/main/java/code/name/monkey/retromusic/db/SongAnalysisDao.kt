@@ -30,4 +30,7 @@ interface SongAnalysisDao {
 
     @Query("SELECT bpm FROM songsAnalysis WHERE song_id = :songId")
     suspend fun getBpmBySongId(songId: Long): Double?
+
+    @Query("DELETE FROM songsAnalysis")
+    suspend fun deleteAll()
 }

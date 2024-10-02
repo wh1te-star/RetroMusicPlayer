@@ -120,15 +120,14 @@ open class BPMAdapter(
         } else {
             holder.bpmValue?.isGone = false
             holder.analysisIndicator?.isGone = true
-        }
-
-        val songAnalysisDao: SongAnalysisDao by activity.inject()
-        CoroutineScope(Dispatchers.IO).launch {
-            val bpm = songAnalysisDao.getBpmBySongId(song.id)
-            withContext(Dispatchers.Main) {
-                val decimalFormat = DecimalFormat("000.0")
-                val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
-                holder.bpmValue?.text = formattedBpm
+            val songAnalysisDao: SongAnalysisDao by activity.inject()
+            CoroutineScope(Dispatchers.IO).launch {
+                val bpm = songAnalysisDao.getBpmBySongId(song.id)
+                withContext(Dispatchers.Main) {
+                    val decimalFormat = DecimalFormat("000.0")
+                    val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
+                    holder.bpmValue?.text = formattedBpm
+                }
             }
         }
 

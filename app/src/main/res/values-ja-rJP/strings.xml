@@ -563,4 +563,5 @@
     <string name="current_song">現在の曲</string>
     <string name="device">デバイス</string>
     <string name="analysis_bpm_all">全ての曲のBPMを解析</string>
+    <string name="delete_bpm_all">全ての曲のBPMを削除</string>
 </resources>

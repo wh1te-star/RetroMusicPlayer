@@ -119,9 +119,6 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 }
 
                 logD("Audio processing finished. medianBPM: $medianBPM")
-                CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(context, "Analysis finished.\nMedianBPM: ${DecimalFormat("#.0").format(medianBPM)}", Toast.LENGTH_LONG).show()
-                }
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
@@ -160,6 +157,12 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 }
             }
         dispatcher.close()
+    }
+
+    suspend fun deleteAllBPMs(){
+        CoroutineScope(Dispatchers.IO).launch {
+            songAnalysisDao.deleteAll()
+        }
     }
 }
 

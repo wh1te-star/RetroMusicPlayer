@@ -38,6 +38,9 @@ import code.name.monkey.retromusic.service.AnalysisProcessCallback
 import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.util.logD
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), AnalysisProcessCallback {
     private var _binding: FragmentBpmBinding? = null
@@ -77,13 +80,19 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), An
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
+        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
-                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
                 val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
                 val idList = dataSet.map { song -> song.id }
                 val uriList = dataSet.map { song -> song.uri }
                 bpmAnalyzer.analyzeAll(idList, uriList, this)
+            }
+            R.id.action_delete_bpm_all-> {
+                CoroutineScope(Dispatchers.Main).launch {
+                    bpmAnalyzer.deleteAllBPMs()
+                    adapter?.notifyDataSetChanged()
+                }
             }
         }
         return false

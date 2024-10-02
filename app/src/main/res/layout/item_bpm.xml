@@ -77,7 +77,7 @@
 
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="84dp"
+        android:layout_width="85dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/menu"
@@ -92,7 +92,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:paddingHorizontal="8dp"
-            android:text="123.4"
+            android:text="N/A"
             android:textAppearance="@style/TextViewBody2"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="25sp" />

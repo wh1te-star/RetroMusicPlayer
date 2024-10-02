@@ -7,4 +7,9 @@
         android:id="@+id/action_analysis_bpm_all"
         android:title="@string/analysis_bpm_all"
         app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/action_delete_bpm_all"
+        android:title="@string/delete_bpm_all"
+        app:showAsAction="collapseActionView" />
 </menu>
