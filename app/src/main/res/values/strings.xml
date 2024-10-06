@@ -580,4 +580,5 @@
     <string name="device">Device</string>
     <string name="analysis_bpm_all">Analysis BPMs for all songs.</string>
     <string name="delete_bpm_all">Delete BPMs for all songs.</string>
+    <string name="action_stop_bpm_process_all">stop all BPM processes</string>
 </resources>

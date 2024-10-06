@@ -28,8 +28,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.song.BPMAdapter
 import code.name.monkey.retromusic.databinding.FragmentBpmBinding
+import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
 import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.uri
@@ -40,11 +42,15 @@ import code.name.monkey.retromusic.util.logD
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), AnalysisProcessCallback {
+class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     private var _binding: FragmentBpmBinding? = null
     private val binding get() = _binding!!
+    private lateinit var menu: Menu
+    private lateinit var processAllMenuItem: MenuItem
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,6 +60,10 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), An
             else
                 adapter?.swapDataSet(listOf())
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     override val titleRes: Int
@@ -77,16 +87,29 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), An
             menu,
             ATHToolbarActivity.getToolbarBackgroundColor(toolbar)
         )
+
+        this.menu = menu
+        this.processAllMenuItem = menu.findItem(R.id.action_analysis_bpm_all)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext(), (activity as AbsSlidingMusicPanelActivity).bpmAnalysisCallback)
+        val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
-                val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
-                val idList = dataSet.map { song -> song.id }
-                val uriList = dataSet.map { song -> song.uri }
-                bpmAnalyzer.analyzeAll(idList, uriList, this)
+                if(bpmAnalyzer.isRunning()){
+                    bpmAnalyzer.stopAllAnalysis()
+                    Toast.makeText(context, "Stopping analysis...", Toast.LENGTH_LONG).show()
+                    item.title = getString(R.string.analysis_bpm_all)
+                }else{
+                    val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
+                    val idList = dataSet.map { song -> song.id }
+                    val uriList = dataSet.map { song -> song.uri }
+                    scope.launch {
+                        bpmAnalyzer.analyzeAll(idList, uriList)
+                    }
+                    item.title = getString(R.string.action_stop_bpm_process_all)
+                }
             }
             R.id.action_delete_bpm_all-> {
                 CoroutineScope(Dispatchers.Main).launch {
@@ -125,12 +148,19 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>(), An
         adapter?.actionMode?.finish()
     }
 
-    override fun onProcessStart(id: Long) {
+    fun onSingleProcessStart(id: Long) {
         adapter?.startProcess(id)
     }
 
-    override fun onProcessFinish(id: Long) {
+    fun onSingleProcessFinish(id: Long) {
         adapter?.finishProcess(id)
+    }
+
+    fun onAllProcessFinish() {
+        processAllMenuItem.title = getString(R.string.analysis_bpm_all)
+        for (id in adapter?.isProcessing?.keys!!) {
+            adapter?.finishProcess(id)
+        }
     }
 
     companion object {

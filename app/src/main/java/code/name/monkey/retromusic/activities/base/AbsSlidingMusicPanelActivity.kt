@@ -46,11 +46,14 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.findFragment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.contains
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -95,6 +98,7 @@ import code.name.monkey.retromusic.extensions.setNavigationBarColorPreOreo
 import code.name.monkey.retromusic.extensions.setTaskDescriptionColor
 import code.name.monkey.retromusic.extensions.surfaceColor
 import code.name.monkey.retromusic.extensions.whichFragment
+import code.name.monkey.retromusic.fragments.BPMFragment
 import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
@@ -105,6 +109,8 @@ import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.helper.MusicPlayerRemote.currentSong
 import code.name.monkey.retromusic.model.CategoryInfo
+import code.name.monkey.retromusic.service.AnalysisProcessCallback
+import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.logD
@@ -121,11 +127,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLIN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
-    SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener, AnalysisProcessCallback {
     companion object {
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
@@ -161,6 +170,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var leftButtonBottomMargin = 0
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
+
+    lateinit var bpmAnalysisCallback: AnalysisProcessCallback
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         private var backPressCount = 0
@@ -313,6 +324,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
         setupNavigationButtons()
+
+        bpmAnalysisCallback = this
     }
 
     private fun setupNavigationButtons(){
@@ -432,6 +445,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun handleNavigationItemSelected(item: MenuItem): Boolean {
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val bpmAnalyzer = BPMAnalyzer.getInstance(this@AbsSlidingMusicPanelActivity, bpmAnalysisCallback)
+            //bpmAnalyzer.stopAllAnalysis()
+        }
+
         when (item.itemId) {
             R.id.nav_go_to_album -> {
                 navController.navigate(
@@ -720,6 +739,30 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         playerFragment = whichFragment(R.id.playerFragmentContainer)
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
+    }
+
+    override fun onSingleProcessStart(id: Long) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
+        val bpmFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is BPMFragment } as? BPMFragment
+        bpmFragment?.let {
+            it.onSingleProcessStart(id)
+        }
+    }
+
+    override fun onSingleProcessFinish(id: Long) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
+        val bpmFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is BPMFragment } as? BPMFragment
+        bpmFragment?.let {
+            it.onSingleProcessFinish(id)
+        }
+    }
+
+    override fun onAllProcessFinish() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
+        val bpmFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is BPMFragment } as? BPMFragment
+        bpmFragment?.let {
+            it.onAllProcessFinish()
+        }
     }
 
     override fun onPlayingMetaChanged() {
