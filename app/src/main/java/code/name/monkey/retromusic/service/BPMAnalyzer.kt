@@ -137,6 +137,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                             songAnalysisDao.addOrUpdateBpm(songAnalysis)
                         }
 
+                        processJob.complete()
                         completion.complete(Unit)
                     }
                 })
