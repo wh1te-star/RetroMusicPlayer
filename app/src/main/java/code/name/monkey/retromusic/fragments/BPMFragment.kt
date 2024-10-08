@@ -14,6 +14,7 @@
  */
 package code.name.monkey.retromusic.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.renderscript.ScriptGroup.Binding
 import android.view.Menu
@@ -111,11 +112,20 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                     item.title = getString(R.string.action_stop_bpm_process_all)
                 }
             }
-            R.id.action_delete_bpm_all-> {
-                CoroutineScope(Dispatchers.Main).launch {
-                    bpmAnalyzer.deleteAllBPMs()
-                    adapter?.notifyDataSetChanged()
-                }
+            R.id.action_delete_bpm_all -> {
+                val builder = AlertDialog.Builder(context)
+                builder.setMessage(getString(R.string.delete_all_bpm_value))
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        CoroutineScope(Dispatchers.Main).launch {
+                            bpmAnalyzer.deleteAllBPMs()
+                            adapter?.notifyDataSetChanged()
+                        }
+                    }
+                    .setNegativeButton(R.string.no) { dialog, id ->
+                        dialog.dismiss()
+                    }
+                val alert = builder.create()
+                alert.show()
             }
         }
         return false
