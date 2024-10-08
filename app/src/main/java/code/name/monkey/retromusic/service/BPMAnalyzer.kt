@@ -46,18 +46,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
-    private var parentJob = Job()
-    private var dispatcher = Executors.newFixedThreadPool(20).asCoroutineDispatcher()
+    private var parentJob = Job().apply { complete() }
     private val semaphore = Semaphore(3)
-
-    private fun refreshDispatcher() {
-        dispatcher.close()
-        dispatcher = Executors.newFixedThreadPool(20).asCoroutineDispatcher()
-    }
 
     fun analyzeBPM(songId: Long, uri: Uri, parentScope: CoroutineScope): Job {
         val processJob = Job(parentScope.coroutineContext[Job])
-        val processScope = CoroutineScope(dispatcher + processJob)
+        val processScope = CoroutineScope(Dispatchers.IO + processJob)
 
         processScope.launch {
             semaphore.withPermit {
@@ -159,9 +153,8 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
     }
 
     suspend fun analyzeAll(songIds: List<Long>, uris: List<Uri>) {
-        refreshDispatcher()
         parentJob = Job()
-        val parentScope = CoroutineScope(dispatcher + parentJob)
+        val parentScope = CoroutineScope(Dispatchers.IO + parentJob)
 
         val jobs = mutableListOf<Job>()
         for (i in songIds.indices) {
@@ -172,12 +165,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
 
         withContext(Dispatchers.Main) {
             callback.onAllProcessFinish()
+            parentJob.complete()
         }
     }
 
     suspend fun deleteAllBPMs() {
-        refreshDispatcher()
-        CoroutineScope(dispatcher).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             songAnalysisDao.deleteAll()
         }.join()
     }
@@ -191,13 +184,13 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
             if (cause is CancellationException) {
                 CoroutineScope(Dispatchers.Main).launch {
                     callback.onAllProcessFinish()
+                    parentJob.complete()
                 }
             }
         }
         parentJob.cancel()
         CoroutineScope(Dispatchers.IO).launch {
             parentJob.join()
-            refreshDispatcher()
         }
     }
 }
