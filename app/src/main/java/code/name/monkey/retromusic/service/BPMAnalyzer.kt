@@ -158,7 +158,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
 
         val jobs = mutableListOf<Job>()
         for (i in songIds.indices) {
-            jobs.add(analyzeBPM(songIds[i], uris[i], parentScope))
+            val isAnalyzed = runBlocking {
+                songAnalysisDao.getBpmBySongId(songIds[i])
+            }
+            if (isAnalyzed == null) {
+                jobs.add(analyzeBPM(songIds[i], uris[i], parentScope))
+            }
         }
 
         jobs.joinAll()
