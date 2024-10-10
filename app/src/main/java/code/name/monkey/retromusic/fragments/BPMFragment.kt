@@ -117,7 +117,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
             R.id.action_analysis_bpm_all -> {
                 if(bpmAnalyzer.isRunning()){
                     bpmAnalyzer.stopAllAnalysis()
-                    Toast.makeText(context, "Stopping analysis...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.stop_analysis), Toast.LENGTH_LONG).show()
                     item.title = getString(R.string.analysis_bpm_all)
                 } else {
                     val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet

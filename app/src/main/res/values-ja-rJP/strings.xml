@@ -569,4 +569,5 @@
     <string name="reset_bpm_order">並び替えを解除</string>
     <string name="sort_by_bpm_ascending">BPMで昇順に並び替え</string>
     <string name="sort_by_bpm_descending">BPMで降順に並び替え</string>
+    <string name="stop_analysis">解析を停止しています...</string>
 </resources>
