@@ -582,4 +582,7 @@
     <string name="delete_bpm_all">Delete BPMs for all songs.</string>
     <string name="action_stop_bpm_process_all">stop all BPM processes</string>
     <string name="delete_all_bpm_value">Do you really want to delete all analyzed BPM values?</string>
+    <string name="reset_bpm_order">Reset the Order.</string>
+    <string name="sort_by_bpm_ascending">Sort by in BPM ascending order.</string>
+    <string name="sort_by_bpm_descending">Sort by BPM in descending order.</string>
 </resources>

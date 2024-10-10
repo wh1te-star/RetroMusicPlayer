@@ -49,6 +49,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
     private var parentJob = Job().apply { complete() }
     private val semaphore = Semaphore(3)
 
+    fun getBPMValue(songId: Long): Double? {
+        return runBlocking {
+            songAnalysisDao.getBpmBySongId(songId)
+        }
+    }
+
     fun analyzeBPM(songId: Long, uri: Uri, parentScope: CoroutineScope): Job {
         val processJob = Job(parentScope.coroutineContext[Job])
         val processScope = CoroutineScope(Dispatchers.IO + processJob)

@@ -566,4 +566,7 @@
     <string name="delete_bpm_all">全ての曲のBPMを削除</string>
     <string name="action_stop_bpm_process_all">全てのBPM解析を停止</string>
     <string name="delete_all_bpm_value">全てのBPM値を削除しますか</string>
+    <string name="reset_bpm_order">並び替えを解除</string>
+    <string name="sort_by_bpm_ascending">BPMで昇順に並び替え</string>
+    <string name="sort_by_bpm_descending">BPMで降順に並び替え</string>
 </resources>

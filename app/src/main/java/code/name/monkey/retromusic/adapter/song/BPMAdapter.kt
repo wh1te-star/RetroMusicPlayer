@@ -61,10 +61,10 @@ import java.text.DecimalFormat
 
 open class BPMAdapter(
     override val activity: FragmentActivity,
-    var dataSet: MutableList<Song>,
+    var dataSet: MutableList<SongBPM>,
     protected var itemLayoutRes: Int,
     showSectionName: Boolean = true,
-) : AbsMultiSelectAdapter<BPMAdapter.ViewHolder, Song>(
+) : AbsMultiSelectAdapter<BPMAdapter.ViewHolder, SongBPM>(
     activity,
     R.menu.menu_media_selection,
 ), PopupTextProvider {
@@ -79,17 +79,17 @@ open class BPMAdapter(
 
     private fun initializeProcessingMap() {
         dataSet.forEach { song ->
-            isProcessing[song.id] = false
+            isProcessing[song.song.id] = false
         }
     }
 
-    open fun swapDataSet(dataSet: List<Song>) {
+    open fun swapDataSet(dataSet: List<SongBPM>) {
         this.dataSet = ArrayList(dataSet)
         notifyDataSetChanged()
     }
 
     override fun getItemId(position: Int): Long {
-        return dataSet[position].id
+        return dataSet[position].song.id
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -110,11 +110,11 @@ open class BPMAdapter(
         val isChecked = isChecked(song)
         holder.itemView.isActivated = isChecked
         holder.menu?.isGone = isChecked
-        holder.title?.text = getSongTitle(song)
-        holder.text?.text = getSongText(song)
-        holder.text2?.text = getSongText2(song)
+        holder.title?.text = getSongTitle(song.song)
+        holder.text?.text = getSongText(song.song)
+        holder.text2?.text = getSongText2(song.song)
 
-        if (isProcessing[song.id] == true) {
+        if (isProcessing[song.song.id] == true) {
             holder.bpmValue?.isGone = true
             holder.analysisIndicator?.isGone = false
         } else {
@@ -122,7 +122,7 @@ open class BPMAdapter(
             holder.analysisIndicator?.isGone = true
             val songAnalysisDao: SongAnalysisDao by activity.inject()
             CoroutineScope(Dispatchers.IO).launch {
-                val bpm = songAnalysisDao.getBpmBySongId(song.id)
+                val bpm = songAnalysisDao.getBpmBySongId(song.song.id)
                 withContext(Dispatchers.Main) {
                     val decimalFormat = DecimalFormat("000.0")
                     val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
@@ -131,7 +131,7 @@ open class BPMAdapter(
             }
         }
 
-        loadAlbumCover(song, holder)
+        loadAlbumCover(song.song, holder)
         val landscape = RetroUtil.isLandscape
         if ((PreferenceUtil.songGridSize > 2 && !landscape) || (PreferenceUtil.songGridSizeLand > 5 && landscape)) {
             holder.menu?.isVisible = false
@@ -176,30 +176,31 @@ open class BPMAdapter(
         return dataSet.size
     }
 
-    override fun getIdentifier(position: Int): Song? {
+    override fun getIdentifier(position: Int): SongBPM? {
         return dataSet[position]
     }
 
-    override fun getName(model: Song): String {
-        return model.title
+    override fun getName(model: SongBPM): String {
+        return model.song.title
     }
 
-    override fun onMultipleItemAction(menuItem: MenuItem, selection: List<Song>) {
+    override fun onMultipleItemAction(menuItem: MenuItem, selectionBPM: List<SongBPM>) {
+        val selection = selectionBPM.map { it.song }
         SongsMenuHelper.handleMenuClick(activity, selection, menuItem.itemId)
     }
 
     override fun getPopupText(position: Int): String {
         val sectionName: String? = when (PreferenceUtil.songSortOrder) {
             SortOrder.SongSortOrder.SONG_DEFAULT -> return MusicUtil.getSectionName(
-                dataSet[position].title,
+                dataSet[position].song.title,
                 true
             )
-            SortOrder.SongSortOrder.SONG_A_Z, SortOrder.SongSortOrder.SONG_Z_A -> dataSet[position].title
-            SortOrder.SongSortOrder.SONG_ALBUM -> dataSet[position].albumName
-            SortOrder.SongSortOrder.SONG_ARTIST -> dataSet[position].artistName
-            SortOrder.SongSortOrder.SONG_YEAR -> return MusicUtil.getYearString(dataSet[position].year)
-            SortOrder.SongSortOrder.COMPOSER -> dataSet[position].composer
-            SortOrder.SongSortOrder.SONG_ALBUM_ARTIST -> dataSet[position].albumArtist
+            SortOrder.SongSortOrder.SONG_A_Z, SortOrder.SongSortOrder.SONG_Z_A -> dataSet[position].song.title
+            SortOrder.SongSortOrder.SONG_ALBUM -> dataSet[position].song.albumName
+            SortOrder.SongSortOrder.SONG_ARTIST -> dataSet[position].song.artistName
+            SortOrder.SongSortOrder.SONG_YEAR -> return MusicUtil.getYearString(dataSet[position].song.year)
+            SortOrder.SongSortOrder.COMPOSER -> dataSet[position].song.composer
+            SortOrder.SongSortOrder.SONG_ALBUM_ARTIST -> dataSet[position].song.albumArtist
             else -> {
                 return ""
             }
@@ -220,7 +221,7 @@ open class BPMAdapter(
     open inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
         protected open var songMenuRes = SongMenuHelper.MENU_RES
         protected open val song: Song
-            get() = dataSet[layoutPosition]
+            get() = dataSet[layoutPosition].song
 
         val currentSongColorView: View? = itemView.findViewById(R.id.currentSongColorView)
         val bpmValue: TextView? = itemView.findViewById(R.id.bpmValue)
@@ -260,7 +261,8 @@ open class BPMAdapter(
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
             } else {
-                MusicPlayerRemote.openQueue(dataSet, layoutPosition, true)
+                val dataSetBPM = dataSet.map { it.song }
+                MusicPlayerRemote.openQueue(dataSetBPM, layoutPosition, true)
             }
         }
 
@@ -273,3 +275,5 @@ open class BPMAdapter(
         val TAG: String = BPMAdapter::class.java.simpleName
     }
 }
+
+data class SongBPM(val song: Song, val bpm: Double?)

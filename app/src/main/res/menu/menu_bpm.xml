@@ -9,6 +9,16 @@
         app:showAsAction="collapseActionView" />
 
     <item
+        android:id="@+id/action_sort_order_bpm_reset"
+        android:title="@string/reset_bpm_order"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/action_sort_order_bpm"
+        android:title="@string/sort_by_bpm_ascending"
+        app:showAsAction="collapseActionView" />
+
+    <item
         android:id="@+id/action_delete_bpm_all"
         android:title="@string/delete_bpm_all"
         app:showAsAction="collapseActionView" />
