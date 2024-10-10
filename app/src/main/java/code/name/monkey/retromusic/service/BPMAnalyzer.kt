@@ -68,7 +68,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                 val complexOnsetTimes = mutableListOf<Double>()
                 val percussionOnsetTimes = mutableListOf<Double>()
                 val audioDispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
-                    context, uri, 0.0, 320.0, 44100, 1024, 512
+                    context, uri, 0.0, -1.0, 44100, 1024, 512
                 )
 
                 fun fixBPM(bpm: Double): Double {
