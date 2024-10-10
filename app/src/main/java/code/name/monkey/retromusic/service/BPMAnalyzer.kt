@@ -13,20 +13,15 @@ import code.name.monkey.retromusic.db.SongAnalysisDao
 import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.util.logD
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.Executors
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlin.coroutines.cancellation.CancellationException
@@ -49,9 +44,15 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
     private var parentJob = Job().apply { complete() }
     private val semaphore = Semaphore(3)
 
+    fun getAllBPMValues(): List<SongAnalysisEntity>? {
+        return runBlocking {
+            songAnalysisDao.getBPMs()
+        }
+    }
+
     fun getBPMValue(songId: Long): Double? {
         return runBlocking {
-            songAnalysisDao.getBpmBySongId(songId)
+            songAnalysisDao.getBPMBySongId(songId)
         }
     }
 
@@ -165,7 +166,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
         val jobs = mutableListOf<Job>()
         for (i in songIds.indices) {
             val isAnalyzed = runBlocking {
-                songAnalysisDao.getBpmBySongId(songIds[i])
+                songAnalysisDao.getBPMBySongId(songIds[i])
             }
             if (isAnalyzed == null) {
                 jobs.add(analyzeBPM(songIds[i], uris[i], parentScope))

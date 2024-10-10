@@ -61,15 +61,16 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val bpmAnalyzer = BPMAnalyzer.getInstance(
+            requireContext(),
+            (activity as AbsSlidingMusicPanelActivity).bpmAnalysisCallback
+        )
+        val BPMValues = bpmAnalyzer.getAllBPMValues()
         libraryViewModel.getSongs().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                val bpmAnalyzer = BPMAnalyzer.getInstance(
-                    requireContext(),
-                    (activity as AbsSlidingMusicPanelActivity).bpmAnalysisCallback
-                )
                 val songBPMList = it.map { song ->
-                    val bpm = bpmAnalyzer.getBPMValue(song.id)
-                    SongBPM(song, bpm)
+                    val bpmValue = BPMValues?.find { it.songId == song.id }?.bpm
+                    SongBPM(song, bpmValue)
                 }
                 originalOrderDataset = songBPMList
                 adapter?.swapDataSet(songBPMList)
