@@ -3,10 +3,14 @@ package code.name.monkey.retromusic.service
 import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.view.LayoutInflater
+import android.widget.TextView
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.AudioEvent
 import be.tarsos.dsp.AudioProcessor
-import be.tarsos.dsp.filters.HighPass
 import be.tarsos.dsp.filters.LowPassFS
 import be.tarsos.dsp.io.TarsosDSPAudioFormat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
@@ -20,6 +24,7 @@ import code.name.monkey.retromusic.db.SongAnalysisEntity
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.logD
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +39,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import java.io.File
 import java.io.RandomAccessFile
+import java.text.DecimalFormat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -48,6 +54,9 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 INSTANCE ?: BPMAnalyzer(context.applicationContext).also { INSTANCE = it }
             }
         }
+
+        private const val possibleMinBPM = 60.0
+        private const val possibleMaxBPM = 240.0
     }
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
@@ -90,13 +99,11 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 )
 
                 fun fixBPM(bpm: Double): Double {
-                    val minBPM = 60.0
-                    val maxBPM = 240.0
                     var fixedBPM = bpm
-                    if (bpm > 0.0 && bpm < minBPM) {
-                        while (fixedBPM < minBPM) fixedBPM *= 2.0
-                    } else if (bpm > maxBPM) {
-                        while (fixedBPM > maxBPM) fixedBPM /= 2.0
+                    if (bpm > 0.0 && bpm < Companion.possibleMinBPM) {
+                        while (fixedBPM < Companion.possibleMinBPM) fixedBPM *= 2.0
+                    } else if (bpm > Companion.possibleMaxBPM) {
+                        while (fixedBPM > Companion.possibleMaxBPM) fixedBPM /= 2.0
                     }
                     return fixedBPM
                 }
@@ -225,9 +232,34 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         }
     }
 
-    fun manualBPMTap(context: Context){
+    fun manualBPMTap(context: Context) {
+        val inflater = LayoutInflater.from(context)
+        val dialogView = inflater.inflate(R.layout.dialog_manual_bpm, null)
+        var previousTapTime = 0L
+
+        val temporalBPMTextView: TextView = dialogView.findViewById(R.id.temporalBPMValue)
+        val tapButton: FloatingActionButton = dialogView.findViewById(R.id.bpmTapButton)
+
+        tapButton.setOnClickListener {
+            val currentTapTime = System.currentTimeMillis()
+                    if (previousTapTime != 0L) {
+                        val timeDifference = currentTapTime - previousTapTime
+                        if (timeDifference > 0) {
+                            val currentBPM = 60.0 / (timeDifference / 1000.0)
+                            val decimalFormat = DecimalFormat("0.0")
+                            val formattedBPM = decimalFormat.format(currentBPM)
+                            val bpmText = "$formattedBPM BPM"
+                            val spannableString = SpannableString(bpmText)
+                            val start = bpmText.indexOf("BPM")
+                            spannableString.setSpan(RelativeSizeSpan(0.3f), start, bpmText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            temporalBPMTextView.text = spannableString
+                        }
+                    }
+            previousTapTime = currentTapTime
+        }
+
         val dialogBuilder = AlertDialog.Builder(context)
-            .setView(R.layout.dialog_manual_bpm)
+            .setView(dialogView)
             .setPositiveButton("OK") { dialog, _ ->
                 val currentSong = MusicPlayerRemote.currentSong
                 analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
@@ -236,6 +268,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
             .setNegativeButton(R.string.action_cancel) { dialog, _ ->
                 dialog.dismiss()
             }
+
         val dialog = dialogBuilder.create()
         dialog.show()
     }
