@@ -232,7 +232,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         }
     }
 
-    fun manualBPMTap(context: Context) {
+    fun manualBPMTap(context: Context, songId: Long, uri: Uri) {
         val inflater = LayoutInflater.from(context)
         val dialogView = inflater.inflate(R.layout.dialog_manual_bpm, null)
 
@@ -276,8 +276,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(dialogView)
             .setPositiveButton("OK") { dialog, _ ->
-                val currentSong = MusicPlayerRemote.currentSong
-                analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
+                analyzeBPM(songId, uri, CoroutineScope(Dispatchers.IO))
                 dialog.dismiss()
             }
             .setNegativeButton(R.string.action_cancel) { dialog, _ ->
