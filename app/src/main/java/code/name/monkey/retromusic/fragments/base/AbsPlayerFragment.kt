@@ -62,6 +62,8 @@ import code.name.monkey.retromusic.util.NavigationUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RingtoneManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -234,9 +236,9 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.action_show_bpm -> {
-                //val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
-                //val currentSong = MusicPlayerRemote.currentSong
-                //bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri)
+                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+                val currentSong = MusicPlayerRemote.currentSong
+                bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
                 return true;
             }
         }

@@ -171,8 +171,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var optionButtonBottomMargin = 0
     private var rightButtonBottomMargin = 0
 
-    lateinit var bpmAnalysisCallback: AnalysisProcessCallback
-
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         private var backPressCount = 0
         private val backPressThreshold = 2
@@ -325,7 +323,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         setupNavigationButtons()
 
-        bpmAnalysisCallback = this
+        val bpmAnalyzer = BPMAnalyzer.getInstance(this@AbsSlidingMusicPanelActivity)
+        bpmAnalyzer.setCallback(this)
     }
 
     private fun setupNavigationButtons(){
@@ -445,11 +444,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun handleNavigationItemSelected(item: MenuItem): Boolean {
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val bpmAnalyzer = BPMAnalyzer.getInstance(this@AbsSlidingMusicPanelActivity, bpmAnalysisCallback)
-            //bpmAnalyzer.stopAllAnalysis()
-        }
 
         when (item.itemId) {
             R.id.nav_go_to_album -> {

@@ -33,15 +33,15 @@ import java.io.RandomAccessFile
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
-class BPMAnalyzer private constructor(private val context: Context, private val callback: AnalysisProcessCallback) : KoinComponent {
+class BPMAnalyzer private constructor(private val context: Context) : KoinComponent {
 
     companion object {
         @Volatile
         private var INSTANCE: BPMAnalyzer? = null
 
-        fun getInstance(context: Context, callback: AnalysisProcessCallback): BPMAnalyzer {
+        fun getInstance(context: Context): BPMAnalyzer {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BPMAnalyzer(context.applicationContext, callback).also { INSTANCE = it }
+                INSTANCE ?: BPMAnalyzer(context.applicationContext).also { INSTANCE = it }
             }
         }
     }
@@ -50,6 +50,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
 
     private var parentJob = Job().apply { complete() }
     private val semaphore = Semaphore(3)
+
+    private var callback: AnalysisProcessCallback? = null
+
+    fun setCallback(callback: AnalysisProcessCallback) {
+        this.callback = callback
+    }
 
     fun getAllBPMValues(): List<SongAnalysisEntity>? {
         return runBlocking {
@@ -70,7 +76,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
         processScope.launch {
             semaphore.withPermit {
                 withContext(Dispatchers.Main) {
-                    callback.onSingleProcessStart(songId)
+                    callback?.onSingleProcessStart(songId)
                 }
 
                 val complexOnsetTimes = mutableListOf<Double>()
@@ -160,7 +166,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                 completion.await()
 
                 withContext(Dispatchers.Main) {
-                    callback.onSingleProcessFinish(songId)
+                    callback?.onSingleProcessFinish(songId)
                 }
             }
         }
@@ -185,7 +191,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
         jobs.joinAll()
 
         withContext(Dispatchers.Main) {
-            callback.onAllProcessFinish()
+            callback?.onAllProcessFinish()
             parentJob.complete()
         }
     }
@@ -204,7 +210,7 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
         parentJob.invokeOnCompletion { cause ->
             if (cause is CancellationException) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    callback.onAllProcessFinish()
+                    callback?.onAllProcessFinish()
                     parentJob.complete()
                 }
             }
@@ -216,23 +222,23 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
     }
 
     fun exportFrequencyFilteredAudio(context: Context, inputUri: Uri, outputFilePath: String) {
-    val outputFile = File(outputFilePath)
-    outputFile.parentFile?.let { parentDir ->
-        if (!parentDir.exists()) {
-            parentDir.mkdirs()
+        val outputFile = File(outputFilePath)
+        outputFile.parentFile?.let { parentDir ->
+            if (!parentDir.exists()) {
+                parentDir.mkdirs()
+            }
         }
+        val audioDispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
+            context, inputUri, 0.0, -1.0, 44100, 1024, 512
+        )
+        val lowPassFilter = LowPassFS(300.0f, 44100f)
+        val randomAccessFile = RandomAccessFile(outputFile, "rw")
+        val audioFormat = TarsosDSPAudioFormat(44100f, 16, 2, true, false)
+        val writerProcessor = WriterProcessor(audioFormat, randomAccessFile)
+        audioDispatcher.addAudioProcessor(lowPassFilter)
+        audioDispatcher.addAudioProcessor(writerProcessor)
+        audioDispatcher.run()
     }
-    val audioDispatcher: AudioDispatcher = AudioDispatcherFactory.fromPipe(
-        context, inputUri, 0.0, -1.0, 44100, 1024, 512
-    )
-    val lowPassFilter = LowPassFS(300.0f, 44100f)
-    val randomAccessFile = RandomAccessFile(outputFile, "rw")
-    val audioFormat = TarsosDSPAudioFormat(44100f, 16, 2, true, false)
-    val writerProcessor = WriterProcessor(audioFormat, randomAccessFile)
-    audioDispatcher.addAudioProcessor(lowPassFilter)
-    audioDispatcher.addAudioProcessor(writerProcessor)
-    audioDispatcher.run()
-}
 }
 
 interface AnalysisProcessCallback {

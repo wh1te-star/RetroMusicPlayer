@@ -41,7 +41,6 @@ import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
-import code.name.monkey.retromusic.service.AnalysisProcessCallback
 import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.util.logD
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -64,10 +63,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val bpmAnalyzer = BPMAnalyzer.getInstance(
-            requireContext(),
-            (activity as AbsSlidingMusicPanelActivity).bpmAnalysisCallback
-        )
+        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
         val BPMValues = bpmAnalyzer.getAllBPMValues()
         libraryViewModel.getSongs().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
@@ -114,7 +110,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext(), (activity as AbsSlidingMusicPanelActivity).bpmAnalysisCallback)
+        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
         val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
