@@ -235,27 +235,42 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
     fun manualBPMTap(context: Context) {
         val inflater = LayoutInflater.from(context)
         val dialogView = inflater.inflate(R.layout.dialog_manual_bpm, null)
-        var previousTapTime = 0L
+
+        var robinIndex = 0
+        var sumBPM = 0.0
+        var previousTapTime = Long.MAX_VALUE
+        val movingAverageSize = 100
+        var validSize = 1
+        val previousBPMs = MutableList(movingAverageSize) { 0.0 }
 
         val temporalBPMTextView: TextView = dialogView.findViewById(R.id.temporalBPMValue)
         val tapButton: FloatingActionButton = dialogView.findViewById(R.id.bpmTapButton)
 
         tapButton.setOnClickListener {
             val currentTapTime = System.currentTimeMillis()
-                    if (previousTapTime != 0L) {
-                        val timeDifference = currentTapTime - previousTapTime
-                        if (timeDifference > 0) {
-                            val currentBPM = 60.0 / (timeDifference / 1000.0)
-                            val decimalFormat = DecimalFormat("0.0")
-                            val formattedBPM = decimalFormat.format(currentBPM)
-                            val bpmText = "$formattedBPM BPM"
-                            val spannableString = SpannableString(bpmText)
-                            val start = bpmText.indexOf("BPM")
-                            spannableString.setSpan(RelativeSizeSpan(0.3f), start, bpmText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                            temporalBPMTextView.text = spannableString
-                        }
-                    }
-            previousTapTime = currentTapTime
+            val timeDifference = currentTapTime - previousTapTime
+            if (timeDifference > 0) {
+                val currentBPM = 60.0 * 1000.0 / timeDifference
+                sumBPM += currentBPM
+                sumBPM -= previousBPMs[robinIndex]
+                val averageBPM = sumBPM / validSize
+
+                val formattedBPM = DecimalFormat("0.0").format(averageBPM)
+                val bpmText = "$formattedBPM BPM"
+                val spannableString = SpannableString(bpmText)
+                val start = bpmText.indexOf("BPM")
+                spannableString.setSpan(RelativeSizeSpan(0.3f), start, bpmText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                temporalBPMTextView.text = spannableString
+
+                previousTapTime = currentTapTime
+                previousBPMs[robinIndex] = currentBPM
+                robinIndex = (robinIndex + 1) % movingAverageSize
+                if(validSize < movingAverageSize){
+                    validSize++
+                }
+            }else{
+                previousTapTime = currentTapTime
+            }
         }
 
         val dialogBuilder = AlertDialog.Builder(context)
