@@ -1,5 +1,6 @@
 package code.name.monkey.retromusic.service
 
+import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
 import be.tarsos.dsp.AudioDispatcher
@@ -13,8 +14,11 @@ import be.tarsos.dsp.onsets.ComplexOnsetDetector
 import be.tarsos.dsp.onsets.OnsetHandler
 import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import be.tarsos.dsp.writer.WriterProcessor
+import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.db.SongAnalysisDao
 import code.name.monkey.retromusic.db.SongAnalysisEntity
+import code.name.monkey.retromusic.extensions.uri
+import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.logD
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -219,6 +223,21 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         CoroutineScope(Dispatchers.IO).launch {
             parentJob.join()
         }
+    }
+
+    fun manualBPMTap(context: Context){
+        val dialogBuilder = AlertDialog.Builder(context)
+            .setView(R.layout.dialog_manual_bpm)
+            .setPositiveButton("OK") { dialog, _ ->
+                val currentSong = MusicPlayerRemote.currentSong
+                analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.action_cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+        val dialog = dialogBuilder.create()
+        dialog.show()
     }
 
     fun exportFrequencyFilteredAudio(context: Context, inputUri: Uri, outputFilePath: String) {

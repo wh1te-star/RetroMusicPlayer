@@ -237,19 +237,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.action_show_bpm -> {
-                val dialogBuilder = AlertDialog.Builder(context)
-                    .setView(R.layout.dialog_manual_bpm)
-                    .setPositiveButton("OK") { dialog, _ ->
-                        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
-                        val currentSong = MusicPlayerRemote.currentSong
-                        bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.action_cancel) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                val dialog = dialogBuilder.create()
-                dialog.show()
+                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+                bpmAnalyzer.manualBPMTap(requireContext())
                 return true;
             }
         }
