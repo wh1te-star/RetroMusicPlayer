@@ -25,6 +25,7 @@ import org.koin.core.component.inject
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.roundToInt
 
 class BPMAnalyzer private constructor(private val context: Context, private val callback: AnalysisProcessCallback) : KoinComponent {
 
@@ -85,10 +86,14 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                 }
 
                 val complexHandler = OnsetHandler { time, salience ->
-                    complexOnsetTimes.add(time)
+                    if(salience > 0.5) {
+                        complexOnsetTimes.add(time)
+                    }
                 }
                 val percussionHandler = OnsetHandler { time, salience ->
-                    percussionOnsetTimes.add(time)
+                    if(salience > 0.5) {
+                        percussionOnsetTimes.add(time)
+                    }
                 }
 
                 val complexOnsetDetector = ComplexOnsetDetector(1024)
@@ -124,17 +129,12 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                             logD("Percussion Onset BPM: $bpm")
                         }
 
-                        val medianBPM = if (bpmValues.size % 2 == 0) {
-                            val middleIndex = bpmValues.size / 2
-                            (bpmValues[middleIndex - 1] + bpmValues[middleIndex]) / 2.0
-                        } else {
-                            bpmValues[bpmValues.size / 2]
-                        }
+                        val modeBPM = bpmValues.map { (it * 10).roundToInt() / 10.0 }.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: 0.0
 
-                        logD("Audio processing finished. medianBPM: $medianBPM")
+                        logD("Audio processing finished. modeBPM: $modeBPM")
 
                         processScope.launch(Dispatchers.IO) {
-                            val songAnalysis = SongAnalysisEntity(songId = songId, bpm = medianBPM)
+                            val songAnalysis = SongAnalysisEntity(songId = songId, bpm = modeBPM)
                             songAnalysisDao.addOrUpdateBpm(songAnalysis)
                         }
 
