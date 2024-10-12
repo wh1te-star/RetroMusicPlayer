@@ -323,8 +323,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         setupNavigationButtons()
 
-        val bpmAnalyzer = BPMAnalyzer.getInstance(this@AbsSlidingMusicPanelActivity)
-        bpmAnalyzer.setCallback(this)
+        BPMAnalyzer.setCallback(this)
     }
 
     private fun setupNavigationButtons(){

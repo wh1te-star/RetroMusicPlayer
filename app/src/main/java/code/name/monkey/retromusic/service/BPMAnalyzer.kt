@@ -43,21 +43,9 @@ import java.text.DecimalFormat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
-class BPMAnalyzer private constructor(private val context: Context) : KoinComponent {
-
-    companion object {
-        @Volatile
-        private var INSTANCE: BPMAnalyzer? = null
-
-        fun getInstance(context: Context): BPMAnalyzer {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BPMAnalyzer(context.applicationContext).also { INSTANCE = it }
-            }
-        }
-
-        private const val possibleMinBPM = 60.0
-        private const val possibleMaxBPM = 240.0
-    }
+object BPMAnalyzer : KoinComponent {
+    private const val possibleMinBPM = 60.0
+    private const val possibleMaxBPM = 240.0
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
@@ -82,7 +70,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         }
     }
 
-    fun analyzeBPM(songId: Long, uri: Uri, parentScope: CoroutineScope): Job {
+    fun analyzeBPM(context: Context, songId: Long, uri: Uri, parentScope: CoroutineScope): Job {
         val processJob = Job(parentScope.coroutineContext[Job])
         val processScope = CoroutineScope(Dispatchers.IO + processJob)
 
@@ -100,10 +88,10 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
 
                 fun fixBPM(bpm: Double): Double {
                     var fixedBPM = bpm
-                    if (bpm > 0.0 && bpm < Companion.possibleMinBPM) {
-                        while (fixedBPM < Companion.possibleMinBPM) fixedBPM *= 2.0
-                    } else if (bpm > Companion.possibleMaxBPM) {
-                        while (fixedBPM > Companion.possibleMaxBPM) fixedBPM /= 2.0
+                    if (bpm > 0.0 && bpm < possibleMinBPM) {
+                        while (fixedBPM < possibleMinBPM) fixedBPM *= 2.0
+                    } else if (bpm > possibleMaxBPM) {
+                        while (fixedBPM > possibleMaxBPM) fixedBPM /= 2.0
                     }
                     return fixedBPM
                 }
@@ -185,7 +173,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         return processJob
     }
 
-    suspend fun analyzeAll(songIds: List<Long>, uris: List<Uri>) {
+    suspend fun analyzeAll(context: Context, songIds: List<Long>, uris: List<Uri>) {
         parentJob = Job()
         val parentScope = CoroutineScope(Dispatchers.IO + parentJob)
 
@@ -195,7 +183,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
                 songAnalysisDao.getBPMBySongId(songIds[i])
             }
             if (isAnalyzed == null) {
-                jobs.add(analyzeBPM(songIds[i], uris[i], parentScope))
+                jobs.add(analyzeBPM(context, songIds[i], uris[i], parentScope))
             }
         }
 
@@ -276,7 +264,7 @@ class BPMAnalyzer private constructor(private val context: Context) : KoinCompon
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(dialogView)
             .setPositiveButton("OK") { dialog, _ ->
-                analyzeBPM(songId, uri, CoroutineScope(Dispatchers.IO))
+                analyzeBPM(context, songId, uri, CoroutineScope(Dispatchers.IO))
                 dialog.dismiss()
             }
             .setNegativeButton(R.string.action_cancel) { dialog, _ ->

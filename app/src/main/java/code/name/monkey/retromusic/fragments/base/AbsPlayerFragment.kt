@@ -237,9 +237,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.action_show_bpm -> {
-                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
                 val currentSong = MusicPlayerRemote.currentSong
-                bpmAnalyzer.manualBPMTap(requireContext(), currentSong.id, currentSong.uri)
+                BPMAnalyzer.manualBPMTap(requireContext(), currentSong.id, currentSong.uri)
                 return true;
             }
         }

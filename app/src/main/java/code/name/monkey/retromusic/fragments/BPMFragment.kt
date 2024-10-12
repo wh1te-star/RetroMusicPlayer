@@ -63,8 +63,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
-        val BPMValues = bpmAnalyzer.getAllBPMValues()
+        val BPMValues = BPMAnalyzer.getAllBPMValues()
         libraryViewModel.getSongs().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 val songBPMList = it.map { song ->
@@ -110,12 +109,11 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
         val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
-                if(bpmAnalyzer.isRunning()){
-                    bpmAnalyzer.stopAllAnalysis()
+                if(BPMAnalyzer.isRunning()){
+                    BPMAnalyzer.stopAllAnalysis()
                     Toast.makeText(context, getString(R.string.stop_analysis), Toast.LENGTH_LONG).show()
                     item.title = getString(R.string.analysis_bpm_all)
                 } else {
@@ -123,7 +121,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                     val idList = dataSet.map { song -> song.song.id }
                     val uriList = dataSet.map { song -> song.song.uri }
                     scope.launch {
-                        bpmAnalyzer.analyzeAll(idList, uriList)
+                        BPMAnalyzer.analyzeAll(requireContext(), idList, uriList)
                     }
                     item.title = getString(R.string.action_stop_bpm_process_all)
                 }
@@ -147,7 +145,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                 builder.setMessage(getString(R.string.delete_all_bpm_value))
                     .setPositiveButton(R.string.yes) { _, _ ->
                         CoroutineScope(Dispatchers.Main).launch {
-                            bpmAnalyzer.deleteAllBPMs()
+                            BPMAnalyzer.deleteAllBPMs()
                             adapter?.notifyDataSetChanged()
                         }
                     }
