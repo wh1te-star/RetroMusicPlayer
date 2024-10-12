@@ -91,6 +91,9 @@ class BPMAnalyzer private constructor(private val context: Context, private val 
                     return fixedBPM
                 }
 
+                val lowPassFilter = LowPassFS(300.0f, 44100f)
+                audioDispatcher.addAudioProcessor(lowPassFilter)
+
                 val complexHandler = OnsetHandler { time, salience ->
                     if(salience > 0.5) {
                         complexOnsetTimes.add(time)
