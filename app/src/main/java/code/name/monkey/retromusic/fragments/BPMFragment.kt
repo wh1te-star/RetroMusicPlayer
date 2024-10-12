@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.fragments
 
 import android.app.AlertDialog
 import android.database.DataSetObserver
+import android.net.Uri
 import android.os.Bundle
 import android.renderscript.ScriptGroup.Binding
 import android.view.Menu
@@ -39,6 +40,7 @@ import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
 import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
+import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.service.AnalysisProcessCallback
 import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.util.logD
@@ -48,6 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.Comparator
 
 class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
@@ -131,6 +134,8 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
             }
             R.id.action_sort_order_bpm_reset -> {
                 resetOrder()
+                //val inputUri = MusicPlayerRemote.currentSong.uri
+                //bpmAnalyzer.exportFrequencyFilteredAudio(requireContext(), inputUri, "/storage/emulated/0/Music/lowpass.mp3")
             }
             R.id.action_sort_order_bpm -> {
                 if(ascendingOrder){
