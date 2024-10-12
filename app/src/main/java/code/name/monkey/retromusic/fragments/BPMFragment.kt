@@ -130,8 +130,6 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
             }
             R.id.action_sort_order_bpm_reset -> {
                 resetOrder()
-                //val inputUri = MusicPlayerRemote.currentSong.uri
-                //bpmAnalyzer.exportFrequencyFilteredAudio(requireContext(), inputUri, "/storage/emulated/0/Music/lowpass.mp3")
             }
             R.id.action_sort_order_bpm -> {
                 if(ascendingOrder){

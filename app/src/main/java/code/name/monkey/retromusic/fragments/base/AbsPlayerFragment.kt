@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.fragments.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -236,9 +237,19 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
             }
 
             R.id.action_show_bpm -> {
-                val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
-                val currentSong = MusicPlayerRemote.currentSong
-                bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
+                val dialogBuilder = AlertDialog.Builder(context)
+                    .setView(R.layout.dialog_manual_bpm)
+                    .setPositiveButton("OK") { dialog, _ ->
+                        val bpmAnalyzer = BPMAnalyzer.getInstance(requireContext())
+                        val currentSong = MusicPlayerRemote.currentSong
+                        bpmAnalyzer.analyzeBPM(currentSong.id, currentSong.uri, CoroutineScope(Dispatchers.IO))
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.action_cancel) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                val dialog = dialogBuilder.create()
+                dialog.show()
                 return true;
             }
         }
