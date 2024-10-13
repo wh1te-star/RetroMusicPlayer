@@ -147,7 +147,7 @@ object BPMAnalyzer : KoinComponent {
                         logD("Audio processing finished. modeBPM: $modeBPM")
 
                         processScope.launch(Dispatchers.IO) {
-                            songAnalysisDao.updateBpm(songId, modeBPM)
+                            songAnalysisDao.updateColumn(songId, "bpm", modeBPM)
                         }
 
                         processJob.complete()
