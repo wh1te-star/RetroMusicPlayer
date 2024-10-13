@@ -23,17 +23,41 @@ import androidx.room.OnConflictStrategy
 interface SongAnalysisDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addOrUpdateBpm(songAnalysis: SongAnalysisEntity)
+    suspend fun insert(songAnalysisEntity: SongAnalysisEntity)
 
-    @Query("DELETE FROM songsanalysis WHERE song_id = :songId")
-    suspend fun deleteBpm(songId: Long)
+    @Query("SELECT * FROM SongsAnalysisEntity WHERE song_id = :songId")
+    suspend fun find(songId: Long): SongAnalysisEntity?
 
-    @Query("SELECT bpm FROM songsAnalysis WHERE song_id = :songId")
-    suspend fun getBPMBySongId(songId: Long): Double?
+    @Query("DELETE FROM SongsAnalysisEntity WHERE song_id = :songId")
+    suspend fun delete(songId: Long)
 
-    @Query("SELECT song_id, bpm FROM songsAnalysis")
-    suspend fun getBPMs(): List<SongAnalysisEntity>?
+    @Query("SELECT song_id, bpm, manualBPM FROM SongsAnalysisEntity")
+    suspend fun getAll(): List<SongAnalysisEntity>?
 
-    @Query("DELETE FROM songsAnalysis")
+    @Query("DELETE FROM SongsAnalysisEntity")
     suspend fun deleteAll()
+
+    suspend fun updateBpm(songId: Long, bpm: Double?) {
+        val foundRecord = find(songId)
+        if (foundRecord != null) {
+            editBPM(songId, bpm)
+        } else {
+            insert(SongAnalysisEntity(songId, bpm, null))
+        }
+    }
+
+    @Query("UPDATE SongsAnalysisEntity SET bpm = :bpm WHERE song_id = :songId")
+    suspend fun editBPM(songId: Long, bpm: Double?)
+
+    @Query("SELECT bpm FROM SongsAnalysisEntity WHERE song_id = :songId")
+    suspend fun getBPM(songId: Long): Double?
+
+    suspend fun deleteBpm(songId: Long) {
+        val foundRecord = find(songId)
+        if (foundRecord != null) {
+            editBPM(songId, null)
+        } else {
+            delete(songId)
+        }
+    }
 }

@@ -40,6 +40,7 @@ import code.name.monkey.retromusic.helper.SortOrder
 import code.name.monkey.retromusic.helper.menu.SongMenuHelper
 import code.name.monkey.retromusic.helper.menu.SongsMenuHelper
 import code.name.monkey.retromusic.model.Song
+import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
@@ -119,9 +120,8 @@ open class BPMAdapter(
         } else {
             holder.bpmValue?.isGone = false
             holder.analysisIndicator?.isGone = true
-            val songAnalysisDao: SongAnalysisDao by activity.inject()
             CoroutineScope(Dispatchers.IO).launch {
-                val bpm = songAnalysisDao.getBPMBySongId(song.song.id)
+                val bpm = BPMAnalyzer.getBPMValue(song.song.id)
                 withContext(Dispatchers.Main) {
                     val decimalFormat = DecimalFormat("000.0")
                     val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"

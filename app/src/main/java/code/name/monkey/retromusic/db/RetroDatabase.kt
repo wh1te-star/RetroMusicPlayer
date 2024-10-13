@@ -19,7 +19,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [PlaylistEntity::class, SongEntity::class, HistoryEntity::class, PlayCountEntity::class, SongAnalysisEntity::class],
-    version = 27,
+    version = 28,
     exportSchema = false
 )
 abstract class RetroDatabase : RoomDatabase() {

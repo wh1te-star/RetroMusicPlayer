@@ -21,12 +21,15 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "songsAnalysis")
+@Entity(tableName = "SongsAnalysisEntity")
 data class SongAnalysisEntity(
     @PrimaryKey
     @ColumnInfo(name = "song_id")
     val songId: Long,
 
     @ColumnInfo(name = "bpm")
-    val bpm: Double
+    val bpm: Double?,
+
+    @ColumnInfo(name = "manualBPM")
+    val manualBPM: Double?,
 )

@@ -21,8 +21,6 @@ import be.tarsos.dsp.writer.WriterProcessor
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.db.SongAnalysisDao
 import code.name.monkey.retromusic.db.SongAnalysisEntity
-import code.name.monkey.retromusic.extensions.uri
-import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.util.logD
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CompletableDeferred
@@ -44,13 +42,14 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object BPMAnalyzer : KoinComponent {
+    private const val maxThreads = 30
     private const val possibleMinBPM = 60.0
     private const val possibleMaxBPM = 240.0
 
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
     private var parentJob = Job().apply { complete() }
-    private val semaphore = Semaphore(3)
+    private val semaphore = Semaphore(maxThreads)
 
     private var callback: AnalysisProcessCallback? = null
 
@@ -60,13 +59,13 @@ object BPMAnalyzer : KoinComponent {
 
     fun getAllBPMValues(): List<SongAnalysisEntity>? {
         return runBlocking {
-            songAnalysisDao.getBPMs()
+            songAnalysisDao.getAll()
         }
     }
 
     fun getBPMValue(songId: Long): Double? {
         return runBlocking {
-            songAnalysisDao.getBPMBySongId(songId)
+            songAnalysisDao.getBPM(songId)
         }
     }
 
@@ -148,8 +147,7 @@ object BPMAnalyzer : KoinComponent {
                         logD("Audio processing finished. modeBPM: $modeBPM")
 
                         processScope.launch(Dispatchers.IO) {
-                            val songAnalysis = SongAnalysisEntity(songId = songId, bpm = modeBPM)
-                            songAnalysisDao.addOrUpdateBpm(songAnalysis)
+                            songAnalysisDao.updateBpm(songId, modeBPM)
                         }
 
                         processJob.complete()
@@ -180,7 +178,7 @@ object BPMAnalyzer : KoinComponent {
         val jobs = mutableListOf<Job>()
         for (i in songIds.indices) {
             val isAnalyzed = runBlocking {
-                songAnalysisDao.getBPMBySongId(songIds[i])
+                songAnalysisDao.getBPM(songIds[i])
             }
             if (isAnalyzed == null) {
                 jobs.add(analyzeBPM(context, songIds[i], uris[i], parentScope))
