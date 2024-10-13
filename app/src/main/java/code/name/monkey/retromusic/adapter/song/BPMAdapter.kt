@@ -16,6 +16,8 @@ package code.name.monkey.retromusic.adapter.song
 
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -121,11 +123,16 @@ open class BPMAdapter(
             holder.bpmValue?.isGone = false
             holder.analysisIndicator?.isGone = true
             CoroutineScope(Dispatchers.IO).launch {
-                val bpm = BPMAnalyzer.getBPMValue(song.song.id)
+                val bpm = BPMAnalyzer.getAnalyzedValue(song.song.id, "bpm")
+                val manualBPM = BPMAnalyzer.getAnalyzedValue(song.song.id, "manualBPM")
                 withContext(Dispatchers.Main) {
                     val decimalFormat = DecimalFormat("000.0")
                     val formattedBpm = bpm?.let { decimalFormat.format(it) } ?: "N/A"
-                    holder.bpmValue?.text = formattedBpm
+                    val spannableString = SpannableString(formattedBpm)
+                    if (manualBPM != null) {
+                        spannableString.setSpan(UnderlineSpan(), 0, spannableString.length, 0)
+                    }
+                    holder.bpmValue?.text = spannableString
                 }
             }
         }

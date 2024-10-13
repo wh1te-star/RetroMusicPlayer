@@ -43,6 +43,7 @@ import kotlin.math.roundToInt
 
 object BPMAnalyzer : KoinComponent {
     private const val maxThreads = 30
+    private const val reliableRange = 15.0
     private const val possibleMinBPM = 60.0
     private const val possibleMaxBPM = 240.0
 
@@ -63,9 +64,9 @@ object BPMAnalyzer : KoinComponent {
         }
     }
 
-    fun getBPMValue(songId: Long): Double? {
+    fun getAnalyzedValue(songId: Long, columnName: String): Double? {
         return runBlocking {
-            songAnalysisDao.getBPM(songId)
+            songAnalysisDao.getColumn(songId, columnName)
         }
     }
 
@@ -85,12 +86,27 @@ object BPMAnalyzer : KoinComponent {
                     context, uri, 0.0, -1.0, 44100, 1024, 512
                 )
 
-                fun fixBPM(bpm: Double): Double {
+                fun fixBPM(bpm: Double, manualBPM: Double?): Double? {
                     var fixedBPM = bpm
-                    if (bpm > 0.0 && bpm < possibleMinBPM) {
+                    if (0.0 < fixedBPM && fixedBPM < possibleMinBPM) {
                         while (fixedBPM < possibleMinBPM) fixedBPM *= 2.0
-                    } else if (bpm > possibleMaxBPM) {
+                    } else if (fixedBPM > possibleMaxBPM) {
                         while (fixedBPM > possibleMaxBPM) fixedBPM /= 2.0
+                    }
+                    if(manualBPM != null){
+                        var manualFixedBPM = fixedBPM
+                        val reliableRangeMin = manualBPM - reliableRange / 2
+                        val reliableRangeMax = manualBPM + reliableRange / 2
+                        if (0.0 < manualFixedBPM && manualFixedBPM < reliableRangeMin) {
+                            while (manualFixedBPM < reliableRangeMin) manualFixedBPM *= 2.0
+                        } else if (manualFixedBPM  > reliableRangeMax) {
+                            while (manualFixedBPM > reliableRangeMax) manualFixedBPM /= 2.0
+                        }
+                        if(manualFixedBPM in reliableRangeMin..reliableRangeMax){
+                            fixedBPM = manualFixedBPM
+                        }else{
+                            return null
+                        }
                     }
                     return fixedBPM
                 }
@@ -128,17 +144,19 @@ object BPMAnalyzer : KoinComponent {
                         complexOnsetTimes.sort()
                         percussionOnsetTimes.sort()
 
+                        val manualBPM = getAnalyzedValue(songId, "manualBPM")
+
                         val bpmValues = mutableListOf<Double>()
 
                         for (i in 0 until complexOnsetTimes.size - 1) {
-                            val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]))
-                            bpmValues.add(bpm)
+                            val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]), manualBPM)
+                            if(bpm != null) bpmValues.add(bpm)
                             logD("Complex Onset BPM: $bpm")
                         }
 
                         for (i in 0 until percussionOnsetTimes.size - 1) {
-                            val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]))
-                            bpmValues.add(bpm)
+                            val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]), manualBPM)
+                            if(bpm != null) bpmValues.add(bpm)
                             logD("Percussion Onset BPM: $bpm")
                         }
 
@@ -262,6 +280,10 @@ object BPMAnalyzer : KoinComponent {
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(dialogView)
             .setPositiveButton("OK") { dialog, _ ->
+                val averageBPM = sumBPM / validSize
+                runBlocking {
+                    songAnalysisDao.updateColumn(songId, "manualBPM", averageBPM)
+                }
                 analyzeBPM(context, songId, uri, CoroutineScope(Dispatchers.IO))
                 dialog.dismiss()
             }
