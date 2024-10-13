@@ -7,7 +7,10 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.transition.Visibility
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.AudioEvent
 import be.tarsos.dsp.AudioProcessor
@@ -249,6 +252,11 @@ object BPMAnalyzer : KoinComponent {
 
         val temporalBPMTextView: TextView = dialogView.findViewById(R.id.temporalBPMValue)
         val tapButton: FloatingActionButton = dialogView.findViewById(R.id.bpmTapButton)
+        val bpmSignal: BPMSignal = dialogView.findViewById(R.id.bpmSignal)
+
+        bpmSignal.setOnClickListener{
+            bpmSignal.switchBeats()
+        }
 
         tapButton.setOnClickListener {
             val currentTapTime = System.currentTimeMillis()
