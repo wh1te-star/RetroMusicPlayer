@@ -10,7 +10,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import android.widget.LinearLayout
-import code.name.monkey.retromusic.R
+import code.name.monkey.retromusic.util.logD
 
 class BPMSignal @JvmOverloads constructor(
     context: Context,
@@ -18,7 +18,12 @@ class BPMSignal @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    private val circles: MutableList<CircleView> = mutableListOf()
+    private var executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private var index = 0
+    private var beat = 4
+    private var intervalMillis: Long = 1000
+
+    private val signals: MutableList<CircleView> = mutableListOf()
     private val spaces: MutableList<View> = mutableListOf()
 
     init {
@@ -44,7 +49,7 @@ class BPMSignal @JvmOverloads constructor(
             layoutParams = LayoutParams(30.dp, 30.dp)
         }
         addView(circleView)
-        circles.add(circleView)
+        signals.add(circleView)
     }
 
     private fun addSpace() {
@@ -55,36 +60,28 @@ class BPMSignal @JvmOverloads constructor(
         spaces.add(space)
     }
 
-    fun switchBeats(){
-        if(circles.last().visibility == View.GONE){
-            circles.last().visibility = View.VISIBLE
-            spaces.last().visibility = View.VISIBLE
-        }else {
-            circles.last().visibility = View.GONE
-            spaces.last().visibility = View.GONE
-        }
-    }
-
     private val Int.dp: Int
         get() = (this * resources.displayMetrics.density).toInt()
-}
 
-class BPMTimer {
+    fun startTimer(intervalMillis: Long) {
+        stopTimer()
+        executor = Executors.newSingleThreadScheduledExecutor()
 
-    private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    private val intervalMillis: Long = 1000
-
-    fun start() {
         val initialDelay = calculateInitialDelay()
         executor.scheduleWithFixedDelay({
             val currentTime = SystemClock.elapsedRealtimeNanos()
-            println("Current Time: $currentTime")
-            ////
-        }, initialDelay, intervalMillis, TimeUnit.MILLISECONDS)
+            logD("Current Time abcd: $index $currentTime")
+
+            signals[index].signalOff()
+            index = (index + 1) % beat
+            signals[index].signalOn()
+
+        }, 0, intervalMillis, TimeUnit.MILLISECONDS)
+        this.intervalMillis = intervalMillis
     }
 
-    fun setInterval(interval: Long){
-
+    fun stopTimer() {
+        executor.shutdownNow()
     }
 
     private fun calculateInitialDelay(): Long {
@@ -93,8 +90,16 @@ class BPMTimer {
         return nextMinute - currentTime
     }
 
-    fun stop() {
-        executor.shutdown()
+    fun switchBeats(){
+        if(beat == 4){
+            beat = 3
+            signals.last().visibility = View.GONE
+            spaces.last().visibility = View.GONE
+        }else {
+            beat = 4
+            signals.last().visibility = View.VISIBLE
+            spaces.last().visibility = View.VISIBLE
+        }
     }
 }
 
@@ -104,14 +109,35 @@ class CircleView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paint = Paint().apply {
+    private var signalVisible = false
+
+    private val paintOn = Paint().apply {
         isAntiAlias = true
         color = 0xFF0000FF.toInt()
+    }
+
+    private val paintOff = Paint().apply {
+        isAntiAlias = true
+        color = 0xFF444444.toInt()
+    }
+
+    fun signalOn(){
+        signalVisible = true
+        invalidate()
+    }
+
+    fun signalOff(){
+        signalVisible = false
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val radius = Math.min(width, height) / 2f
-        canvas.drawCircle(width / 2f, height / 2f, radius, paint)
+        if(signalVisible){
+            canvas.drawCircle(width / 2f, height / 2f, radius, paintOn)
+        }else{
+            canvas.drawCircle(width / 2f, height / 2f, radius, paintOff)
+        }
     }
 }

@@ -262,6 +262,8 @@ object BPMAnalyzer : KoinComponent {
             val currentTapTime = System.currentTimeMillis()
             val timeDifference = currentTapTime - previousTapTime
             if (timeDifference > 0) {
+                bpmSignal.startTimer(timeDifference)
+
                 val currentBPM = 60.0 * 1000.0 / timeDifference
                 sumBPM += currentBPM
                 sumBPM -= previousBPMs[robinIndex]
