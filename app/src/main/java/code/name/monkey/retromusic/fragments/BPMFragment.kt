@@ -117,9 +117,8 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                     item.title = getString(R.string.analysis_bpm_all)
                 } else {
                     val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
-                    val filteredDataSet = dataSet.filter { song -> song.song.duration <= 600000 } // 600000[millisec] = 10[min]
-                    val idList = filteredDataSet.map { song -> song.song.id }
-                    val uriList = filteredDataSet.map { song -> song.song.uri }
+                    val idList = dataSet.map { song -> song.song.id }
+                    val uriList = dataSet.map { song -> song.song.uri }
                     scope.launch {
                         BPMAnalyzer.analyzeAll(requireContext(), idList, uriList)
                     }
