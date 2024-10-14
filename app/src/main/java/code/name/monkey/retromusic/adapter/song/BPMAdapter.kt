@@ -267,8 +267,9 @@ open class BPMAdapter(
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
             } else {
-                val dataSetBPM = dataSet.map { it.song }
-                MusicPlayerRemote.openQueue(dataSetBPM, layoutPosition, true)
+                val item = dataSet[layoutPosition].song
+                MusicPlayerRemote.playNext(item)
+                MusicPlayerRemote.playNextSong()
             }
         }
 
