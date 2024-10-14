@@ -3,6 +3,8 @@ package code.name.monkey.retromusic.service
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.util.AttributeSet
 import android.view.View
 import android.os.SystemClock
@@ -10,6 +12,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import android.widget.LinearLayout
+import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.util.logD
 
 class BPMSignal @JvmOverloads constructor(
@@ -25,6 +28,9 @@ class BPMSignal @JvmOverloads constructor(
 
     private val signals: MutableList<CircleView> = mutableListOf()
     private val spaces: MutableList<View> = mutableListOf()
+
+    private lateinit var soundPool: SoundPool
+    private var soundId = 0
 
     init {
         orientation = HORIZONTAL
@@ -42,6 +48,16 @@ class BPMSignal @JvmOverloads constructor(
         addCircleView(context)
         addSpace()
         addCircleView(context)
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(audioAttributes)
+            .build()
+       soundId = soundPool.load(context, R.raw.tambourine01_1_mute, 1)
     }
 
     private fun addCircleView(context: Context) {
@@ -69,6 +85,7 @@ class BPMSignal @JvmOverloads constructor(
 
         val initialDelay = calculateInitialDelay()
         executor.scheduleWithFixedDelay({
+            soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
             val currentTime = SystemClock.elapsedRealtimeNanos()
             logD("Current Time abcd: $index $currentTime")
 
@@ -100,6 +117,12 @@ class BPMSignal @JvmOverloads constructor(
             signals.last().visibility = View.VISIBLE
             spaces.last().visibility = View.VISIBLE
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        soundPool.release()
+        executor.shutdownNow()
     }
 }
 
