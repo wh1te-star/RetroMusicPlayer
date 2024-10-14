@@ -214,10 +214,16 @@ object BPMAnalyzer : KoinComponent {
         }
     }
 
-    suspend fun deleteAllBPMs() {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun deleteAllBPMValues() {
+        runBlocking {
             songAnalysisDao.deleteAll()
-        }.join()
+        }
+    }
+
+    fun deleteAnalyzedValue(songId: Long, columnName: String) {
+        return runBlocking {
+            songAnalysisDao.deleteColumn(songId, columnName)
+        }
     }
 
     fun isRunning(songId: Long = 0L): Boolean {

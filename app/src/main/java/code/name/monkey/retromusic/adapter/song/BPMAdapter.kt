@@ -252,6 +252,16 @@ open class BPMAdapter(
                     }
                     return true
                 }
+                R.id.action_delete_bpm -> {
+                    BPMAnalyzer.deleteAnalyzedValue(song.id, "bpm")
+                    notifyDataSetChanged()
+                    return true
+                }
+                R.id.action_delete_manual_bpm -> {
+                    BPMAnalyzer.deleteAnalyzedValue(song.id, "manualBPM")
+                    notifyDataSetChanged()
+                    return true
+                }
             }
             return false
         }

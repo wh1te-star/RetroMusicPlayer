@@ -586,5 +586,7 @@
     <string name="sort_by_bpm_ascending">Sort by in BPM ascending order.</string>
     <string name="sort_by_bpm_descending">Sort by BPM in descending order.</string>
     <string name="stop_analysis">Stopping analysis…</string>
-    <string name="analyze_bpm">Analyze/Stop BPM</string>
+    <string name="analyze_bpm">Analyze/Stop BPM.</string>
+    <string name="delete_bpm">Delete BPM value.</string>
+    <string name="delete_manual_bpm">Delete manual-input BPM value.</string>
 </resources>

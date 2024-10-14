@@ -15,42 +15,25 @@
 package code.name.monkey.retromusic.fragments
 
 import android.app.AlertDialog
-import android.database.DataSetObserver
-import android.net.Uri
 import android.os.Bundle
-import android.renderscript.ScriptGroup.Binding
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
-import androidx.core.view.isGone
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.song.BPMAdapter
 import code.name.monkey.retromusic.adapter.song.SongBPM
 import code.name.monkey.retromusic.databinding.FragmentBpmBinding
-import code.name.monkey.retromusic.databinding.SlidingMusicPanelLayoutBinding
-import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
-import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewFragment
-import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.service.BPMAnalyzer
-import code.name.monkey.retromusic.util.logD
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.Comparator
 
 class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
     private var _binding: FragmentBpmBinding? = null
@@ -144,7 +127,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
                 builder.setMessage(getString(R.string.delete_all_bpm_value))
                     .setPositiveButton(R.string.yes) { _, _ ->
                         CoroutineScope(Dispatchers.Main).launch {
-                            BPMAnalyzer.deleteAllBPMs()
+                            BPMAnalyzer.deleteAllBPMValues()
                             adapter?.notifyDataSetChanged()
                         }
                     }

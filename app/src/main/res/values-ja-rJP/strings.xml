@@ -571,4 +571,6 @@
     <string name="sort_by_bpm_descending">BPMで降順に並び替え</string>
     <string name="stop_analysis">解析を停止しています…</string>
     <string name="analyze_bpm">BPMを解析／停止</string>
+    <string name="delete_bpm">BPMの値を削除</string>
+    <string name="delete_manual_bpm">手動入力のBPM値を削除</string>
 </resources>
