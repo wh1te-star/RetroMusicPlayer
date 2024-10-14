@@ -94,12 +94,13 @@ object BPMAnalyzer : KoinComponent {
 
                 fun fixBPM(bpm: Double, manualBPM: Double?): Double? {
                     var fixedBPM = bpm
-                    if (0.0 < fixedBPM && fixedBPM < possibleMinBPM) {
-                        while (fixedBPM < possibleMinBPM) fixedBPM *= 2.0
-                    } else if (fixedBPM > possibleMaxBPM) {
-                        while (fixedBPM > possibleMaxBPM) fixedBPM /= 2.0
-                    }
-                    if (manualBPM != null) {
+                    if (manualBPM == null) {
+                        if (0.0 < fixedBPM && fixedBPM < possibleMinBPM) {
+                            while (fixedBPM < possibleMinBPM) fixedBPM *= 2.0
+                        } else if (fixedBPM > possibleMaxBPM) {
+                            while (fixedBPM > possibleMaxBPM) fixedBPM /= 2.0
+                        }
+                    }else{
                         var manualFixedBPM = fixedBPM
                         val reliableRangeMin = manualBPM - reliableRange / 2
                         val reliableRangeMax = manualBPM + reliableRange / 2
