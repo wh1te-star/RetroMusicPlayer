@@ -113,8 +113,7 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
         when (item.itemId) {
             R.id.action_analysis_bpm_all -> {
                 if(BPMAnalyzer.isRunning()){
-                    BPMAnalyzer.stopAllAnalysis()
-                    Toast.makeText(context, getString(R.string.stop_analysis), Toast.LENGTH_LONG).show()
+                    BPMAnalyzer.stopAnalysis()
                     item.title = getString(R.string.analysis_bpm_all)
                 } else {
                     val dataSet = if (adapter == null) mutableListOf() else adapter!!.dataSet
@@ -216,9 +215,6 @@ class BPMFragment : AbsRecyclerViewFragment<BPMAdapter, GridLayoutManager>() {
 
     fun onAllProcessFinish() {
         processAllMenuItem.title = getString(R.string.analysis_bpm_all)
-        for (id in adapter?.isProcessing?.keys!!) {
-            adapter?.finishProcess(id)
-        }
     }
 
     companion object {

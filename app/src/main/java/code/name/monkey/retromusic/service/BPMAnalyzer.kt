@@ -56,6 +56,7 @@ object BPMAnalyzer : KoinComponent {
     private val semaphore = Semaphore(maxThreads)
 
     private var callback: AnalysisProcessCallback? = null
+    private val songJobs: MutableMap<Long, Job> = mutableMapOf()
 
     fun setCallback(callback: AnalysisProcessCallback) {
         this.callback = callback
@@ -73,9 +74,11 @@ object BPMAnalyzer : KoinComponent {
         }
     }
 
-    fun analyzeBPM(context: Context, songId: Long, uri: Uri, parentScope: CoroutineScope): Job {
+    fun analyzeBPM(context: Context, songId: Long, uri: Uri, parentScope: CoroutineScope, force: Boolean = false): Job {
         val processJob = Job(parentScope.coroutineContext[Job])
         val processScope = CoroutineScope(Dispatchers.IO + processJob)
+
+        songJobs[songId] = processJob
 
         processScope.launch {
             semaphore.withPermit {
@@ -96,18 +99,18 @@ object BPMAnalyzer : KoinComponent {
                     } else if (fixedBPM > possibleMaxBPM) {
                         while (fixedBPM > possibleMaxBPM) fixedBPM /= 2.0
                     }
-                    if(manualBPM != null){
+                    if (manualBPM != null) {
                         var manualFixedBPM = fixedBPM
                         val reliableRangeMin = manualBPM - reliableRange / 2
                         val reliableRangeMax = manualBPM + reliableRange / 2
                         if (0.0 < manualFixedBPM && manualFixedBPM < reliableRangeMin) {
                             while (manualFixedBPM < reliableRangeMin) manualFixedBPM *= 2.0
-                        } else if (manualFixedBPM  > reliableRangeMax) {
+                        } else if (manualFixedBPM > reliableRangeMax) {
                             while (manualFixedBPM > reliableRangeMax) manualFixedBPM /= 2.0
                         }
-                        if(manualFixedBPM in reliableRangeMin..reliableRangeMax){
+                        if (manualFixedBPM in reliableRangeMin..reliableRangeMax) {
                             fixedBPM = manualFixedBPM
-                        }else{
+                        } else {
                             return null
                         }
                     }
@@ -118,12 +121,12 @@ object BPMAnalyzer : KoinComponent {
                 audioDispatcher.addAudioProcessor(lowPassFilter)
 
                 val complexHandler = OnsetHandler { time, salience ->
-                    if(salience > 0.5) {
+                    if (salience > 0.5) {
                         complexOnsetTimes.add(time)
                     }
                 }
                 val percussionHandler = OnsetHandler { time, salience ->
-                    if(salience > 0.5) {
+                    if (salience > 0.5) {
                         percussionOnsetTimes.add(time)
                     }
                 }
@@ -153,13 +156,13 @@ object BPMAnalyzer : KoinComponent {
 
                         for (i in 0 until complexOnsetTimes.size - 1) {
                             val bpm = fixBPM(60.0 / (complexOnsetTimes[i + 1] - complexOnsetTimes[i]), manualBPM)
-                            if(bpm != null) bpmValues.add(bpm)
+                            if (bpm != null) bpmValues.add(bpm)
                             logD("Complex Onset BPM: $bpm")
                         }
 
                         for (i in 0 until percussionOnsetTimes.size - 1) {
                             val bpm = fixBPM(60.0 / (percussionOnsetTimes[i + 1] - percussionOnsetTimes[i]), manualBPM)
-                            if(bpm != null) bpmValues.add(bpm)
+                            if (bpm != null) bpmValues.add(bpm)
                             logD("Percussion Onset BPM: $bpm")
                         }
 
@@ -172,6 +175,7 @@ object BPMAnalyzer : KoinComponent {
                         }
 
                         processJob.complete()
+                        songJobs.remove(songId)
                         completion.complete(Unit)
                     }
                 })
@@ -220,22 +224,40 @@ object BPMAnalyzer : KoinComponent {
         }.join()
     }
 
-    fun isRunning(): Boolean {
-        return parentJob.isActive
+    fun isRunning(songId: Long = 0L): Boolean {
+        return if (songId == 0L) {
+            parentJob.isActive
+        } else {
+            songJobs[songId]?.isActive == true
+        }
     }
 
-    fun stopAllAnalysis() {
-        parentJob.invokeOnCompletion { cause ->
-            if (cause is CancellationException) {
-                CoroutineScope(Dispatchers.Main).launch {
+    fun stopAnalysis(songId: Long = 0L) {
+        if (songId == 0L) {
+            parentJob.cancel()
+            songJobs.forEach {
+                it.value.cancel()
+                callback?.onSingleProcessFinish(it.key)
+            }
+            songJobs.clear()
+            CoroutineScope(Dispatchers.IO).launch {
+                parentJob.join()
+                withContext(Dispatchers.Main) {
                     callback?.onAllProcessFinish()
                     parentJob.complete()
                 }
             }
-        }
-        parentJob.cancel()
-        CoroutineScope(Dispatchers.IO).launch {
-            parentJob.join()
+        } else {
+            songJobs[songId]?.let { job ->
+                job.cancel()
+                CoroutineScope(Dispatchers.IO).launch {
+                    job.join()
+                    withContext(Dispatchers.Main) {
+                        callback?.onSingleProcessFinish(songId)
+                    }
+                    songJobs.remove(songId)
+                }
+            }
         }
     }
 
@@ -254,7 +276,7 @@ object BPMAnalyzer : KoinComponent {
         val tapButton: FloatingActionButton = dialogView.findViewById(R.id.bpmTapButton)
         val bpmSignal: BPMSignal = dialogView.findViewById(R.id.bpmSignal)
 
-        bpmSignal.setOnClickListener{
+        bpmSignal.setOnClickListener {
             bpmSignal.switchBeats()
         }
 
@@ -279,10 +301,10 @@ object BPMAnalyzer : KoinComponent {
                 previousTapTime = currentTapTime
                 previousBPMs[robinIndex] = currentBPM
                 robinIndex = (robinIndex + 1) % movingAverageSize
-                if(validSize < movingAverageSize){
+                if (validSize < movingAverageSize) {
                     validSize++
                 }
-            }else{
+            } else {
                 previousTapTime = currentTapTime
             }
         }

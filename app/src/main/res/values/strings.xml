@@ -585,5 +585,6 @@
     <string name="reset_bpm_order">Reset the Order.</string>
     <string name="sort_by_bpm_ascending">Sort by in BPM ascending order.</string>
     <string name="sort_by_bpm_descending">Sort by BPM in descending order.</string>
-    <string name="stop_analysis">Stopping analysis...</string>
+    <string name="stop_analysis">Stopping analysis…</string>
+    <string name="analyze_bpm">Analyze/Stop BPM</string>
 </resources>

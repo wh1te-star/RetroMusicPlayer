@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -33,6 +34,7 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
 import code.name.monkey.retromusic.db.SongAnalysisDao
+import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroGlideExtension.asBitmapPalette
 import code.name.monkey.retromusic.glide.RetroGlideExtension.songCoverOptions
@@ -72,17 +74,9 @@ open class BPMAdapter(
 ), PopupTextProvider {
 
     private var showSectionName = showSectionName
-    val isProcessing: MutableMap<Long, Boolean> = mutableMapOf()
 
     init {
         this.setHasStableIds(true)
-        initializeProcessingMap()
-    }
-
-    private fun initializeProcessingMap() {
-        dataSet.forEach { song ->
-            isProcessing[song.song.id] = false
-        }
     }
 
     open fun swapDataSet(dataSet: List<SongBPM>) {
@@ -116,7 +110,7 @@ open class BPMAdapter(
         holder.text?.text = getSongText(song.song)
         holder.text2?.text = getSongText2(song.song)
 
-        if (isProcessing[song.song.id] == true) {
+        if (BPMAnalyzer.isRunning(song.song.id)) {
             holder.bpmValue?.isGone = true
             holder.analysisIndicator?.isGone = false
         } else {
@@ -142,6 +136,8 @@ open class BPMAdapter(
         if ((PreferenceUtil.songGridSize > 2 && !landscape) || (PreferenceUtil.songGridSizeLand > 5 && landscape)) {
             holder.menu?.isVisible = false
         }
+
+        holder.menu?.invalidate()
     }
 
     private fun setColors(color: MediaNotificationProcessor, holder: ViewHolder) {
@@ -215,17 +211,15 @@ open class BPMAdapter(
     }
 
     fun startProcess(id: Long) {
-        isProcessing[id] = true
         notifyDataSetChanged()
     }
 
     fun finishProcess(id: Long) {
-        isProcessing[id] = false
         notifyDataSetChanged()
     }
 
     open inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
-        protected open var songMenuRes = SongMenuHelper.MENU_RES
+        protected open var songMenuRes = R.menu.menu_item_bpm
         protected open val song: Song
             get() = dataSet[layoutPosition].song
 
@@ -248,16 +242,15 @@ open class BPMAdapter(
         }
 
         protected open fun onSongMenuItemClick(item: MenuItem): Boolean {
-            if (image != null && image!!.isVisible) {
-                when (item.itemId) {
-                    R.id.action_go_to_album -> {
-                        activity.findNavController(R.id.fragment_container)
-                            .navigate(
-                                R.id.albumDetailsFragment,
-                                bundleOf(EXTRA_ALBUM_ID to song.albumId)
-                            )
-                        return true
+            when (item.itemId) {
+                R.id.action_analyze_bpm -> {
+                    if (BPMAnalyzer.isRunning(song.id)) {
+                        BPMAnalyzer.stopAnalysis(song.id)
+                        Toast.makeText(activity, activity.getString(R.string.stop_analysis), Toast.LENGTH_LONG).show()
+                    } else {
+                        BPMAnalyzer.analyzeBPM(activity, song.id, song.uri, CoroutineScope(Dispatchers.IO))
                     }
+                    return true
                 }
             }
             return false
