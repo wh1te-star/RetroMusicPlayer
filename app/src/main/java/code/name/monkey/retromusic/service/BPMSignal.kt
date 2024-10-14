@@ -29,18 +29,17 @@ class BPMSignal @JvmOverloads constructor(
     private val signals: MutableList<CircleView> = mutableListOf()
     private val spaces: MutableList<View> = mutableListOf()
 
-    private lateinit var soundPool: SoundPool
-    private var soundId = 0
+    val audioAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+    private var soundPool: SoundPool = SoundPool.Builder()
+        .setMaxStreams(1)
+        .setAudioAttributes(audioAttributes)
+        .build()
+    private var soundId = soundPool.load(context, R.raw.tambourine01_1_mute, 1)
 
     init {
-        orientation = HORIZONTAL
-        layoutParams = LayoutParams(
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
-        ).apply {
-            setMargins(24.dp, 8.dp, 24.dp, 16.dp)
-        }
-
         addCircleView(context)
         addSpace()
         addCircleView(context)
@@ -48,16 +47,6 @@ class BPMSignal @JvmOverloads constructor(
         addCircleView(context)
         addSpace()
         addCircleView(context)
-
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(1)
-            .setAudioAttributes(audioAttributes)
-            .build()
-       soundId = soundPool.load(context, R.raw.tambourine01_1_mute, 1)
     }
 
     private fun addCircleView(context: Context) {
@@ -80,42 +69,39 @@ class BPMSignal @JvmOverloads constructor(
         get() = (this * resources.displayMetrics.density).toInt()
 
     fun startTimer(intervalMillis: Long) {
-        stopTimer()
+        executor.shutdownNow()
         executor = Executors.newSingleThreadScheduledExecutor()
 
-        val initialDelay = calculateInitialDelay()
         executor.scheduleWithFixedDelay({
-            soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
-            val currentTime = SystemClock.elapsedRealtimeNanos()
-            logD("Current Time abcd: $index $currentTime")
-
             signals[index].signalOff()
             index = (index + 1) % beat
             signals[index].signalOn()
 
+            soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
+            val currentTime = SystemClock.elapsedRealtimeNanos()
+            logD("index, interval[nanosec], currenttime[nanosec]: $index, ${intervalMillis*1000000}, $currentTime")
         }, 0, intervalMillis, TimeUnit.MILLISECONDS)
         this.intervalMillis = intervalMillis
-    }
-
-    fun stopTimer() {
-        executor.shutdownNow()
-    }
-
-    private fun calculateInitialDelay(): Long {
-        val currentTime = SystemClock.elapsedRealtime()
-        val nextMinute = (currentTime / 60000 + 1) * 60000
-        return nextMinute - currentTime
     }
 
     fun switchBeats(){
         if(beat == 4){
             beat = 3
+            index = 0
             signals.last().visibility = View.GONE
             spaces.last().visibility = View.GONE
+            signals[0].signalOff()
+            signals[1].signalOff()
+            signals[2].signalOff()
         }else {
             beat = 4
+            index = 0
             signals.last().visibility = View.VISIBLE
             spaces.last().visibility = View.VISIBLE
+            signals[0].signalOff()
+            signals[1].signalOff()
+            signals[2].signalOff()
+            signals[3].signalOff()
         }
     }
 
@@ -134,33 +120,37 @@ class CircleView @JvmOverloads constructor(
 
     private var signalVisible = false
 
-    private val paintOn = Paint().apply {
+    private val paintFill = Paint().apply {
         isAntiAlias = true
         color = 0xFF0000FF.toInt()
+        style = Paint.Style.FILL
     }
 
-    private val paintOff = Paint().apply {
+    private val paintStroke = Paint().apply {
         isAntiAlias = true
-        color = 0xFF444444.toInt()
+        color = 0xFF000000.toInt()
+        style = Paint.Style.STROKE
+        strokeWidth = 4.0f
     }
 
-    fun signalOn(){
+    fun signalOn() {
         signalVisible = true
         invalidate()
     }
 
-    fun signalOff(){
+    fun signalOff() {
         signalVisible = false
         invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val radius = Math.min(width, height) / 2f
-        if(signalVisible){
-            canvas.drawCircle(width / 2f, height / 2f, radius, paintOn)
-        }else{
-            canvas.drawCircle(width / 2f, height / 2f, radius, paintOff)
+        val radius = Math.min(width, height) / 2f - paintStroke.strokeWidth / 2
+
+        if (signalVisible) {
+            canvas.drawCircle(width / 2f, height / 2f, radius, paintFill)
         }
+
+        canvas.drawCircle(width / 2f, height / 2f, radius, paintStroke)
     }
 }
