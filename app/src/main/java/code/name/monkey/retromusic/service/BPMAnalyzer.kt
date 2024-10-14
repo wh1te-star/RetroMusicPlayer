@@ -7,10 +7,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.transition.Visibility
 import be.tarsos.dsp.AudioDispatcher
 import be.tarsos.dsp.AudioEvent
 import be.tarsos.dsp.AudioProcessor
@@ -41,7 +38,6 @@ import kotlinx.coroutines.sync.withPermit
 import java.io.File
 import java.io.RandomAccessFile
 import java.text.DecimalFormat
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object BPMAnalyzer : KoinComponent {
@@ -53,10 +49,10 @@ object BPMAnalyzer : KoinComponent {
     private val songAnalysisDao: SongAnalysisDao by inject<SongAnalysisDao>()
 
     private var parentJob = Job().apply { complete() }
+    private val runningJobs: MutableMap<Long, Job> = mutableMapOf()
     private val semaphore = Semaphore(maxThreads)
 
     private var callback: AnalysisProcessCallback? = null
-    private val songJobs: MutableMap<Long, Job> = mutableMapOf()
 
     fun setCallback(callback: AnalysisProcessCallback) {
         this.callback = callback
@@ -78,10 +74,10 @@ object BPMAnalyzer : KoinComponent {
         val processJob = Job(parentScope.coroutineContext[Job])
         val processScope = CoroutineScope(Dispatchers.IO + processJob)
 
-        songJobs[songId] = processJob
-
         processScope.launch {
             semaphore.withPermit {
+                runningJobs[songId] = processJob
+
                 withContext(Dispatchers.Main) {
                     callback?.onSingleProcessStart(songId)
                 }
@@ -176,12 +172,11 @@ object BPMAnalyzer : KoinComponent {
                         }
 
                         processJob.complete()
-                        songJobs.remove(songId)
+                        runningJobs.remove(songId)
                         completion.complete(Unit)
                     }
                 })
 
-                logD("Starting dispatcher")
                 withContext(Dispatchers.IO) {
                     audioDispatcher.run()
                 }
@@ -227,20 +222,20 @@ object BPMAnalyzer : KoinComponent {
 
     fun isRunning(songId: Long = 0L): Boolean {
         return if (songId == 0L) {
-            parentJob.isActive
+            runningJobs.isNotEmpty()
         } else {
-            songJobs[songId]?.isActive == true
+            runningJobs.contains(songId)
         }
     }
 
     fun stopAnalysis(songId: Long = 0L) {
         if (songId == 0L) {
-            parentJob.cancel()
-            songJobs.forEach {
+            runningJobs.forEach {
                 it.value.cancel()
                 callback?.onSingleProcessFinish(it.key)
             }
-            songJobs.clear()
+            parentJob.cancel()
+            runningJobs.clear()
             CoroutineScope(Dispatchers.IO).launch {
                 parentJob.join()
                 withContext(Dispatchers.Main) {
@@ -249,14 +244,14 @@ object BPMAnalyzer : KoinComponent {
                 }
             }
         } else {
-            songJobs[songId]?.let { job ->
+            runningJobs[songId]?.let { job ->
                 job.cancel()
                 CoroutineScope(Dispatchers.IO).launch {
                     job.join()
                     withContext(Dispatchers.Main) {
                         callback?.onSingleProcessFinish(songId)
                     }
-                    songJobs.remove(songId)
+                    runningJobs.remove(songId)
                 }
             }
         }
