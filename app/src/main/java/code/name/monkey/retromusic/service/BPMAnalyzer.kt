@@ -45,7 +45,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object BPMAnalyzer : KoinComponent {
-    private const val maxThreads = 30
+    private const val maxThreads = 10
     private const val reliableRange = 15.0
     private const val possibleMinBPM = 60.0
     private const val possibleMaxBPM = 240.0
