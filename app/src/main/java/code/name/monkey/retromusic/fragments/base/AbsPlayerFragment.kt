@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.fragments.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -31,8 +32,8 @@ import android.widget.RelativeLayout
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
@@ -44,11 +45,11 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.activities.tageditor.AbsTagEditorActivity
 import code.name.monkey.retromusic.activities.tageditor.SongTagEditorActivity
+import code.name.monkey.retromusic.adapter.song.BPMAdapter
 import code.name.monkey.retromusic.db.PlaylistEntity
 import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.dialogs.*
 import code.name.monkey.retromusic.extensions.*
-import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.ReloadType
 import code.name.monkey.retromusic.fragments.player.PlayerAlbumCoverFragment
@@ -56,11 +57,14 @@ import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.interfaces.IPaletteColorHolder
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.repository.RealRepository
+import code.name.monkey.retromusic.service.BPMAnalyzer
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.NavigationUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RingtoneManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -229,6 +233,12 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMusicServiceFragme
 
             R.id.action_driving_mode -> {
                 //replaceFragment(DriveModeFragment())
+                return true;
+            }
+
+            R.id.action_show_bpm -> {
+                val currentSong = MusicPlayerRemote.currentSong
+                BPMAnalyzer.manualBPMTap(requireContext(), currentSong.id, currentSong.uri)
                 return true;
             }
         }

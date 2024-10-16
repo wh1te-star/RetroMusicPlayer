@@ -76,6 +76,12 @@
         tools:layout="@layout/fragment_search" />
 
     <fragment
+        android:id="@+id/action_bpm"
+        android:name="code.name.monkey.retromusic.fragments.BPMFragment"
+        android:label="BPMFragment"
+        tools:layout="@layout/fragment_bpm" />
+
+    <fragment
         android:id="@+id/settings_fragment"
         android:name="code.name.monkey.retromusic.fragments.settings.SettingsFragment" />
 

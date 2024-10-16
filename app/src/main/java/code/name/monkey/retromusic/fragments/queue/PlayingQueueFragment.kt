@@ -146,13 +146,11 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         checkForPadding()
         updateQueue()
         updateCurrentSong()
-        linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
     }
 
     override fun onMediaStoreChanged() {
         updateQueue()
         updateCurrentSong()
-        linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
     }
 
     private fun updateCurrentSong() {

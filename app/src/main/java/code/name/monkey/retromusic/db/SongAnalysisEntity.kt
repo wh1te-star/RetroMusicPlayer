@@ -14,17 +14,22 @@
  */
 package code.name.monkey.retromusic.db
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
-@Database(
-    entities = [PlaylistEntity::class, SongEntity::class, HistoryEntity::class, PlayCountEntity::class, SongAnalysisEntity::class],
-    version = 28,
-    exportSchema = false
+@Entity(tableName = "SongsAnalysisEntity")
+data class SongAnalysisEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "song_id")
+    val songId: Long,
+
+    @ColumnInfo(name = "bpm")
+    val bpm: Double?,
+
+    @ColumnInfo(name = "manualBPM")
+    val manualBPM: Double?,
 )
-abstract class RetroDatabase : RoomDatabase() {
-    abstract fun playlistDao(): PlaylistDao
-    abstract fun playCountDao(): PlayCountDao
-    abstract fun historyDao(): HistoryDao
-    abstract fun songAnalysisDao(): SongAnalysisDao
-}

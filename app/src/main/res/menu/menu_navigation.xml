@@ -61,6 +61,11 @@
             android:title="@string/action_search" />
 
         <item
+            android:id="@+id/nav_bpm"
+            android:icon="@drawable/ic_bpm"
+            android:title="@string/action_bpm" />
+
+        <item
             android:id="@+id/nav_song"
             android:icon="@drawable/avd_music_note"
             android:title="@string/songs" />

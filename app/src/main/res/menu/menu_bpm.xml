@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".DrawerActivity">
+
+    <item
+        android:id="@+id/action_analysis_bpm_all"
+        android:title="@string/analysis_bpm_all"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/action_sort_order_bpm_reset"
+        android:title="@string/reset_bpm_order"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/action_sort_order_bpm"
+        android:title="@string/sort_by_bpm_ascending"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/action_delete_bpm_all"
+        android:title="@string/delete_bpm_all"
+        app:showAsAction="collapseActionView" />
+</menu>

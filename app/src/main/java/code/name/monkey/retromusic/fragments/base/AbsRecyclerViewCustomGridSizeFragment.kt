@@ -38,7 +38,7 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<A : RecyclerView.Adapter<*>
             resources.getInteger(R.integer.max_columns)
         }
 
-    fun itemLayoutRes(): Int {
+    open fun itemLayoutRes(): Int {
         return if (getGridSize() > maxGridSizeForList) {
             loadLayoutRes()
         } else R.layout.item_list

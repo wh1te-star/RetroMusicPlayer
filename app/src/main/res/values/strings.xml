@@ -9,6 +9,7 @@
     <string name="action_add_to_favorites">Add to favorites</string>
     <string name="action_add_to_playing_queue">Add to playing queue</string>
     <string name="action_add_to_playlist">Add to playlist</string>
+    <string name="action_bpm">BPM</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_cast">Cast</string>
     <string name="action_clear_playing_queue">Clear playing queue</string>
@@ -577,4 +578,15 @@
     <string name="select_file_to_upload">Select the file to upload</string>
     <string name="current_song">Current Song</string>
     <string name="device">Device</string>
+    <string name="analysis_bpm_all">Analysis BPMs for all songs.</string>
+    <string name="delete_bpm_all">Delete BPMs for all songs.</string>
+    <string name="action_stop_bpm_process_all">stop all BPM processes</string>
+    <string name="delete_all_bpm_value">Do you really want to delete all analyzed BPM values?</string>
+    <string name="reset_bpm_order">Reset the Order.</string>
+    <string name="sort_by_bpm_ascending">Sort by in BPM ascending order.</string>
+    <string name="sort_by_bpm_descending">Sort by BPM in descending order.</string>
+    <string name="stop_analysis">Stopping analysis…</string>
+    <string name="analyze_bpm">Analyze/Stop BPM.</string>
+    <string name="delete_bpm">Delete BPM value.</string>
+    <string name="delete_manual_bpm">Delete manual-input BPM value.</string>
 </resources>
