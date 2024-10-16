@@ -217,7 +217,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
                     STATE_COLLAPSED -> {
                         onPanelCollapsed()
-                        if ((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) {
+                        if (((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) && !isDriveMode) {
                             keepScreenOn(false)
                         }
                     }
@@ -482,9 +482,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.action_settings -> {
                 navController.navigate(R.id.settings_fragment)
             }
-            R.id.action_driving_mode ->{
-                if (isDriveMode) isDriveMode = false
-                else isDriveMode = true
+            R.id.action_driving_mode -> {
+                if (isDriveMode){
+                    isDriveMode = false
+                    if ((!PreferenceUtil.lyricsScreenOn || !PreferenceUtil.showLyrics) && PreferenceUtil.isScreenOnEnabled) {
+                        keepScreenOn(false)
+                    }
+                } else {
+                    isDriveMode = true
+                    keepScreenOn(true)
+                }
 
                 chooseFragmentForTheme()
                 binding.slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
@@ -538,7 +545,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             }
 
             SCREEN_ON_LYRICS -> {
-                keepScreenOn(bottomSheetBehavior.state == STATE_EXPANDED && PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics || PreferenceUtil.isScreenOnEnabled)
+                keepScreenOn(bottomSheetBehavior.state == STATE_EXPANDED && PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics || PreferenceUtil.isScreenOnEnabled || isDriveMode)
             }
 
             KEEP_SCREEN_ON -> {
