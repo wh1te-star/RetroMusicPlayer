@@ -307,6 +307,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
+        binding.optionButton.setOnClickListener { expandPanel() }
 
         val sharedPreferences = getDefaultSharedPreferences(this)
         isDriveMode = sharedPreferences.getBoolean(IS_DRIVING_MODE, false)

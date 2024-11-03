@@ -92,12 +92,14 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
             }
         }
         val activity = activity as? AbsSlidingMusicPanelActivity
+        /*
         activity?.optionButton?.let { optionButton ->
             optionButton.setOnClickListener {
                 accentColor()
                 binding.searchView.focusAndShowKeyboard()
             }
         }
+         */
         if (savedInstanceState != null) {
             query = savedInstanceState.getString(QUERY)
         }
@@ -109,6 +111,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         view.doOnPreDraw {
             startPostponedEnterTransition()
         }
+        /*
         KeyboardVisibilityEvent.setEventListener(requireActivity(), viewLifecycleOwner) {
             if (it) {
                 activity?.optionButton?.isGone = true
@@ -117,6 +120,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 activity?.optionButton?.setImageResource(R.drawable.ic_keyboard)
             }
         }
+         */
         binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())
 

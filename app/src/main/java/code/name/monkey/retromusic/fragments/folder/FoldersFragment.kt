@@ -137,7 +137,6 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
             )
             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
         }
-        mainActivity.optionButton.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

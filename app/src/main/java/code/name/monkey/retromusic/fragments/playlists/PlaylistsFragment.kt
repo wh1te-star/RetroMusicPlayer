@@ -46,7 +46,6 @@ class PlaylistsFragment :
             else
                 adapter?.swapDataSet(listOf())
         }
-        (requireActivity() as MainActivity).optionButton.hide()
     }
 
     override val titleRes: Int
