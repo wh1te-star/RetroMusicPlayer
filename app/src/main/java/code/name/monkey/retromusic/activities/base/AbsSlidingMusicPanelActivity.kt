@@ -343,6 +343,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
 
+        binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_up)
+
         binding.fragmentContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
             override fun onLayoutChange(
                 v: View?,

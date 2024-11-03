@@ -33,9 +33,6 @@
                 android:layout_gravity="start|bottom"
                 android:layout_marginStart="64dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/keyboard"
-                android:textAppearance="@style/TextViewHeadline6"
-                app:icon="@drawable/ic_keyboard"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -45,9 +42,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|bottom"
                 android:layout_marginBottom="32dp"
-                android:text="@string/keyboard"
-                android:textAppearance="@style/TextViewHeadline6"
-                app:icon="@drawable/ic_keyboard"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
                 app:layout_constraintStart_toEndOf="@+id/menuButtonLeft" />
@@ -59,9 +53,6 @@
                 android:layout_gravity="end|bottom"
                 android:layout_marginEnd="64dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/keyboard"
-                android:textAppearance="@style/TextViewHeadline6"
-                app:icon="@drawable/ic_keyboard"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
