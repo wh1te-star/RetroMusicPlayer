@@ -122,6 +122,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
@@ -230,6 +231,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                             keepScreenOn(false)
                         }
                     }
+
+                    STATE_HALF_EXPANDED -> {}
 
                     STATE_SETTLING -> {
                         if (fromNotification) {
@@ -425,6 +428,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallbackList)
         bottomSheetBehavior.isHideable = PreferenceUtil.swipeDownToDismiss
         bottomSheetBehavior.significantVelocityThreshold = 300
+
+        bottomSheetBehavior.isFitToContents = false
+        bottomSheetBehavior.halfExpandedRatio = 0.4f
         setMiniPlayerAlphaProgress(0F)
     }
 
@@ -574,7 +580,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     fun expandPanel() {
-        bottomSheetBehavior.state = STATE_EXPANDED
+        if(bottomSheetBehavior.state == STATE_COLLAPSED){
+            bottomSheetBehavior.state = STATE_HALF_EXPANDED
+        }
+        if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
+            bottomSheetBehavior.state = STATE_EXPANDED
+        }
     }
 
     private fun setMiniPlayerAlphaProgress(progress: Float) {
