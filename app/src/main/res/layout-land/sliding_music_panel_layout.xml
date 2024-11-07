@@ -85,6 +85,13 @@
                 android:layout_height="match_parent" />
 
             <fragment
+                android:id="@+id/halfPlayerFragment"
+                android:name="code.name.monkey.retromusic.fragments.player.normal.HalfPlayerFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_half_player" />
+
+            <fragment
                 android:id="@+id/miniPlayerFragment"
                 android:name="code.name.monkey.retromusic.fragments.other.MiniPlayerFragment"
                 android:layout_width="match_parent"

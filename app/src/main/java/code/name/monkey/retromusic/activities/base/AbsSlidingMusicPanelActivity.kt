@@ -104,6 +104,7 @@ import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
 import code.name.monkey.retromusic.fragments.other.MiniPlayerFragment
+import code.name.monkey.retromusic.fragments.player.normal.HalfPlayerFragment
 import code.name.monkey.retromusic.fragments.player.normal.PlayerFragment
 import code.name.monkey.retromusic.fragments.queue.PlayingQueueFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -153,11 +154,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     protected val libraryViewModel by viewModel<LibraryViewModel>()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var playerFragment: AbsPlayerFragment
+    private lateinit var halfPlayerFragment: AbsPlayerFragment
     private var miniPlayerFragment: MiniPlayerFragment? = null
     private var nowPlayingScreen: NowPlayingScreen? = null
     private var taskColor: Int = 0
     private var paletteColor: Int = Color.WHITE
     private var navigationBarColor = 0
+
+    val halfExpandedRatio = 0.4f
 
     private val panelState: Int
         get() = bottomSheetBehavior.state
@@ -192,9 +196,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private val bottomSheetCallbackList by lazy {
         object : BottomSheetCallback() {
-
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                setMiniPlayerAlphaProgress(slideOffset)
+                if(slideOffset < halfExpandedRatio){
+                    logD("${slideOffset / halfExpandedRatio}")
+                    crossfadeCollapseHalf(slideOffset / halfExpandedRatio)
+                }else{
+                    logD("${(slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio)}")
+                    crossfadeHalfExpanded((slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio))
+                }
                 navigationBarColorAnimator?.cancel()
                 setNavigationBarColorPreOreo(
                     argbEvaluator.evaluate(
@@ -232,7 +241,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         }
                     }
 
-                    STATE_HALF_EXPANDED -> {}
+                    STATE_HALF_EXPANDED -> {
+                        crossfadeCollapseHalf(1.0f)
+                    }
 
                     STATE_SETTLING -> {
                         if (fromNotification) {
@@ -433,15 +444,23 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         bottomSheetBehavior.significantVelocityThreshold = 300
 
         bottomSheetBehavior.isFitToContents = false
-        bottomSheetBehavior.halfExpandedRatio = 0.4f
-        setMiniPlayerAlphaProgress(0F)
+        bottomSheetBehavior.halfExpandedRatio = halfExpandedRatio
+        setPlayerAlpha(0.0f)
+        setHalfPlayerAlpha(0.0f)
+        setMiniPlayerAlpha(1.0f)
     }
 
     override fun onResume() {
         super.onResume()
         PreferenceUtil.registerOnSharedPreferenceChangedListener(this)
         if (bottomSheetBehavior.state == STATE_EXPANDED) {
-            setMiniPlayerAlphaProgress(1f)
+            setPlayerAlpha(1.0f)
+            setHalfPlayerAlpha(0.0f)
+            setMiniPlayerAlpha(0.0f)
+        } else if (bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
+            setPlayerAlpha(0.0f)
+            setHalfPlayerAlpha(1.0f)
+            setMiniPlayerAlpha(0.0f)
         }
     }
 
@@ -562,6 +581,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
             SWIPE_ANYWHERE_NOW_PLAYING -> {
                 playerFragment.addSwipeDetector()
+                halfPlayerFragment.addSwipeDetector()
             }
 
             TOGGLE_FULL_SCREEN -> {
@@ -591,11 +611,40 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
     }
 
-    private fun setMiniPlayerAlphaProgress(progress: Float) {
-        if (progress < 0) return
+    private fun setPlayerAlpha(alpha: Float) {
+        if (alpha < 0.0f || 1.0f < alpha) return
+        playerFragment.view?.alpha = alpha
+    }
+
+    private fun setHalfPlayerAlpha(alpha: Float) {
+        if (alpha < 0.0f || 1.0f < alpha) return
+        halfPlayerFragment.view?.alpha = alpha
+    }
+
+    private fun setMiniPlayerAlpha(alpha: Float) {
+        if (alpha < 0.0f || 1.0f < alpha) return
+        miniPlayerFragment?.view?.alpha = alpha
+    }
+
+    private fun crossfadeCollapseHalf(progress: Float){
+        if (progress < 0.0f || 1.0f < progress) return
+        setMiniPlayerAlpha(1.0f - progress)
+        setHalfPlayerAlpha(progress)
+        setPlayerAlpha(0.0f)
+    }
+
+    private fun crossfadeHalfExpanded(progress: Float){
+        if (progress < 0.0f || 1.0f < progress) return
+        setHalfPlayerAlpha(1.0f - progress)
+        setPlayerAlpha(progress)
+        setMiniPlayerAlpha(0.0f)
+    }
+
+    private fun setHalfPlayerAlphaProgress(progress: Float) {
+        if (progress < 0.0f || 1.0f < progress) return
         val alpha = 1 - progress
-        miniPlayerFragment?.view?.alpha = 1 - (progress / 0.2F)
-        miniPlayerFragment?.view?.isGone = alpha == 0f
+        halfPlayerFragment.view?.alpha = 1 - (progress / 0.2F)
+        halfPlayerFragment.view?.isGone = alpha == 0f
         binding.playerFragmentContainer.alpha = (progress - 0.2F) / 0.2F
     }
 
@@ -616,7 +665,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     open fun onPanelCollapsed() {
-        setMiniPlayerAlphaProgress(0F)
+        setPlayerAlpha(0.0f)
+        setHalfPlayerAlpha(0.0f)
+        setMiniPlayerAlpha(1.0f)
         // restore values
         animateNavigationBarColor(surfaceColor())
         setLightStatusBarAuto()
@@ -626,7 +677,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     open fun onPanelExpanded() {
-        setMiniPlayerAlphaProgress(1F)
+        //setMiniPlayerAlphaProgress(1F)
         onPaletteColorChanged()
         //playerFragment?.onShow()
     }
@@ -753,6 +804,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         playerFragment = whichFragment(R.id.playerFragmentContainer)
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
+
+        halfPlayerFragment = whichFragment<HalfPlayerFragment>(R.id.halfPlayerFragment)
+        halfPlayerFragment.view?.setOnClickListener { expandPanel() }
     }
 
     override fun onSingleProcessStart(id: Long) {
