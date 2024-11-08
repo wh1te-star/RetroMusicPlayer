@@ -28,10 +28,8 @@ import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.SNOWFALL
 import code.name.monkey.retromusic.databinding.FragmentHalfPlayerBinding
-import code.name.monkey.retromusic.databinding.FragmentPlayerBinding
 import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
-import code.name.monkey.retromusic.fragments.player.PlayerAlbumCoverFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.PreferenceUtil
@@ -39,7 +37,7 @@ import code.name.monkey.retromusic.util.ViewUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import code.name.monkey.retromusic.views.DrawableGradient
 
-class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
+class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var lastColor: Int = 0
@@ -72,7 +70,6 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
                         surfaceColor()
                     ), 0
                 )
-                //binding.colorGradientBackground.background = drawable
             }
         }
         valueAnimator?.setDuration(ViewUtil.RETRO_MUSIC_ANIM_TIME.toLong())?.start()
@@ -93,13 +90,11 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
         lastColor = color.backgroundColor
         libraryViewModel.updateColor(color.backgroundColor)
 
-        /*
         ToolbarContentTintHelper.colorizeToolbar(
             binding.playerToolbar,
             colorControlNormal(),
             requireActivity()
         )
-         */
 
         if (PreferenceUtil.isAdaptiveColor) {
             colorize(color.backgroundColor)
@@ -120,15 +115,12 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHalfPlayerBinding.bind(view)
-        /*
         setUpSubFragments()
         setUpPlayerToolbar()
-        startOrStopSnow(PreferenceUtil.isSnowFalling)
 
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .registerOnSharedPreferenceChangeListener(this)
         playerToolbar().drawAboveSystemBars()
-         */
     }
 
     override fun onDestroyView() {
@@ -139,16 +131,10 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
     }
 
     private fun setUpSubFragments() {
-        /*
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
-        val playerAlbumCoverFragment: PlayerAlbumCoverFragment =
-            whichFragment(R.id.playerAlbumCoverFragment)
-        playerAlbumCoverFragment.setCallbacks(this)
-         */
     }
 
     private fun setUpPlayerToolbar() {
-        /*
         binding.playerToolbar.inflateMenu(R.menu.menu_player)
         //binding.playerToolbar.menu.setUpWithIcons()
         binding.playerToolbar.setNavigationOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
@@ -159,26 +145,6 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
             colorControlNormal(),
             requireActivity()
         )
-         */
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if (key == SNOWFALL) {
-            startOrStopSnow(PreferenceUtil.isSnowFalling)
-        }
-    }
-
-    private fun startOrStopSnow(isSnowFalling: Boolean) {
-        if (_binding == null) return
-        /*
-        if (isSnowFalling && !surfaceColor().isColorLight) {
-            binding.snowfallView.isVisible = true
-            binding.snowfallView.restartFalling()
-        } else {
-            binding.snowfallView.isVisible = false
-            binding.snowfallView.stopFalling()
-        }
-         */
     }
 
     override fun onServiceConnected() {
@@ -195,9 +161,12 @@ class HalfPlayerFragment() : AbsPlayerFragment(R.layout.fragment_half_player),
 
     companion object {
 
-        fun newInstance(): HalfPlayerFragment {
-            return HalfPlayerFragment()
+        fun newInstance(): PlayerFragment {
+            return PlayerFragment()
         }
     }
 
+    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+        //nothing
+    }
 }

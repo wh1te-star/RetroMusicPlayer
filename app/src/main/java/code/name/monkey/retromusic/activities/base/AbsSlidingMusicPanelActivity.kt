@@ -161,7 +161,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var paletteColor: Int = Color.WHITE
     private var navigationBarColor = 0
 
-    val halfExpandedRatio = 0.4f
+    val halfExpandedRatio = 0.3f
 
     private val panelState: Int
         get() = bottomSheetBehavior.state
