@@ -318,7 +318,15 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
-        binding.optionButton.setOnClickListener { expandPanel() }
+        binding.optionButton.setOnClickListener {
+            if(bottomSheetBehavior.state == STATE_COLLAPSED) {
+                binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_down)
+                expandPanel()
+            }else if(bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
+                binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_up)
+                collapsePanel()
+            }
+        }
 
         val sharedPreferences = getDefaultSharedPreferences(this)
         isDriveMode = sharedPreferences.getBoolean(IS_DRIVING_MODE, false)
