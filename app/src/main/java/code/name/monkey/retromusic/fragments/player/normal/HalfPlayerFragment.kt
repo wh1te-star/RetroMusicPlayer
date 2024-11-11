@@ -17,11 +17,15 @@ package code.name.monkey.retromusic.fragments.player.normal
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
@@ -50,6 +54,15 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     private var _binding: FragmentHalfPlayerBinding? = null
     private val binding get() = _binding!!
 
+    fun setHiddenAreaHeight(expandRatio: Float) {
+        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
+        val displayHeight = displayMetrics.heightPixels
+        val newHeight = (displayHeight * (1 - expandRatio)).toInt()
+        binding.hiddenAreaView.updateLayoutParams<ViewGroup.LayoutParams> {
+            height = newHeight
+        }
+        binding.hiddenAreaView.requestLayout()
+    }
 
     private fun colorize(i: Int) {
         if (valueAnimator != null) {

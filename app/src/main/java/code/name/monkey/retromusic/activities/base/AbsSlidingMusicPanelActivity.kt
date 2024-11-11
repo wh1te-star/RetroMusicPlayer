@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.activities.base
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
@@ -161,7 +162,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var paletteColor: Int = Color.WHITE
     private var navigationBarColor = 0
 
-    val halfExpandedRatio = 0.3f
+    val halfExpandedRatio = 0.5f
 
     private val panelState: Int
         get() = bottomSheetBehavior.state
@@ -453,6 +454,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
         bottomSheetBehavior.isFitToContents = false
         bottomSheetBehavior.halfExpandedRatio = halfExpandedRatio
+
+        (halfPlayerFragment as HalfPlayerFragment).setHiddenAreaHeight(halfExpandedRatio)
         setPlayerAlpha(0.0f)
         setHalfPlayerAlpha(0.0f)
         setMiniPlayerAlpha(1.0f)
