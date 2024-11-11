@@ -240,10 +240,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         if (((PreferenceUtil.lyricsScreenOn && PreferenceUtil.showLyrics) || !PreferenceUtil.isScreenOnEnabled) && !isDriveMode) {
                             keepScreenOn(false)
                         }
+                        binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_up)
                     }
 
                     STATE_HALF_EXPANDED -> {
                         crossfadeCollapseHalf(1.0f)
+                        binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_down)
                     }
 
                     STATE_SETTLING -> {
@@ -321,10 +323,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
         binding.optionButton.setOnClickListener {
             if(bottomSheetBehavior.state == STATE_COLLAPSED) {
-                binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_down)
                 expandPanel()
             }else if(bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
-                binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_up)
                 collapsePanel()
             }
         }
