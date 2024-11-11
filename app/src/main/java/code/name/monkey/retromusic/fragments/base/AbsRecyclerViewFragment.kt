@@ -69,11 +69,10 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         val activity = activity as? AbsSlidingMusicPanelActivity
         activity?.optionButton?.fitsSystemWindows = PreferenceUtil.isFullScreenMode
         // Add listeners when shuffle is visible
-        mainActivity.optionButton.show()
-        mainActivity.optionButton.setImageResource(R.drawable.ic_shuffle)
-        mainActivity.optionButton.apply {
-            setOnClickListener {
+        activity?.optionButton?.apply {
+            setOnLongClickListener {
                 onShuffleClicked()
+                true
             }
             accentColor()
         }

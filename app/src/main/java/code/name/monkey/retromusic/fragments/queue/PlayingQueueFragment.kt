@@ -80,15 +80,13 @@ class PlayingQueueFragment : AbsMainActivityFragment(R.layout.fragment_playing_q
         val activity = activity as? AbsSlidingMusicPanelActivity
         activity?.optionButton?.fitsSystemWindows = PreferenceUtil.isFullScreenMode
 
-        mainActivity.optionButton.setImageResource(R.drawable.avd_music_note)
-        /*
         mainActivity.optionButton.apply {
-            setOnClickListener {
+            setOnLongClickListener {
                 linearLayoutManager.scrollToPositionWithOffset(MusicPlayerRemote.position + 1, 0)
+                true
             }
             accentColor()
         }
-         */
 
         view.post {
             updateQueue()

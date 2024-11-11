@@ -20,18 +20,23 @@ class TapOnlyFloatingActionButton @JvmOverloads constructor(
             performClick()
             return false
         }
+
+        override fun onLongPress(e: MotionEvent) {
+            performLongClick()
+        }
     })
+
     private var underlyingView: View? = null
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
     }
 
-    fun setUnderlyingView(view: View?){
+    fun setUnderlyingView(view: View?) {
         underlyingView = view
     }
 
-    fun setUnderlyingView(){
+    fun setUnderlyingView() {
         underlyingView = findUnderlyingView()
     }
 
