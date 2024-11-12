@@ -59,7 +59,7 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         val displayHeight = displayMetrics.heightPixels
         val newHeight = (displayHeight * (1 - expandRatio)).toInt()
         binding.hiddenAreaView.updateLayoutParams<ViewGroup.LayoutParams> {
-            height = newHeight
+            height = newHeight + dip(R.dimen.mini_player_height)
         }
         binding.hiddenAreaView.requestLayout()
     }
