@@ -155,7 +155,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     protected val libraryViewModel by viewModel<LibraryViewModel>()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var playerFragment: AbsPlayerFragment
-    private lateinit var halfPlayerFragment: AbsPlayerFragment
+    private lateinit var halfPlayerFragment: HalfPlayerFragment
     private var miniPlayerFragment: MiniPlayerFragment? = null
     private var nowPlayingScreen: NowPlayingScreen? = null
     private var taskColor: Int = 0
@@ -455,7 +455,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         bottomSheetBehavior.isFitToContents = false
         bottomSheetBehavior.halfExpandedRatio = halfExpandedRatio
 
-        (halfPlayerFragment as HalfPlayerFragment).setHiddenAreaHeight(halfExpandedRatio)
         setPlayerAlpha(0.0f)
         setHalfPlayerAlpha(0.0f)
         setMiniPlayerAlpha(1.0f)
@@ -816,7 +815,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
 
-        halfPlayerFragment = whichFragment<HalfPlayerFragment>(R.id.halfPlayerFragment)
+        halfPlayerFragment = HalfPlayerFragment()
+        halfPlayerFragment.setOnViewReadyListener {
+            halfPlayerFragment.setHiddenAreaHeight(halfExpandedRatio)
+        }
+        supportFragmentManager.commit {
+            replace(R.id.halfPlayerFragment, halfPlayerFragment)
+        }
+        supportFragmentManager.executePendingTransactions()
         halfPlayerFragment.view?.setOnClickListener { expandPanel() }
     }
 

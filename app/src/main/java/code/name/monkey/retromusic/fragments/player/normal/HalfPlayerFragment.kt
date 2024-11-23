@@ -53,6 +53,11 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
 
     private var _binding: FragmentHalfPlayerBinding? = null
     private val binding get() = _binding!!
+    private var viewReadyListener: (() -> Unit)? = null
+
+    fun setOnViewReadyListener(listener: () -> Unit) {
+        viewReadyListener = listener
+    }
 
     fun setHiddenAreaHeight(expandRatio: Float) {
         val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
@@ -131,6 +136,8 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         setUpSubFragments()
         setUpPlayerToolbar()
 
+        viewReadyListener?.invoke()
+
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .registerOnSharedPreferenceChangeListener(this)
         playerToolbar().drawAboveSystemBars()
@@ -174,8 +181,8 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
 
     companion object {
 
-        fun newInstance(): PlayerFragment {
-            return PlayerFragment()
+        fun newInstance(): HalfPlayerFragment {
+            return HalfPlayerFragment()
         }
     }
 
