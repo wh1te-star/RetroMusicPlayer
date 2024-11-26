@@ -77,6 +77,7 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     val seekBar: SeekBar? = null
     val progressSlider: Slider
         get() = binding.progressSlider
+    private var isSeeking = false
 
     val songCurrentProgress: TextView
         get() = binding.songCurrentProgress
@@ -139,14 +140,63 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         valueAnimator?.setDuration(ViewUtil.RETRO_MUSIC_ANIM_TIME.toLong())?.start()
     }
 
+    private fun onProgressChange(value: Int, fromUser: Boolean) {
+        if (fromUser) {
+            onUpdateProgressViews(value, MusicPlayerRemote.songDurationMillis)
+        }
+    }
+
+    private fun setUpProgressSlider() {
+        progressSlider.addOnChangeListener(Slider.OnChangeListener { _, value, fromUser ->
+            onProgressChange(value.toInt(), fromUser)
+        })
+        progressSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
+                logD("onStartTrackingTouch")
+                onStartTrackingTouch()
+            }
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                onStopTrackingTouch(slider.value.toInt())
+            }
+        })
+
+        seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                onProgressChange(progress, fromUser)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                onStartTrackingTouch()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                onStopTrackingTouch(seekBar?.progress ?: 0)
+            }
+        })
+    }
+
     override fun onResume() {
         super.onResume()
+        setUpProgressSlider()
         progressViewUpdateHelper.start()
     }
 
     override fun onPause() {
         super.onPause()
         progressViewUpdateHelper.stop()
+    }
+
+    private fun onStartTrackingTouch() {
+        isSeeking = true
+        progressViewUpdateHelper.stop()
+        //progressAnimator?.cancel()
+    }
+
+    private fun onStopTrackingTouch(value: Int) {
+        isSeeking = false
+        MusicPlayerRemote.seekTo(value)
+        progressViewUpdateHelper.start()
     }
 
     override fun onShow() { }
@@ -267,7 +317,6 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     }
 
     override fun onUpdateProgressViews(progress: Int, total: Int) {
-        logD("progressupdate")
         if (seekBar == null) {
             progressSlider.valueTo = total.toFloat()
 
@@ -276,19 +325,19 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         } else {
             seekBar?.max = total
 
-            /*
             if (isSeeking) {
                 seekBar?.progress = progress
             } else {
+                /*
                 progressAnimator =
                     ObjectAnimator.ofInt(seekBar, "progress", progress).apply {
                         duration = SLIDER_ANIMATION_TIME
                         interpolator = LinearInterpolator()
                         start()
                     }
+                 */
 
             }
-             */
         }
         songTotalTime.text = MusicUtil.getReadableDurationString(total.toLong())
         songCurrentProgress.text = MusicUtil.getReadableDurationString(progress.toLong())

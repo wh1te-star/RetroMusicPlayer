@@ -133,6 +133,7 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.internal.http.HTTP_GONE
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -162,7 +163,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private var paletteColor: Int = Color.WHITE
     private var navigationBarColor = 0
 
-    val halfExpandedRatio = 0.4f
+    val halfExpandedRatio = 0.3f
 
     private val panelState: Int
         get() = bottomSheetBehavior.state
@@ -198,11 +199,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private val bottomSheetCallbackList by lazy {
         object : BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                playerFragment.view?.isGone = false
+                halfPlayerFragment.view?.isGone = false
+                miniPlayerFragment?.view?.isGone = false
+
                 if(slideOffset < halfExpandedRatio){
-                    logD("${slideOffset / halfExpandedRatio}")
                     crossfadeCollapseHalf(slideOffset / halfExpandedRatio)
                 }else{
-                    logD("${(slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio)}")
                     crossfadeHalfExpanded((slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio))
                 }
                 navigationBarColorAnimator?.cancel()
@@ -244,6 +247,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     }
 
                     STATE_HALF_EXPANDED -> {
+                        onPanelHalfExpanded()
                         crossfadeCollapseHalf(1.0f)
                         binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_down)
                     }
@@ -678,6 +682,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setPlayerAlpha(0.0f)
         setHalfPlayerAlpha(0.0f)
         setMiniPlayerAlpha(1.0f)
+        playerFragment.view?.isGone = true
+        halfPlayerFragment.view?.isGone = true
+        miniPlayerFragment?.view?.isGone = false
         // restore values
         animateNavigationBarColor(surfaceColor())
         setLightStatusBarAuto()
@@ -687,9 +694,24 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     open fun onPanelExpanded() {
+        setPlayerAlpha(1.0f)
+        setHalfPlayerAlpha(0.0f)
+        setMiniPlayerAlpha(0.0f)
+        playerFragment.view?.isGone = false
+        halfPlayerFragment.view?.isGone = true
+        miniPlayerFragment?.view?.isGone = true
         //setMiniPlayerAlphaProgress(1F)
         onPaletteColorChanged()
         //playerFragment?.onShow()
+    }
+
+    open fun onPanelHalfExpanded(){
+        setPlayerAlpha(0.0f)
+        setHalfPlayerAlpha(1.0f)
+        setMiniPlayerAlpha(0.0f)
+        playerFragment.view?.isGone = true
+        halfPlayerFragment.view?.isGone = false
+        miniPlayerFragment?.view?.isGone = true
     }
 
     private fun setupSlidingUpPanel() {
