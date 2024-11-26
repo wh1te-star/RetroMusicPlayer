@@ -205,8 +205,32 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
                 if(slideOffset < halfExpandedRatio){
                     crossfadeCollapseHalf(slideOffset / halfExpandedRatio)
+
+                    val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+                    val peekHeight = bottomSheetBehavior.peekHeight
+                    val statusBarHeight = getStatusBarHeight(binding.root)
+                    val height = screenHeight - peekHeight + statusBarHeight
+                    val adjustedMergin = peekHeight + height * slideOffset
+                    setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
+                    setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
+                    setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
+                    binding.menuButtonLeft.scaleX = 1.0f
+                    binding.menuButtonLeft.scaleY = 1.0f
+                    binding.optionButton.scaleX = 1.0f
+                    binding.optionButton.scaleY = 1.0f
+                    binding.menuButtonRight.scaleX = 1.0f
+                    binding.menuButtonRight.scaleY = 1.0f
                 }else{
-                    crossfadeHalfExpanded((slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio))
+                    val progress = (slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio)
+                    crossfadeHalfExpanded(progress)
+
+                    val scale = if (1.0f - progress * 30.0f > 0.0) 1.0f - progress * 30.0f else 0.0f
+                    binding.menuButtonLeft.scaleX = scale
+                    binding.menuButtonLeft.scaleY = scale
+                    binding.optionButton.scaleX = scale
+                    binding.optionButton.scaleY = scale
+                    binding.menuButtonRight.scaleX = scale
+                    binding.menuButtonRight.scaleY = scale
                 }
                 navigationBarColorAnimator?.cancel()
                 setNavigationBarColorPreOreo(
@@ -216,16 +240,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         navigationBarColor
                     ) as Int
                 )
-                val screenHeight = Resources.getSystem().displayMetrics.heightPixels
-                val peekHeight = bottomSheetBehavior.peekHeight
-                val statusBarHeight = getStatusBarHeight(binding.root)
-                val height = screenHeight - peekHeight + statusBarHeight
-
-                val adjustedMergin = peekHeight + height * slideOffset
-
-                setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
-                setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
-                setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
