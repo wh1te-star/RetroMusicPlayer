@@ -29,6 +29,9 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import code.name.monkey.appthemehelper.util.ATHUtil
+import code.name.monkey.appthemehelper.util.ColorUtil
+import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.whichFragment
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener

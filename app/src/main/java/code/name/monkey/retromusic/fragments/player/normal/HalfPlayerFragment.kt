@@ -17,13 +17,17 @@ package code.name.monkey.retromusic.fragments.player.normal
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
 import android.widget.SeekBar
@@ -48,8 +52,10 @@ import code.name.monkey.retromusic.fragments.other.VolumeFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.appthemehelper.util.ColorUtil
+import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.base.AbsPlayerControlsFragment.Companion.SLIDER_ANIMATION_TIME
 import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper
+import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ViewUtil
@@ -246,9 +252,9 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         TintHelper.setTintAuto(binding.playPauseButton, colorFinal, true)
         binding.progressSlider.applyColor(colorFinal)
         (binding.volumeFragmentContainer as VolumeFragment).setTintable(colorFinal)
-        //updateRepeatState()
-        //updateShuffleState()
-        //updatePrevNextColor()
+        updateRepeatState()
+        updateShuffleState()
+        updatePrevNextColor()
     }
 
     override fun toggleFavorite(song: Song) {
@@ -270,8 +276,16 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHalfPlayerBinding.bind(view)
+
+        lastColor = 100000000
         setUpSubFragments()
+        setUpProgressSlider()
+        setUpPlayPauseFab()
+        setUpPrevNext()
+        setUpRepeatButton()
+        setUpShuffleButton()
         setUpPlayerToolbar()
+        updatePlayPauseDrawableState()
 
         viewReadyListener?.invoke()
 
@@ -303,6 +317,80 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         //controlsFragment = whichFragment(R.id.playbackControlsFragment)
     }
 
+    private fun setUpPlayPauseFab() {
+        binding.playPauseButton.setOnClickListener {
+            if (MusicPlayerRemote.isPlaying) {
+                MusicPlayerRemote.pauseSong()
+            } else {
+                MusicPlayerRemote.resumePlaying()
+            }
+            updatePlayPauseDrawableState()
+            it.showBounceAnimation()
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setUpPrevNext() {
+        nextButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), true))
+        previousButton?.setOnTouchListener(MusicSeekSkipTouchListener(requireActivity(), false))
+    }
+
+    private fun setUpShuffleButton() {
+        shuffleButton.setOnClickListener {
+            MusicPlayerRemote.toggleShuffleMode()
+            updateShuffleState()
+        }
+    }
+
+    private fun setUpRepeatButton() {
+        repeatButton.setOnClickListener {
+            MusicPlayerRemote.cycleRepeatMode()
+            updateRepeatState()
+        }
+    }
+
+    private fun updatePlayPauseDrawableState() {
+        if (MusicPlayerRemote.isPlaying) {
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+        } else {
+            binding.playPauseButton.setImageResource(R.drawable.ic_play_arrow)
+        }
+    }
+
+    fun updatePrevNextColor() {
+        nextButton?.setColorFilter(lastColor, PorterDuff.Mode.SRC_IN)
+        previousButton?.setColorFilter(lastColor, PorterDuff.Mode.SRC_IN)
+    }
+
+    fun updateShuffleState() {
+        val colorBg = ATHUtil.resolveColor(requireContext(), android.R.attr.colorBackground)
+        val lastPlaybackControlsColor = if(ColorUtil.isColorLight(colorBg))
+            MaterialValueHelper.getSecondaryTextColor(requireContext(), true)
+            else
+            MaterialValueHelper.getPrimaryTextColor(requireContext(), false)
+        val lastDisabledPlaybackControlsColor = if(ColorUtil.isColorLight(colorBg))
+            MaterialValueHelper.getSecondaryDisabledTextColor(requireContext(), true)
+            else
+            MaterialValueHelper.getPrimaryDisabledTextColor(requireContext(), false)
+        shuffleButton.setColorFilter(
+            when (MusicPlayerRemote.shuffleMode) {
+                MusicService.SHUFFLE_MODE_SHUFFLE -> lastPlaybackControlsColor
+                else -> lastDisabledPlaybackControlsColor
+            }, PorterDuff.Mode.SRC_IN
+        )
+    }
+
+    fun updateRepeatState() {
+        when (MusicPlayerRemote.repeatMode) {
+            MusicService.REPEAT_MODE_ALL -> {
+                repeatButton.setImageResource(R.drawable.ic_repeat)
+            }
+            MusicService.REPEAT_MODE_THIS -> {
+                repeatButton.setImageResource(R.drawable.ic_repeat_one)
+            }
+        }
+    }
+
     private fun setUpPlayerToolbar() {
         binding.playerToolbar.inflateMenu(R.menu.menu_player)
         //binding.playerToolbar.menu.setUpWithIcons()
@@ -314,6 +402,29 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
             colorControlNormal(),
             requireActivity()
         )
+    }
+
+    fun View.showBounceAnimation() {
+        clearAnimation()
+        scaleX = 0.9f
+        scaleY = 0.9f
+        isVisible = true
+        pivotX = (width / 2).toFloat()
+        pivotY = (height / 2).toFloat()
+
+        animate().setDuration(200)
+            .setInterpolator(DecelerateInterpolator())
+            .scaleX(1.1f)
+            .scaleY(1.1f)
+            .withEndAction {
+                animate().setDuration(200)
+                    .setInterpolator(AccelerateInterpolator())
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .start()
+            }
+            .start()
     }
 
     override fun onUpdateProgressViews(progress: Int, total: Int) {
