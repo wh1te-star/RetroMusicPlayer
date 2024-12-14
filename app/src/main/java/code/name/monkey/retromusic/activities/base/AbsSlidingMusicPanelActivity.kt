@@ -16,18 +16,15 @@ package code.name.monkey.retromusic.activities.base
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -47,9 +44,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.fragment.app.findFragment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
@@ -130,10 +125,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLIN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.internal.http.HTTP_GONE
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -203,17 +194,20 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 halfPlayerFragment.view?.isGone = false
                 miniPlayerFragment?.view?.isGone = false
 
-                if(slideOffset < halfExpandedRatio){
-                    crossfadeCollapseHalf(slideOffset / halfExpandedRatio)
+                val peekHeight = bottomSheetBehavior.peekHeight
+                val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+                val statusBarHeight = getStatusBarHeight(binding.root)
+                val topInset: Int = windowInsets.getBottomInsets()
+                val height = screenHeight - peekHeight + statusBarHeight + topInset
 
-                    val screenHeight = Resources.getSystem().displayMetrics.heightPixels
-                    val peekHeight = bottomSheetBehavior.peekHeight
-                    val statusBarHeight = getStatusBarHeight(binding.root)
-                    val height = screenHeight - peekHeight + statusBarHeight
+                val halfExpandBorder = ((screenHeight + statusBarHeight + topInset) * halfExpandedRatio - peekHeight) / height
+
+                if(slideOffset < halfExpandBorder){
+                    crossfadeCollapseHalf(slideOffset / halfExpandBorder)
+
                     val adjustedMergin = peekHeight + height * slideOffset
-                    setButtonMargin(binding.menuButtonLeft,  adjustedMergin.toInt() + leftButtonBottomMargin)
-                    setButtonMargin(binding.optionButton,    adjustedMergin.toInt() + optionButtonBottomMargin)
-                    setButtonMargin(binding.menuButtonRight, adjustedMergin.toInt() + rightButtonBottomMargin)
+                    setAllButtonMargin(adjustedMergin)
+
                     binding.menuButtonLeft.scaleX = 1.0f
                     binding.menuButtonLeft.scaleY = 1.0f
                     binding.optionButton.scaleX = 1.0f
@@ -221,10 +215,15 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     binding.menuButtonRight.scaleX = 1.0f
                     binding.menuButtonRight.scaleY = 1.0f
                 }else{
-                    val progress = (slideOffset - halfExpandedRatio) / (1.0f - halfExpandedRatio)
+                    val progress = (slideOffset - halfExpandBorder) / (1.0f - halfExpandBorder)
                     crossfadeHalfExpanded(progress)
 
-                    val scale = if (1.0f - progress * 30.0f > 0.0) 1.0f - progress * 30.0f else 0.0f
+                    val dissappearSpeed = 20.0f
+                    val scale = if (1.0f - progress * dissappearSpeed > 0.0){
+                        1.0f - progress * dissappearSpeed
+                    } else {
+                        0.0f
+                    }
                     binding.menuButtonLeft.scaleX = scale
                     binding.menuButtonLeft.scaleY = scale
                     binding.optionButton.scaleX = scale
@@ -308,6 +307,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         button.updateLayoutParams<ConstraintLayout.LayoutParams> {
             bottomMargin = actualMargin
         }
+    }
+
+    private fun setAllButtonMargin(margin: Float){
+        setAllButtonMargin(margin.toInt())
+    }
+
+    private fun setAllButtonMargin(margin: Int) {
+        setButtonMargin(binding.menuButtonLeft, margin + leftButtonBottomMargin)
+        setButtonMargin(binding.optionButton, margin + optionButtonBottomMargin)
+        setButtonMargin(binding.menuButtonRight, margin + rightButtonBottomMargin)
     }
 
     fun getStatusBarHeight(view: View): Int {
@@ -754,7 +763,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        hideBottomSheet(false)
+        showBottomSheet()
     }
 
     override fun onQueueChanged() {
@@ -762,7 +771,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         // Mini player should be hidden in Playing Queue
         // it may pop up if hideBottomSheet is called
         if (currentFragment(R.id.fragment_container) !is PlayingQueueFragment) {
-            hideBottomSheet(MusicPlayerRemote.playingQueue.isEmpty())
+            showBottomSheet()
         }
     }
 
@@ -798,43 +807,39 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
     }
 
-    fun hideBottomSheet(
-        hide: Boolean,
+    fun showBottomSheet(
         animate: Boolean = false,
     ) {
         val heightOfBar = windowInsets.getBottomInsets() + dip(R.dimen.mini_player_height)
         val heightOfBarWithTabs = heightOfBar + dip(R.dimen.bottom_nav_height)
-        if (hide) {
-            bottomSheetBehavior.peekHeight = -windowInsets.getBottomInsets()
-            bottomSheetBehavior.state = STATE_COLLAPSED
-            libraryViewModel.setFabMargin(
-                this,
-                0
-            )
-        } else {
-            if (MusicPlayerRemote.playingQueue.isNotEmpty()) {
-                binding.slidingPanel.elevation = 0F
-                logD("Details")
-                if (animate) {
-                    bottomSheetBehavior.peekHeightAnimate(heightOfBar).doOnEnd {
-                        binding.slidingPanel.bringToFront()
-                    }
-                } else {
-                    bottomSheetBehavior.peekHeight = heightOfBar
-                    binding.slidingPanel.bringToFront()
-                }
-                libraryViewModel.setFabMargin(this, dip(R.dimen.mini_player_height))
+        binding.slidingPanel.elevation = 0F
+        logD("Details")
+        if (animate) {
+            bottomSheetBehavior.peekHeightAnimate(heightOfBar).doOnEnd {
+                binding.slidingPanel.bringToFront()
             }
+        } else {
+            bottomSheetBehavior.peekHeight = heightOfBar
+            binding.slidingPanel.bringToFront()
         }
+        libraryViewModel.setFabMargin(this, dip(R.dimen.mini_player_height))
 
-        setButtonMargin(binding.menuButtonLeft,  bottomSheetBehavior.peekHeight + leftButtonBottomMargin)
-        setButtonMargin(binding.optionButton,    bottomSheetBehavior.peekHeight + optionButtonBottomMargin)
-        setButtonMargin(binding.menuButtonRight, bottomSheetBehavior.peekHeight + rightButtonBottomMargin)
+        if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
+            crossfadeCollapseHalf(1.0f)
+
+            val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+            val buttonMargin = screenHeight * halfExpandedRatio
+            setAllButtonMargin(buttonMargin)
+        }else{
+            crossfadeCollapseHalf(0.0f)
+
+            setAllButtonMargin(bottomSheetBehavior.peekHeight)
+        }
     }
 
     fun setAllowDragging(allowDragging: Boolean) {
         bottomSheetBehavior.isDraggable = allowDragging
-        hideBottomSheet(false)
+        showBottomSheet(false)
     }
 
     private fun chooseFragmentForTheme() {

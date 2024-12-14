@@ -101,12 +101,12 @@ class PlayingQueueRVFragment : AbsRecyclerViewFragment<PlayingQueueAdapter, Line
     override fun onQueueChanged() {
         super.onQueueChanged()
         updateQueue()
-        mainActivity.hideBottomSheet(true)
+        mainActivity.showBottomSheet()
     }
 
     override fun onPlayingMetaChanged() {
         updateQueuePosition()
-        mainActivity.hideBottomSheet(true)
+        mainActivity.showBottomSheet()
     }
 
     private fun updateQueuePosition() {
