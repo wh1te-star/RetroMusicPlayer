@@ -29,6 +29,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import androidx.lifecycle.ViewModelProvider
 import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
@@ -36,12 +37,14 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.extensions.whichFragment
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.other.VolumeFragment
+import code.name.monkey.retromusic.fragments.other.VolumeViewModel
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
+import code.name.monkey.retromusic.util.logD
 import com.google.android.material.slider.Slider
 
 /**
@@ -66,6 +69,8 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
     open val progressSlider: Slider? = null
 
     open val seekBar: SeekBar? = null
+
+    private lateinit var volumeViewModel: VolumeViewModel
 
     abstract val shuffleButton: ImageButton
 
@@ -191,6 +196,12 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideVolumeIfAvailable()
+
+        volumeViewModel = ViewModelProvider(requireActivity()).get(VolumeViewModel::class.java)
+        volumeViewModel.volume.observe(viewLifecycleOwner, { volume ->
+            volumeFragment?.setVolume(volume)
+            logD("view model")
+        })
     }
 
     override fun onStart() {

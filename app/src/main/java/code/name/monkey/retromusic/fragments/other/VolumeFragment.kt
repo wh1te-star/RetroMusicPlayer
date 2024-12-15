@@ -23,6 +23,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
@@ -36,11 +40,23 @@ import com.google.android.material.slider.Slider
 import java.text.Bidi
 import java.util.Locale
 
+
+class VolumeViewModel : ViewModel() {
+    private val _volume = MutableLiveData<Float>()
+    val volume: LiveData<Float> get() = _volume
+
+    fun setVolume(value: Float) {
+        _volume.value = value
+    }
+}
+
 class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChangedListener,
     View.OnClickListener {
 
     private var _binding: FragmentVolumeBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var volumeViewModel: VolumeViewModel
 
     private var audioVolumeObserver: AudioVolumeObserver? = null
 
@@ -61,6 +77,13 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         setTintable(ThemeStore.accentColor(requireContext()))
         binding.volumeDown.setOnClickListener(this)
         binding.volumeUp.setOnClickListener(this)
+
+        volumeViewModel = ViewModelProvider(requireActivity()).get(VolumeViewModel::class.java)
+        binding.volumeSeekBar.addOnChangeListener { slider, value, fromUser ->
+            if (fromUser) {
+                volumeViewModel.setVolume(value)
+            }
+        }
     }
 
     override fun onResume() {
@@ -142,6 +165,10 @@ class VolumeFragment : Fragment(), Slider.OnChangeListener, OnAudioVolumeChanged
         binding.volumeUp.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         // TintHelper.setTint(volumeSeekBar, color, false)
         binding.volumeSeekBar.applyColor(color)
+    }
+
+    fun setVolume(volume: Float){
+        binding.volumeSeekBar.value = volume
     }
 
     companion object {

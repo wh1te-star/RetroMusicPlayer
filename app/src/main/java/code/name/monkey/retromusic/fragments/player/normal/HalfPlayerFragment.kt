@@ -38,6 +38,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
@@ -54,6 +55,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.retromusic.fragments.MusicSeekSkipTouchListener
 import code.name.monkey.retromusic.fragments.base.AbsPlayerControlsFragment.Companion.SLIDER_ANIMATION_TIME
+import code.name.monkey.retromusic.fragments.other.VolumeViewModel
 import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper
 import code.name.monkey.retromusic.service.MusicService
 import code.name.monkey.retromusic.util.MusicUtil
@@ -107,6 +109,7 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         get() = binding.shuffleButton
 
     var volumeFragment: VolumeFragment? = null
+    private lateinit var volumeViewModel: VolumeViewModel
 
     fun setOnViewReadyListener(listener: () -> Unit) {
         viewReadyListener = listener
@@ -294,6 +297,12 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
         playerToolbar().drawAboveSystemBars()
 
         hideVolumeIfAvailable()
+
+        volumeViewModel = ViewModelProvider(requireActivity()).get(VolumeViewModel::class.java)
+        volumeViewModel.volume.observe(viewLifecycleOwner, { volume ->
+            volumeFragment?.setVolume(volume)
+            logD("view model")
+        })
     }
 
     private fun hideVolumeIfAvailable() {
