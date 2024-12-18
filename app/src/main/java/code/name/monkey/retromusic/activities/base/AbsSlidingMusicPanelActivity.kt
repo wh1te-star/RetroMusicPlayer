@@ -824,12 +824,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
         libraryViewModel.setFabMargin(this, dip(R.dimen.mini_player_height))
 
+        val peekHeight = bottomSheetBehavior.peekHeight
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+        val statusBarHeight = getStatusBarHeight(binding.root)
+        val topInset: Int = windowInsets.getBottomInsets()
+        val height = screenHeight - peekHeight + statusBarHeight + topInset
+        val halfExpandBorder = ((screenHeight + statusBarHeight + topInset) * halfExpandedRatio - peekHeight) / height
+
         if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
             crossfadeCollapseHalf(1.0f)
 
-            val screenHeight = Resources.getSystem().displayMetrics.heightPixels
-            val buttonMargin = screenHeight * halfExpandedRatio
-            setAllButtonMargin(buttonMargin)
+            val adjustedMergin = peekHeight + height * halfExpandBorder
+            setAllButtonMargin(adjustedMergin)
         }else{
             crossfadeCollapseHalf(0.0f)
 
