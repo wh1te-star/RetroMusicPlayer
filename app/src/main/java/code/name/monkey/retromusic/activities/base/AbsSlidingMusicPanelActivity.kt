@@ -19,6 +19,7 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
@@ -134,6 +135,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
 
+    private var screenOrientation: Int = Configuration.ORIENTATION_PORTRAIT
     val DRIVEMODE_PREF = "DRIVEMODE_PREF"
 
     protected lateinit var navController: NavController
@@ -191,8 +193,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         object : BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 playerFragment.view?.isGone = false
-                halfPlayerFragment.view?.isGone = false
                 miniPlayerFragment?.view?.isGone = false
+                if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    halfPlayerFragment.view?.isGone = false
+                }
 
                 val peekHeight = bottomSheetBehavior.peekHeight
                 val screenHeight = Resources.getSystem().displayMetrics.heightPixels
@@ -340,6 +344,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             startActivity(Intent(this, PermissionActivity::class.java))
             finish()
         }
+
+        screenOrientation = resources.configuration.orientation
+
         binding = SlidingMusicPanelLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.root.setOnApplyWindowInsetsListener { _, insets ->
@@ -618,7 +625,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
             SWIPE_ANYWHERE_NOW_PLAYING -> {
                 playerFragment.addSwipeDetector()
-                halfPlayerFragment.addSwipeDetector()
+                if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    halfPlayerFragment.addSwipeDetector()
+                }
             }
 
             TOGGLE_FULL_SCREEN -> {
@@ -655,7 +664,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     private fun setHalfPlayerAlpha(alpha: Float) {
         if (alpha < 0.0f || 1.0f < alpha) return
-        halfPlayerFragment.view?.alpha = alpha
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment.view?.alpha = alpha
+        }
     }
 
     private fun setMiniPlayerAlpha(alpha: Float) {
@@ -680,8 +691,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     private fun setHalfPlayerAlphaProgress(progress: Float) {
         if (progress < 0.0f || 1.0f < progress) return
         val alpha = 1 - progress
-        halfPlayerFragment.view?.alpha = 1 - (progress / 0.2F)
-        halfPlayerFragment.view?.isGone = alpha == 0f
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment.view?.alpha = 1 - (progress / 0.2F)
+            halfPlayerFragment.view?.isGone = alpha == 0f
+        }
         binding.playerFragmentContainer.alpha = (progress - 0.2F) / 0.2F
     }
 
@@ -706,8 +719,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setHalfPlayerAlpha(0.0f)
         setMiniPlayerAlpha(1.0f)
         playerFragment.view?.isGone = true
-        halfPlayerFragment.view?.isGone = true
         miniPlayerFragment?.view?.isGone = false
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment.view?.isGone = true
+        }
         // restore values
         animateNavigationBarColor(surfaceColor())
         setLightStatusBarAuto()
@@ -721,8 +736,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setHalfPlayerAlpha(0.0f)
         setMiniPlayerAlpha(0.0f)
         playerFragment.view?.isGone = false
-        halfPlayerFragment.view?.isGone = true
         miniPlayerFragment?.view?.isGone = true
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment.view?.isGone = true
+        }
         //setMiniPlayerAlphaProgress(1F)
         onPaletteColorChanged()
         //playerFragment?.onShow()
@@ -733,8 +750,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         setHalfPlayerAlpha(1.0f)
         setMiniPlayerAlpha(0.0f)
         playerFragment.view?.isGone = true
-        halfPlayerFragment.view?.isGone = false
         miniPlayerFragment?.view?.isGone = true
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment.view?.isGone = false
+        }
     }
 
     private fun setupSlidingUpPanel() {
@@ -862,15 +881,17 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         miniPlayerFragment = whichFragment<MiniPlayerFragment>(R.id.miniPlayerFragment)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
 
-        halfPlayerFragment = HalfPlayerFragment()
-        halfPlayerFragment.setOnViewReadyListener {
-            halfPlayerFragment.setHiddenAreaHeight(halfExpandedRatio)
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            halfPlayerFragment = HalfPlayerFragment()
+            halfPlayerFragment.setOnViewReadyListener {
+                halfPlayerFragment.setHiddenAreaHeight(halfExpandedRatio)
+            }
+            supportFragmentManager.commit {
+                replace(R.id.halfPlayerFragment, halfPlayerFragment)
+            }
+            supportFragmentManager.executePendingTransactions()
+            halfPlayerFragment.view?.setOnClickListener { expandPanel() }
         }
-        supportFragmentManager.commit {
-            replace(R.id.halfPlayerFragment, halfPlayerFragment)
-        }
-        supportFragmentManager.executePendingTransactions()
-        halfPlayerFragment.view?.setOnClickListener { expandPanel() }
     }
 
     override fun onSingleProcessStart(id: Long) {
@@ -901,6 +922,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         super.onPlayingMetaChanged()
         updateDrawerHeaderInfo(leftDrawer)
         updateDrawerHeaderInfo(rightDrawer)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        screenOrientation = newConfig.orientation
+        if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            logD("Configuration.ORIENTATION_PORTRAIT")
+        }else if(screenOrientation == Configuration.ORIENTATION_LANDSCAPE){
+            logD("Configuration.ORIENTATION_LANDSCAPE")
+        }else{
+            logD("Configuration.ORIENTATION_???")
+        }
     }
 
     private fun updateDrawerHeaderInfo(drawerLayout: NavigationView) {
