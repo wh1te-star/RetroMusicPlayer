@@ -356,10 +356,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             insets
         }
         binding.optionButton.setOnClickListener {
-            if(bottomSheetBehavior.state == STATE_COLLAPSED) {
-                expandPanel()
-            }else if(bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
-                collapsePanel()
+            if(screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (bottomSheetBehavior.state == STATE_COLLAPSED) {
+                    expandPanel()
+                } else if (bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
+                    collapsePanel()
+                }
+            }else{
+                if (bottomSheetBehavior.state == STATE_COLLAPSED) {
+                    bottomSheetBehavior.state = STATE_EXPANDED
+                }
             }
         }
 
@@ -486,8 +492,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         bottomSheetBehavior.isHideable = PreferenceUtil.swipeDownToDismiss
         bottomSheetBehavior.significantVelocityThreshold = 300
 
-        bottomSheetBehavior.isFitToContents = false
-        bottomSheetBehavior.halfExpandedRatio = halfExpandedRatio
+        if(screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            bottomSheetBehavior.isFitToContents = false
+            bottomSheetBehavior.halfExpandedRatio = halfExpandedRatio
+        } else {
+            bottomSheetBehavior.skipCollapsed = true
+        }
 
         setPlayerAlpha(0.0f)
         setHalfPlayerAlpha(0.0f)
