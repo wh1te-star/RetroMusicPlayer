@@ -355,19 +355,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             setupDrawerMenuInset(binding.rightDrawer)
             insets
         }
-        binding.optionButton.setOnClickListener {
-            if(screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                    expandPanel()
-                } else if (bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
-                    collapsePanel()
-                }
-            }else{
-                if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-                    bottomSheetBehavior.state = STATE_EXPANDED
-                }
-            }
-        }
 
         val sharedPreferences = getDefaultSharedPreferences(this)
         isDriveMode = sharedPreferences.getBoolean(IS_DRIVING_MODE, false)
@@ -403,6 +390,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         binding.menuButtonLeft.setImageResource(R.drawable.ic_arrow_forward)
         binding.menuButtonRight.setImageResource(R.drawable.ic_arrow_back)
 
+        binding.optionButton.setOnClickListener { expandPanel() }
         binding.optionButton.setImageResource(R.drawable.ic_keyboard_arrow_up)
 
         binding.fragmentContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
@@ -499,22 +487,24 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             bottomSheetBehavior.skipCollapsed = true
         }
 
-        setPlayerAlpha(0.0f)
-        setHalfPlayerAlpha(0.0f)
-        setMiniPlayerAlpha(1.0f)
+        if(bottomSheetBehavior.state == STATE_COLLAPSED){
+            crossfadeCollapseHalf(0.0f)
+        } else if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
+            crossfadeHalfExpanded(0.0f)
+        } else if(bottomSheetBehavior.state == STATE_EXPANDED){
+            crossfadeHalfExpanded(1.0f)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         PreferenceUtil.registerOnSharedPreferenceChangedListener(this)
-        if (bottomSheetBehavior.state == STATE_EXPANDED) {
-            setPlayerAlpha(1.0f)
-            setHalfPlayerAlpha(0.0f)
-            setMiniPlayerAlpha(0.0f)
-        } else if (bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
-            setPlayerAlpha(0.0f)
-            setHalfPlayerAlpha(1.0f)
-            setMiniPlayerAlpha(0.0f)
+        if(bottomSheetBehavior.state == STATE_COLLAPSED){
+            crossfadeCollapseHalf(0.0f)
+        } else if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
+            crossfadeHalfExpanded(0.0f)
+        } else if(bottomSheetBehavior.state == STATE_EXPANDED){
+            crossfadeHalfExpanded(1.0f)
         }
     }
 
@@ -659,11 +649,16 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     fun expandPanel() {
-        if(bottomSheetBehavior.state == STATE_COLLAPSED){
-            bottomSheetBehavior.state = STATE_HALF_EXPANDED
-        }
-        if(bottomSheetBehavior.state == STATE_HALF_EXPANDED){
-            bottomSheetBehavior.state = STATE_EXPANDED
+        if(screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (bottomSheetBehavior.state == STATE_COLLAPSED) {
+                bottomSheetBehavior.state = STATE_HALF_EXPANDED
+            } else if (bottomSheetBehavior.state == STATE_HALF_EXPANDED) {
+                collapsePanel()
+            }
+        }else{
+            if (bottomSheetBehavior.state == STATE_COLLAPSED) {
+                bottomSheetBehavior.state = STATE_EXPANDED
+            }
         }
     }
 
@@ -865,10 +860,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
             val adjustedMergin = peekHeight + height * halfExpandBorder
             setAllButtonMargin(adjustedMergin)
-        }else{
+        }else if(bottomSheetBehavior.state == STATE_COLLAPSED){
             crossfadeCollapseHalf(0.0f)
 
             setAllButtonMargin(bottomSheetBehavior.peekHeight)
+        }else{
+            crossfadeHalfExpanded(1.0f)
         }
     }
 
