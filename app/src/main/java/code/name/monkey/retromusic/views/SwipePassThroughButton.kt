@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import code.name.monkey.retromusic.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class TapOnlyFloatingActionButton @JvmOverloads constructor(
+class SwipePassThroughFloatingActionButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = R.attr.floatingActionButtonStyle

@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
+            <code.name.monkey.retromusic.views.SwipePassThroughFloatingActionButton
                 android:id="@+id/menuButtonLeft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
+            <code.name.monkey.retromusic.views.SwipePassThroughFloatingActionButton
                 android:id="@+id/optionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/menuButtonRight"
                 app:layout_constraintStart_toEndOf="@+id/menuButtonLeft" />
 
-            <code.name.monkey.retromusic.views.TapOnlyFloatingActionButton
+            <code.name.monkey.retromusic.views.SwipePassThroughFloatingActionButton
                 android:id="@+id/menuButtonRight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
