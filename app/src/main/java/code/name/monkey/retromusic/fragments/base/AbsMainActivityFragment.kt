@@ -14,6 +14,7 @@
  */
 package code.name.monkey.retromusic.fragments.base
 
+import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -21,7 +22,11 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.NavHostFragment
+import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
+import code.name.monkey.retromusic.extensions.dip
+import code.name.monkey.retromusic.extensions.dipToPx
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -36,9 +41,13 @@ abstract class AbsMainActivityFragment(@LayoutRes layout: Int) : AbsMusicService
         super.onViewCreated(view, savedInstanceState)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
-        setPaddingForBottomButtons(70)
+
+        activity?.dipToPx(R.dimen.nav_button_padding_height)?.let { paddingPx ->
+            setPadding(paddingPx)
+        }
     }
-    protected fun setPaddingForBottomButtons(paddingDp: Int) {
+
+    fun setPadding(paddingDp: Int) {
         val paddingPx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             paddingDp.toFloat(),
@@ -51,5 +60,15 @@ abstract class AbsMainActivityFragment(@LayoutRes layout: Int) : AbsMusicService
             view?.paddingRight ?: 0,
             paddingPx
         )
+    }
+
+    fun dp2px(context: Context, dp: Double): Double {
+        val density = context.resources.displayMetrics.density
+        return dp * density
+    }
+
+    fun px2dp(context: Context, px: Double): Double {
+        val density = context.resources.displayMetrics.density
+        return px / density
     }
 }

@@ -16,6 +16,7 @@ package code.name.monkey.retromusic.extensions
 
 import android.app.Activity
 import android.content.Intent
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DimenRes
@@ -45,6 +46,18 @@ inline fun <reified T : Any> Activity.extraNotNull(key: String, default: T? = nu
 
 fun Activity.dip(@DimenRes id: Int): Int {
     return resources.getDimensionPixelSize(id)
+}
+fun Activity.dpToPx(dp: Int): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        resources.displayMetrics
+    ).toInt()
+}
+
+fun Activity.dipToPx(@DimenRes id: Int): Int {
+    val dpValue = resources.getDimension(id) / resources.displayMetrics.density
+    return dpToPx(dpValue.toInt())
 }
 
 inline val Activity.rootView: View get() = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)

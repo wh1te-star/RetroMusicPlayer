@@ -80,6 +80,7 @@ import code.name.monkey.retromusic.extensions.albumArtUri
 import code.name.monkey.retromusic.extensions.currentFragment
 import code.name.monkey.retromusic.extensions.darkAccentColor
 import code.name.monkey.retromusic.extensions.dip
+import code.name.monkey.retromusic.extensions.dipToPx
 import code.name.monkey.retromusic.extensions.findNavController
 import code.name.monkey.retromusic.extensions.getBottomInsets
 import code.name.monkey.retromusic.extensions.getTopInsets
@@ -99,6 +100,7 @@ import code.name.monkey.retromusic.fragments.BPMFragment
 import code.name.monkey.retromusic.fragments.DriveModeFragment
 import code.name.monkey.retromusic.fragments.LibraryViewModel
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
+import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
 import code.name.monkey.retromusic.fragments.other.MiniPlayerFragment
 import code.name.monkey.retromusic.fragments.player.normal.HalfPlayerFragment
@@ -218,6 +220,15 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     binding.optionButton.scaleY = 1.0f
                     binding.menuButtonRight.scaleX = 1.0f
                     binding.menuButtonRight.scaleY = 1.0f
+
+                    val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
+                    val fragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is AbsMainActivityFragment } as? AbsMainActivityFragment
+                    //fragment?.setPadding(dip(R.dimen.nav_button_padding_height) + (300 * slideOffset / halfExpandBorder).toInt())
+                    val density = this@AbsSlidingMusicPanelActivity.resources.displayMetrics.density
+                    val buttonPaddingPx = dipToPx(R.dimen.nav_button_padding_height)
+                    val expandPaddingPx = (height * slideOffset) / density
+                    fragment?.setPadding(buttonPaddingPx + expandPaddingPx.toInt())
+                    logD("setPadding(${(300 * slideOffset / halfExpandBorder).toInt()})")
                 }else{
                     val progress = (slideOffset - halfExpandBorder) / (1.0f - halfExpandBorder)
                     crossfadeHalfExpanded(progress)
@@ -594,7 +605,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             R.id.drawerCloseButton1, R.id.drawerCloseButton2, R.id.drawerCloseButton3 -> {}
             else -> return false
         }
+
         (binding.drawerLayout as UnswipableDrawerLayout).closeDrawers()
+
         return true
     }
 

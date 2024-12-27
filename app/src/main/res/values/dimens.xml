@@ -12,6 +12,7 @@
     <dimen name="list_item_image_icon_padding">8dp</dimen>
 
     <dimen name="mini_player_height">56dp</dimen>
+    <dimen name="nav_button_padding_height">30dp</dimen>
     <dimen name="bottom_nav_height">80dp</dimen>
     <dimen name="bottom_nav_mini_player_height">136dp</dimen>
 
