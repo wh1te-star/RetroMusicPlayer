@@ -220,6 +220,7 @@
     <string name="import_label">インポート</string>
     <string name="import_playlist">プレイリストをインポート</string>
     <string name="import_playlist_message">Android Media Storeにリストされているすべてのプレイリストを読み込み、プレイリストがすでに存在する場合は、曲がマージされます。</string>
+    <string name="import_m3u">m3uをインポート</string>
     <string name="inserted_x_songs_into_playlist_x">プレイリスト %2$s に %1$d 曲を追加しました</string>
     <string name="instagram_page_summary">あなたのRetro Music設定を共有してInstagramにショーケースしましょう</string>
     <string name="keyboard">キーボードを表示</string>

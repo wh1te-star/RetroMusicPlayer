@@ -81,6 +81,7 @@ class PlaylistsFragment :
         menu.removeItem(R.id.action_layout_type)
         menu.add(0, R.id.action_add_to_playlist, 0, R.string.new_playlist_title)
         menu.add(0, R.id.action_import_playlist, 0, R.string.import_playlist)
+        menu.add(0, R.id.action_import_m3u, 0, R.string.import_m3u)
         menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         setUpSortOrderMenu(menu.findItem(R.id.action_sort_order).subMenu!!)
         MenuCompat.setGroupDividerEnabled(menu, true)
