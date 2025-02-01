@@ -16,11 +16,16 @@ package code.name.monkey.retromusic.fragments
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.*
 import code.name.monkey.retromusic.*
 import code.name.monkey.retromusic.db.*
 import code.name.monkey.retromusic.extensions.showToast
+import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.fragments.ReloadType.*
 import code.name.monkey.retromusic.fragments.search.Filter
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -32,6 +37,10 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.logD
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -238,6 +247,100 @@ class LibraryViewModel(
             }
             forceReload(Playlists)
         }
+    }
+
+    fun importM3u(context: Context, playlistName: String, m3uText: String) = viewModelScope.launch(IO) {
+        val playlistEntity = repository.checkPlaylistExists(playlistName).firstOrNull()
+        if (playlistEntity != null) {
+            return@launch
+        } else {
+            /*
+            val playListId = createPlaylist(PlaylistEntity(playlistName = playlist.name))
+            val songEntities = playlist.getSongs().map {
+                it.toSongEntity(playListId)
+            }
+            repository.insertSongs(songEntities)
+             */
+        }
+
+        val playlistId = createPlaylist(PlaylistEntity(playlistName = playlistName))
+        val songEntities = m3uText.split("\n")
+            .asFlow()
+            .map { path ->
+                val uri = pathToResolverPath(context, path)
+                repository.allSongs().find {
+                it.uri == uri
+                }
+                    ?.toSongEntity(playlistId)
+            }
+            .filterNotNull()
+            .toList()
+
+        val uris = repository.allSongs().map { it.uri }
+        logD(uris)
+
+        if(songEntities.isEmpty()){
+            return@launch
+        }
+        repository.insertSongs(songEntities)
+
+        forceReload(Playlists)
+    }
+
+    fun pathToResolverPath(context: Context, path: String): Uri? {
+        // First attempt: Try direct conversion using Uri.fromFile
+        val fileUri = Uri.fromFile(File(path))
+
+        // Check if the file exists
+        if (!File(path).exists()) {
+            return null
+        }
+
+        // For modern Android versions, we need to scan the file first
+        MediaScannerConnection.scanFile(
+            context,
+            arrayOf(path),
+            null,
+            object : MediaScannerConnection.OnScanCompletedListener {
+                override fun onScanCompleted(path: String?, uri: Uri?) {
+                    // Return the scanned URI if available
+                    if (uri != null) {
+                        //return uri
+                    }
+                }
+            }
+        )
+
+        // Fallback approach using MediaStore
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DATA
+        )
+
+        val selection = "${MediaStore.Audio.Media.DATA} = ?"
+        val selectionArgs = arrayOf(path)
+
+        context.contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+                if (columnIndex != -1) {
+                    val id = cursor.getLong(columnIndex)
+                    return Uri.withAppendedPath(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        id.toString()
+                    )
+                }
+            }
+        }
+
+        // Return the original file URI if all else fails
+        return fileUri
     }
 
     fun recentSongs(): LiveData<List<Song>> = liveData(IO) {

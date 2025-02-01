@@ -14,8 +14,10 @@
  */
 package code.name.monkey.retromusic.fragments.playlists
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +38,7 @@ import code.name.monkey.retromusic.interfaces.IPlaylistClickListener
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
 import com.google.android.material.transition.MaterialSharedAxis
+import java.io.File
 import java.io.IOException
 
 class PlaylistsFragment :
@@ -219,11 +222,23 @@ class PlaylistsFragment :
         try {
             context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
                 val content = inputStream.bufferedReader().readText()
-                Log.d("FilePicker", "Selected file content: $content")
+                val filename = getFilenameFromUri(uri)!!
+                libraryViewModel.importM3u(requireContext(), filename, content)
             }
         } catch (e: IOException) {
             Log.e("FilePicker", "Error reading file", e)
         }
+    }
+
+    fun getFilenameFromUri(uri: Uri): String? {
+        return requireContext().contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            cursor.moveToFirst()
+            cursor.getString(0)
+        }
+    }
+
+    fun pathToUri(context: Context, path: String): Uri? {
+        return Uri.fromFile(File(path))
     }
 
     private fun createId(menu: SubMenu, id: Int, title: Int, checked: Boolean) {
