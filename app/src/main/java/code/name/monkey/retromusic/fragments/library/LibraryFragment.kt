@@ -108,10 +108,6 @@ class LibraryFragment : AbsMainActivityFragment(R.layout.fragment_library) {
                 null,
                 navOptions
             )
-            R.id.action_import_playlist -> ImportPlaylistDialog().show(
-                childFragmentManager,
-                "ImportPlaylist"
-            )
             R.id.action_add_to_playlist -> CreatePlaylistDialog.create(emptyList()).show(
                 childFragmentManager,
                 "ShowCreatePlaylistDialog"

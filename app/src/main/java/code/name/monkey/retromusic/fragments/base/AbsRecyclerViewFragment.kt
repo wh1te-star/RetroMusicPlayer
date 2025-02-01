@@ -35,7 +35,6 @@ import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.databinding.FragmentMainRecyclerBinding
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
-import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.accentColor
 import code.name.monkey.retromusic.interfaces.IScrollHelper
 import code.name.monkey.retromusic.util.PreferenceUtil
@@ -58,10 +57,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     lateinit var shuffleButton: FloatingActionButton
     abstract val isShuffleVisible: Boolean
-
-    private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { handleSelectedFile(it) }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -191,13 +186,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
                 null,
                 navOptions,
             )
-            R.id.action_import_playlist -> ImportPlaylistDialog().show(
-                childFragmentManager,
-                "ImportPlaylist",
-            )
-            R.id.action_import_m3u -> filePicker.launch(
-                "*/*",
-            )
             R.id.action_add_to_playlist -> CreatePlaylistDialog.create(emptyList()).show(
                 childFragmentManager,
                 "ShowCreatePlaylistDialog",
@@ -218,16 +206,5 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     override fun onPause() {
         super.onPause()
         (adapter as? AbsMultiSelectAdapter<*, *>)?.actionMode?.finish()
-    }
-
-    private fun handleSelectedFile(uri: Uri) {
-        try {
-            context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
-                val content = inputStream.bufferedReader().readText()
-                Log.d("FilePicker", "Selected file content: $content")
-            }
-        } catch (e: IOException) {
-            Log.e("FilePicker", "Error reading file", e)
-        }
     }
 }

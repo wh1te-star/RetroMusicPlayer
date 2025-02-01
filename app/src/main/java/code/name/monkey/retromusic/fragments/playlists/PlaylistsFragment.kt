@@ -14,17 +14,20 @@
  */
 package code.name.monkey.retromusic.fragments.playlists
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.retromusic.EXTRA_PLAYLIST_ID
 import code.name.monkey.retromusic.R
-import code.name.monkey.retromusic.activities.MainActivity
 import code.name.monkey.retromusic.adapter.playlist.PlaylistAdapter
 import code.name.monkey.retromusic.db.PlaylistWithSongs
+import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.setUpMediaRouteButton
 import code.name.monkey.retromusic.fragments.ReloadType
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewCustomGridSizeFragment
@@ -33,6 +36,7 @@ import code.name.monkey.retromusic.interfaces.IPlaylistClickListener
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroUtil
 import com.google.android.material.transition.MaterialSharedAxis
+import java.io.IOException
 
 class PlaylistsFragment :
     AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapter, GridLayoutManager>(),
@@ -71,6 +75,10 @@ class PlaylistsFragment :
         )
     }
 
+    private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { handleSelectedFile(it) }
+    }
+
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateMenu(menu, inflater)
         val gridSizeItem: MenuItem = menu.findItem(R.id.action_grid_size)
@@ -95,6 +103,16 @@ class PlaylistsFragment :
         }
         if (handleSortOrderMenuItem(item)) {
             return true
+        }
+        when (item.itemId) {
+            R.id.action_import_playlist -> ImportPlaylistDialog().show(
+                childFragmentManager,
+                "ImportPlaylist",
+            )
+
+            R.id.action_import_m3u -> filePicker.launch(
+                "*/*",
+            )
         }
         return super.onMenuItemSelected(item)
     }
@@ -195,6 +213,17 @@ class PlaylistsFragment :
             return true
         }
         return false
+    }
+
+    private fun handleSelectedFile(uri: Uri) {
+        try {
+            context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
+                val content = inputStream.bufferedReader().readText()
+                Log.d("FilePicker", "Selected file content: $content")
+            }
+        } catch (e: IOException) {
+            Log.e("FilePicker", "Error reading file", e)
+        }
     }
 
     private fun createId(menu: SubMenu, id: Int, title: Int, checked: Boolean) {
