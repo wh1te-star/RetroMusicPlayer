@@ -14,14 +14,18 @@
  */
 package code.name.monkey.retromusic.fragments.base
 
+import android.content.ContentResolver
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.NonNull
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
@@ -33,7 +37,6 @@ import code.name.monkey.retromusic.databinding.FragmentMainRecyclerBinding
 import code.name.monkey.retromusic.dialogs.CreatePlaylistDialog
 import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.accentColor
-import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.interfaces.IScrollHelper
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.ThemedFastScroller.create
@@ -41,6 +44,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialFadeThrough
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import java.io.FileNotFoundException
+import java.io.IOException
+
 
 abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
     AbsMainActivityFragment(R.layout.fragment_main_recycler), IScrollHelper {
@@ -52,6 +58,10 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     lateinit var shuffleButton: FloatingActionButton
     abstract val isShuffleVisible: Boolean
+
+    private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { handleSelectedFile(it) }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -179,15 +189,18 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             R.id.action_settings -> findNavController().navigate(
                 R.id.settings_fragment,
                 null,
-                navOptions
+                navOptions,
             )
             R.id.action_import_playlist -> ImportPlaylistDialog().show(
                 childFragmentManager,
-                "ImportPlaylist"
+                "ImportPlaylist",
+            )
+            R.id.action_import_m3u -> filePicker.launch(
+                "*/*",
             )
             R.id.action_add_to_playlist -> CreatePlaylistDialog.create(emptyList()).show(
                 childFragmentManager,
-                "ShowCreatePlaylistDialog"
+                "ShowCreatePlaylistDialog",
             )
         }
         return false
@@ -205,5 +218,16 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     override fun onPause() {
         super.onPause()
         (adapter as? AbsMultiSelectAdapter<*, *>)?.actionMode?.finish()
+    }
+
+    private fun handleSelectedFile(uri: Uri) {
+        try {
+            context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
+                val content = inputStream.bufferedReader().readText()
+                Log.d("FilePicker", "Selected file content: $content")
+            }
+        } catch (e: IOException) {
+            Log.e("FilePicker", "Error reading file", e)
+        }
     }
 }
