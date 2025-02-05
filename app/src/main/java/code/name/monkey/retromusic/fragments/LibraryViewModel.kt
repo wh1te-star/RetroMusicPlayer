@@ -251,33 +251,20 @@ class LibraryViewModel(
 
     fun importM3u(context: Context, playlistName: String, m3uText: String) = viewModelScope.launch(IO) {
         val playlistEntity = repository.checkPlaylistExists(playlistName).firstOrNull()
-        if (playlistEntity != null) {
-            return@launch
-        } else {
-            /*
-            val playListId = createPlaylist(PlaylistEntity(playlistName = playlist.name))
-            val songEntities = playlist.getSongs().map {
-                it.toSongEntity(playListId)
-            }
-            repository.insertSongs(songEntities)
-             */
-        }
+        val playlistId = playlistEntity?.playListId ?:
+            createPlaylist(PlaylistEntity(playlistName = playlistName))
 
-        val playlistId = createPlaylist(PlaylistEntity(playlistName = playlistName))
         val songEntities = m3uText.split("\n")
             .asFlow()
             .map { path ->
                 val uri = pathToResolverPath(context, path)
                 repository.allSongs().find {
-                it.uri == uri
+                    it.uri == uri
                 }
                     ?.toSongEntity(playlistId)
             }
             .filterNotNull()
             .toList()
-
-        val uris = repository.allSongs().map { it.uri }
-        logD(uris)
 
         if(songEntities.isEmpty()){
             return@launch
@@ -288,30 +275,12 @@ class LibraryViewModel(
     }
 
     fun pathToResolverPath(context: Context, path: String): Uri? {
-        // First attempt: Try direct conversion using Uri.fromFile
         val fileUri = Uri.fromFile(File(path))
 
-        // Check if the file exists
         if (!File(path).exists()) {
             return null
         }
 
-        // For modern Android versions, we need to scan the file first
-        MediaScannerConnection.scanFile(
-            context,
-            arrayOf(path),
-            null,
-            object : MediaScannerConnection.OnScanCompletedListener {
-                override fun onScanCompleted(path: String?, uri: Uri?) {
-                    // Return the scanned URI if available
-                    if (uri != null) {
-                        //return uri
-                    }
-                }
-            }
-        )
-
-        // Fallback approach using MediaStore
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DATA
@@ -339,7 +308,6 @@ class LibraryViewModel(
             }
         }
 
-        // Return the original file URI if all else fails
         return fileUri
     }
 
