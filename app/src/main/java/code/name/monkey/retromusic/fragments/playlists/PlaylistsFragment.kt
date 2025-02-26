@@ -33,6 +33,7 @@ import code.name.monkey.retromusic.dialogs.ImportPlaylistDialog
 import code.name.monkey.retromusic.extensions.setUpMediaRouteButton
 import code.name.monkey.retromusic.fragments.ReloadType
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewCustomGridSizeFragment
+import code.name.monkey.retromusic.helper.M3UReader
 import code.name.monkey.retromusic.helper.SortOrder.PlaylistSortOrder
 import code.name.monkey.retromusic.interfaces.IPlaylistClickListener
 import code.name.monkey.retromusic.util.PreferenceUtil
@@ -114,7 +115,7 @@ class PlaylistsFragment :
             )
 
             R.id.action_import_m3u -> filePicker.launch(
-                "*/*",
+                "*/*"
             )
         }
         return super.onMenuItemSelected(item)
@@ -221,9 +222,9 @@ class PlaylistsFragment :
     private fun handleSelectedFile(uri: Uri) {
         try {
             context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
-                val content = inputStream.bufferedReader().readText()
                 val filename = getFilenameFromUri(uri)!!
-                libraryViewModel.importM3u(requireContext(), filename, content)
+                val songPathList = M3UReader.readIO(inputStream)
+                libraryViewModel.importM3u(requireContext(), filename, songPathList)
             }
         } catch (e: IOException) {
             Log.e("FilePicker", "Error reading file", e)

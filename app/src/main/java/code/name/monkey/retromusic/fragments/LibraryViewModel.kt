@@ -16,10 +16,8 @@ package code.name.monkey.retromusic.fragments
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.*
 import code.name.monkey.retromusic.*
@@ -37,10 +35,6 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.logD
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -249,28 +243,19 @@ class LibraryViewModel(
         }
     }
 
-    fun importM3u(context: Context, playlistName: String, m3uText: String) = viewModelScope.launch(IO) {
+    fun importM3u(context: Context, playlistName: String, songPathList: List<String>) = viewModelScope.launch(IO) {
         val playlistEntity = repository.checkPlaylistExists(playlistName).firstOrNull()
         val playlistId = playlistEntity?.playListId ?:
-            createPlaylist(PlaylistEntity(playlistName = playlistName))
+        createPlaylist(PlaylistEntity(playlistName = playlistName))
 
-        val songEntities = m3uText.split("\n")
-            .asFlow()
-            .map { path ->
-                val uri = pathToResolverPath(context, path)
-                repository.allSongs().find {
-                    it.uri == uri
-                }
-                    ?.toSongEntity(playlistId)
-            }
-            .filterNotNull()
-            .toList()
-
-        if(songEntities.isEmpty()){
-            return@launch
+        val songEntities = songPathList.mapNotNull { path ->
+            val uri = pathToResolverPath(context, path)
+            repository.allSongs().find { it.uri == uri }
+                ?.toSongEntity(playlistId)
         }
-        repository.insertSongs(songEntities)
 
+        if(songEntities.isEmpty()) return@launch
+        repository.insertSongs(songEntities)
         forceReload(Playlists)
     }
 
