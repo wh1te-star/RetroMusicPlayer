@@ -238,10 +238,6 @@ class PlaylistsFragment :
         }
     }
 
-    fun pathToUri(context: Context, path: String): Uri? {
-        return Uri.fromFile(File(path))
-    }
-
     private fun createId(menu: SubMenu, id: Int, title: Int, checked: Boolean) {
         menu.add(0, id, 0, title).isChecked = checked
     }
