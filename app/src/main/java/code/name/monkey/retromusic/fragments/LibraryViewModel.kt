@@ -31,6 +31,7 @@ import code.name.monkey.retromusic.interfaces.IMusicServiceEventListener
 import code.name.monkey.retromusic.model.*
 import code.name.monkey.retromusic.repository.RealRepository
 import code.name.monkey.retromusic.util.DensityUtil
+import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.logD
 import kotlinx.coroutines.Dispatchers.IO
@@ -249,7 +250,7 @@ class LibraryViewModel(
         createPlaylist(PlaylistEntity(playlistName = playlistName))
 
         val songEntities = songPathList.mapNotNull { path ->
-            val uri = pathToResolverPath(context, path)
+            val uri = MusicUtil.pathToResolverPath(context, path)
             repository.allSongs().find { it.uri == uri }
                 ?.toSongEntity(playlistId)
         }
@@ -257,43 +258,6 @@ class LibraryViewModel(
         if(songEntities.isEmpty()) return@launch
         repository.insertSongs(songEntities)
         forceReload(Playlists)
-    }
-
-    fun pathToResolverPath(context: Context, path: String): Uri? {
-        val fileUri = Uri.fromFile(File(path))
-
-        if (!File(path).exists()) {
-            return null
-        }
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DATA
-        )
-
-        val selection = "${MediaStore.Audio.Media.DATA} = ?"
-        val selectionArgs = arrayOf(path)
-
-        context.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-                if (columnIndex != -1) {
-                    val id = cursor.getLong(columnIndex)
-                    return Uri.withAppendedPath(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        id.toString()
-                    )
-                }
-            }
-        }
-
-        return fileUri
     }
 
     fun recentSongs(): LiveData<List<Song>> = liveData(IO) {
