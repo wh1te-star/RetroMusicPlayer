@@ -574,4 +574,5 @@
     <string name="analyze_bpm">BPMを解析／停止</string>
     <string name="delete_bpm">BPMの値を削除</string>
     <string name="delete_manual_bpm">手動入力のBPM値を削除</string>
+    <string name="select_m3u_file">m3uファイルを選択してください。</string>
 </resources>

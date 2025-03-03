@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
@@ -222,12 +223,27 @@ class PlaylistsFragment :
     private fun handleSelectedFile(uri: Uri) {
         try {
             context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
-                val filename = getFilenameFromUri(uri)!!
-                val songPathList = M3UReader.readIO(inputStream)
-                libraryViewModel.importM3u(requireContext(), filename, songPathList)
+                val filenameWithExtension = getFilenameFromUri(uri) ?: return
+
+                val extension = filenameWithExtension.substringAfterLast(".").lowercase()
+                if (extension != "m3u") {
+                    Toast.makeText(context, getString(R.string.select_m3u_file), Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val filename = filenameWithExtension.substringBeforeLast(".")
+
+                try {
+                    val songPathList = M3UReader.readIO(inputStream)
+                    libraryViewModel.importM3u(requireContext(), filename, songPathList)
+                } catch (e: Exception) {
+                    Log.e("FilePicker", "Error parsing M3U file", e)
+                    Toast.makeText(context, "Failed to parse playlist file", Toast.LENGTH_SHORT).show()
+                }
             }
         } catch (e: IOException) {
             Log.e("FilePicker", "Error reading file", e)
+            Toast.makeText(context, "Error reading file", Toast.LENGTH_SHORT).show()
         }
     }
 
