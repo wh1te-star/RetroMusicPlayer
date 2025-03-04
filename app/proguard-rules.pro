@@ -69,3 +69,15 @@
 -keep class code.name.monkey.retromusic.network.model.** { *; }
 -keep class code.name.monkey.retromusic.model.** { *; }
 -keep class com.google.android.material.bottomsheet.** { *; }
+
+# Keep all AppThemeHelper classes and their methods
+-keep class code.name.monkey.appthemehelper.** { *; }
+
+# TypeToken protection
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep public class * implements java.lang.reflect.Type
+
+# RetroMusicPlayer's specific classes protection
+-keep class code.name.monkey.retromusic.model.** { *; }
+-keep class code.name.monkey.retromusic.network.model.** { *; }
