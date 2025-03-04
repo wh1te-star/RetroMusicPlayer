@@ -333,7 +333,6 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
             } else {
                 MusicPlayerRemote.resumePlaying()
             }
-            updatePlayPauseDrawableState()
             it.showBounceAnimation()
         }
     }
@@ -464,11 +463,24 @@ class HalfPlayerFragment : AbsPlayerFragment(R.layout.fragment_half_player),
     }
 
     override fun onServiceConnected() {
+        updatePlayPauseDrawableState()
         updateIsFavorite()
     }
 
     override fun onPlayingMetaChanged() {
         updateIsFavorite()
+    }
+
+    override fun onPlayStateChanged() {
+        updatePlayPauseDrawableState()
+    }
+
+    override fun onRepeatModeChanged() {
+        updateRepeatState()
+    }
+
+    override fun onShuffleModeChanged() {
+        updateShuffleState()
     }
 
     override fun playerToolbar(): Toolbar {
